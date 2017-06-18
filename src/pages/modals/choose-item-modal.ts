@@ -2,6 +2,7 @@ import { Component, ViewChild} from '@angular/core';
 
 import { AlertController, NavParams, ViewController, Slides, ToastController } from 'ionic-angular';
 import { DataService } from '../../providers/apiData.service';
+import { ReferenceService } from '../../providers/reference.service';
 import { AttributeModel } from '../../models/attribute.model';
 
 import { Geolocation, Geoposition } from '@ionic-native/geolocation';
@@ -44,7 +45,8 @@ export class ChooseItemModal {
     private locac: LocationAccuracy,
     private camera: Camera,
     private alertCtrl: AlertController,
-    private viewCtrl: ViewController
+    private viewCtrl: ViewController,
+    private refService:ReferenceService
   ) {
     this.firstSlide = 0;
     this.userKey = this.navParams.get('key');
@@ -86,6 +88,8 @@ export class ChooseItemModal {
       this.slides.lockSwipeToNext(false);
       //this.slides.slideTo(slideIndex+1, 500, true);
       this.slides.slideTo(slideIndex+1, 500, true);
+    }else{
+      this.doSave();
     }
   }
 
@@ -177,17 +181,26 @@ export class ChooseItemModal {
     //this.myForm.controls['formRange'].updateValue(this.val);
   }
 
+  private findItem(element, index, array) {
+    if ( element.name === this )
+      return true;
+    else
+      return false;
+  }
+
   private getReferenceData() {
-    this.dataService.getReferenceData(["all"])
-      .subscribe(
-        data => {
-          this.listReferences = data[0];
-          if (this.itemType) this.slideList.push(this.listReferences[[this.listType,"Types"].join("")][this.itemType]);
-          else this.slideList.push(this.listReferences[[this.listType,"Types"].join("")]);
+    this.refService.getEquipmentTypes()
+        .subscribe(res => {
+          this.listReferences = res[[this.listType,"Types"].join("")];
+          if (this.itemType) {
+            this.selectedType = this.itemType;
+            this.slideList.push(this.listReferences.find(this.findItem, this.itemType).options);
+          }else this.slideList.push(this.listReferences);
           this.firstSlide++;
           this.slideList.push("");
-        },
-        error =>  this.errorMessage = <any>error);
+        }, err => {
+          console.log(err);
+        });
     /*this.dataService.getReferenceData([[this.listType,"Types"].join(""), this.itemType])
                      .subscribe(
                        data => {

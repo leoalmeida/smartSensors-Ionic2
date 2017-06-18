@@ -66,7 +66,7 @@ export class DataService {
   };
 
   getReferenceData(resource: Array<string>): Observable<KnowledgeModel<EquipmentModel, AssociationModel>[]> {
-    return this.http.get(this.dbUrl + "api/reference/" + resource.join("/"), this.generateHeader(false))
+    return this.http.get(this.dbUrl + "api/reference/" + resource.join("/"), this.generateHeader(true))
       .map(response => response.json() as any);
       //.map(this.processData)
       //.catch(this.handleError);
@@ -77,7 +77,7 @@ export class DataService {
     if (query!= null) {
       url += '?' + query.join("&");
     }
-    return this.http.get(url, this.generateHeader(false))
+    return this.http.get(url, this.generateHeader(true))
       .map(response => response.json() as KnowledgeModel<MessageModel, AssociationModel>[]);
     //.map(this.processData)
     //.catch(this.handleError);
@@ -94,21 +94,21 @@ export class DataService {
     if (query!= null) {
       url += '?' + query.join("=");
     }
-    return this.http.get(url, this.generateHeader(false))
+    return this.http.get(url, this.generateHeader(true))
       .map(response => response.json() as KnowledgeModel<T, AssociationModel>[]);
       //.map(this.processData)
       //.catch(this.handleError);
   }
 
   getOne<T>(resource: Array<string>): Observable<KnowledgeModel<T, AssociationModel>> {
-    return this.http.get(this.dbUrl + "api/knowledge/" + resource.join("/"), this.generateHeader(false))
+    return this.http.get(this.dbUrl + "api/knowledge/" + resource.join("/"), this.generateHeader(true))
       .map(response => response.json() as KnowledgeModel<T, AssociationModel>)
       .catch(this.handleError);
   }
 
   getStaticData(resource: Array<string>, requestedCols: string): Promise<any> {
     const url = this.dbUrl + "api/knowledge/" + resource.join("/") + '?columns=' + requestedCols;
-    return this.http.get(url, this.generateHeader(false))
+    return this.http.get(url, this.generateHeader(true))
         .toPromise()
         .then(response => response.json())
         .catch(this.handleStaticError);
@@ -141,9 +141,9 @@ export class DataService {
           //.catch(this.handleError);
   }
 
-  removeKnowledge<T>(resource: string): Observable<KnowledgeModel<T, AssociationModel>> {
-    return this.http.delete(this.dbUrl + "api/knowledge/" + resource, this.generateHeader(false))
-      .map(response => response.json() as KnowledgeModel<T, AssociationModel>)
+  removeKnowledge<T>(resource: string): Observable<any> {
+    return this.http.delete(this.dbUrl + "api/knowledge/" + resource, this.generateHeader(true))
+      .map(response => response.json())
       .catch(this.handleError);
   }
 

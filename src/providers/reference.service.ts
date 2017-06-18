@@ -11,6 +11,7 @@ export class ReferenceService {
   private dismissObserver: any;
   public dismiss: any;
   categories: any;
+  equipmentTypes: any;
   refdata:any;
 
   private dbUrl: string = 'http://191.189.96.74:3001/';
@@ -32,6 +33,19 @@ export class ReferenceService {
       return this.http.get(this.dbUrl + "api/reference/categories", this.generateHeader(true))
         .map(data => {
           this.categories = data.json().values;
+          return data.json().values;
+        });
+    }
+  }
+
+  getEquipmentTypes(){
+    if (this.equipmentTypes) {
+      return Observable.of(this.equipmentTypes);
+    }else{
+      this.equipmentTypes = {};
+      return this.http.get(this.dbUrl + "api/reference/types", this.generateHeader(true))
+        .map(data => {
+          this.equipmentTypes = data.json().values;
           return data.json().values;
         });
     }

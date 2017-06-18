@@ -1,3 +1,4 @@
+import { ConnectionModel } from "./connection.model";
 import { AssociationModel } from "./association.model";
 import { EquipmentModel } from "./equipment.model";
 import { ProfileModel } from "./profile.model";
@@ -12,6 +13,7 @@ export class KnowledgeModel {
   category: string;
   version: string;
   data: any = "";
+  connection: ConnectionModel;
   relations: AssociationModel;
   location: AddressModel;
   sync: number;
@@ -35,6 +37,7 @@ export class KnowledgeModel {
 
       this.relations = new AssociationModel ( input, fb );
       this.location = new AddressModel ( input, fb );
+      this.connection   = new ConnectionModel ( input[ "connection" ], fb );
     }
 
     if (fb) this.formGroup = fb.group({
@@ -44,6 +47,7 @@ export class KnowledgeModel {
       version : [this.version],
       root : [this.root],
       data: this.data.getFormGroup(),
+      connection: this.connection.getFormGroup(),
       relations: this.relations.getFormGroup(),
       location: this.location.getFormGroup()
     });
@@ -62,6 +66,8 @@ export class KnowledgeModel {
 
     this.relations = new AssociationModel ( input, fb );
     this.location = new AddressModel ( input, fb );
+
+    this.connection   = new ConnectionModel ( input.template.connection, fb );
 
     //this.data.fillData(template);
     //this.relations.fillRelations(template.relations);

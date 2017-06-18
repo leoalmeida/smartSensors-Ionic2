@@ -81,9 +81,15 @@ export class MyApp {
         loader.present();
         this.dataService.getStaticData(["data", "data.email", this.user.details.email], "owner")
               .then(value => {
-                this.userKey  = value[0]._id
-                loader.dismissAll();
-                this.nav.setRoot(HomePage, {"key": this.userKey})
+                if (value.length === 0) {
+                  this.auth.logout();
+                  this.nav.setRoot(LoginPage);
+                  
+                }else{
+                  this.userKey  = value[0]._id
+                  loader.dismissAll();
+                  this.nav.setRoot(HomePage, {"key": this.userKey})
+                }
               },error =>  this.errorMessage = <any>error);
       }else{
         this.nav.setRoot(LoginPage);

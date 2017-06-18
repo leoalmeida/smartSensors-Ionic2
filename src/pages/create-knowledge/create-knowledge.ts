@@ -5,6 +5,7 @@ import {FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import 'rxjs/add/operator/catch';
 
 import { DataService } from '../../providers/apiData.service';
+import { ReferenceService } from '../../providers/reference.service';
 import { User } from '@ionic/cloud-angular';
 import { ModalContentPage }  from '../modals/attribute-item';
 
@@ -75,6 +76,7 @@ export class CreateKnowledgePage implements OnInit{
               private camera: Camera,
               private fb: FormBuilder,
               private dataService:DataService,
+              private refService:ReferenceService,
               public loadingCtrl:LoadingController) {
     // If we navigated to this page, we will have an item available as a nav param
     this.templateData = this.navParams.get('template');
@@ -99,10 +101,10 @@ export class CreateKnowledgePage implements OnInit{
   }
 
   private getReferenceData() {
-    this.dataService.getReferenceData(["all"])
-                     .subscribe(
-                       data => this.referenceData = data,
-                       error =>  this.errorMessage = <any>error);
+    this.refService.getEquipmentTypes()
+         .subscribe(
+           data => this.referenceData = data,
+           error =>  this.errorMessage = <any>error);
   }
 
   private setKnowledgeForm() {
@@ -211,7 +213,7 @@ export class CreateKnowledgePage implements OnInit{
   }
 
   updateGeoLocation(pos){
-    this.knowledgeForm.controls["location"]["controls"]["coordinates"]["controls"] = pos.coords;
+    this.knowledgeForm.controls["location"]["controls"]["coordinates"].setValue = [pos.coords.latitude, pos.coords.longitude];
 
     if (this.platform.is('cordova')) {
       this.geocoder.reverseGeocode ( pos.coords.latitude, pos.coords.longitude ).then ( ( res: NativeGeocoderReverseResult ) => {

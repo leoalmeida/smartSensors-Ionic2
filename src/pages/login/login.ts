@@ -131,9 +131,9 @@ export class LoginPage {
         let errors = '';
         for(let e of err.details) {
           console.log(e);
-          if(e === 'required_email') errors += 'Email is required.<br/>';
-          if(e === 'required_password') errors += 'Password is required.<br/>';
-          if(e === 'conflict_email') errors += 'A user with this email already exists.<br/>';
+          if(e === 'required_email') errors += 'Email é obrigatório.<br/>';
+          if(e === 'required_password') errors += 'Password é obrigatório.<br/>';
+          if(e === 'conflict_email') errors += 'Já existe um usuário com esse email.<br/>';
           //don't need to worry about conflict_username
           if(e === 'invalid_email') errors += 'Seu email não é válido.';
         }

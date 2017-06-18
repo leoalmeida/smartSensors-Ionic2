@@ -1,4 +1,3 @@
-import { ConnectionModel } from "./connection.model";
 import { AttributeModel } from "./attribute.model";
 import { FormBuilder, FormArray, FormGroup } from '@angular/forms';
 import { DataInterface } from "./data.interface";
@@ -14,7 +13,6 @@ export class EquipmentModel implements DataInterface{
   label: string;
   description: string;
   name: string;
-  connection: ConnectionModel;
   info: Array<AttributeModel> = [];
   configurations: Array<AttributeModel> = [];
 
@@ -45,7 +43,7 @@ export class EquipmentModel implements DataInterface{
       this.image        = input[ "image" ] || "assets/images/profile_header0.png";
       this.label        = input[ "label" ] || "Teste";
       this.description  = input[ "description" ] || "Descricao Teste";
-      this.name         = input[ "name" ] || "Teste EEEE";
+      this.name         = input[ "name" ] || "Teste";
 
       if (input["info"])
         for(let itemInfo of input["info"]) {
@@ -61,8 +59,6 @@ export class EquipmentModel implements DataInterface{
         };
     }
 
-    this.connection   = new ConnectionModel ( input[ "connection" ], fb );
-
     if (fb) this.formGroup = fb.group({
         updatedValue: [this.updatedValue],
         connected: [this.connected],
@@ -74,7 +70,6 @@ export class EquipmentModel implements DataInterface{
         image: [this.image],
         icon: [this.icon],
         sync: [this.sync],
-        connection: this.connection.getFormGroup(),
         info: this.formInfoArray,
         configurations: this.formConfigArray,
       });
@@ -91,6 +86,7 @@ export class EquipmentModel implements DataInterface{
     this.image        = "assets/images/profile_header0.png";
     this.label        = "Teste";
     this.description  = "Descricao Teste";
+    this.name        = "Teste";
 
     if (input.template.info)
       for (let item of input.template.info)

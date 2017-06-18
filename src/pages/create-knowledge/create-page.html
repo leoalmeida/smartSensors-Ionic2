@@ -20,25 +20,40 @@
   <!--<div [hidden]="submitted">-->
     <form novalidate [formGroup]="knowledgeForm" >
       <div [ngSwitch]="selectedSegment">
-        <span formGroupName="data">
-          <ion-list *ngSwitchCase="'configurations'">
-            <ion-item-divider icon-right color="light" class="header-btn" (click)="showConnection = !showConnection">
-              Conexão
-              <ion-icon name="arrow-dropright" *ngIf="!showConnection" item-right></ion-icon>
-              <ion-icon name="arrow-dropdown"  *ngIf="showConnection" item-right></ion-icon>
+        <ion-list *ngSwitchCase="'configurations'">
+          <ion-item-divider icon-right color="light" class="header-btn" (click)="showConnection = !showConnection">
+            Conexão
+            <ion-icon name="arrow-dropright" *ngIf="!showConnection" item-right></ion-icon>
+            <ion-icon name="arrow-dropdown"  *ngIf="showConnection" item-right></ion-icon>
+          </ion-item-divider>
+          <ion-item-group formGroupName="connection" *ngIf="showConnection">
+            <!-- name attribute -->
+            <ion-item>
+              <ion-label>IP</ion-label>
+              <ion-input type="text" formControlName="host"></ion-input>
+            </ion-item>
+            <!-- label attribute -->
+            <ion-item>
+              <ion-label>Porta</ion-label>
+              <ion-input type="number" min="0" max="9999" formControlName="port"></ion-input>
+            </ion-item>
+          </ion-item-group>
+          <!-- geo attribute -->
+          <ion-item-group no-lines formGroupName="location">
+            <ion-item-divider (click)="geoLocate()" color="light" class="header-btn">
+              Endereço
+              <ion-icon name="locate" item-right></ion-icon>
             </ion-item-divider>
-            <ion-item-group formGroupName="connection" *ngIf="showConnection">
-              <!-- name attribute -->
-              <ion-item>
-                <ion-label>IP</ion-label>
-                <ion-input type="text" formControlName="host"></ion-input>
-              </ion-item>
-              <!-- label attribute -->
-              <ion-item>
-                <ion-label>Porta</ion-label>
-                <ion-input type="number" min="0" max="9999" formControlName="port"></ion-input>
-              </ion-item>
-            </ion-item-group>
+            <ion-item>
+              <ion-label>Endereço</ion-label>
+              <ion-input type="text" formControlName="text" placeholder="Endereço"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label>Coordenadas</ion-label>
+              <ion-input type="text" disabled formControlName="coordinates" placeholder="latlng"></ion-input>
+            </ion-item>
+          </ion-item-group>
+          <span formGroupName="data">
             <ion-item-divider icon-right color="light" class="header-btn" (click)="showConfigurations = !showConfigurations">
               Configurações
               <ion-icon name="arrow-dropright" *ngIf="!showConfigurations" item-right></ion-icon>
@@ -123,25 +138,6 @@
               </ion-item>-->
             </ion-item-group>
             <!-- info array -->
-            <!-- geo attribute -->
-            <ion-item-group no-lines formGroupName="geo">
-              <ion-item-divider (click)="geoLocate()" color="light" class="header-btn">
-                Endereço
-                <ion-icon name="locate" item-right></ion-icon>
-              </ion-item-divider>
-              <ion-item>
-                <ion-label>Endereço</ion-label>
-                <ion-input type="text" formControlName="address" placeholder="Endereço"></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label>Latitude</ion-label>
-                <ion-input type="number" formControlName="lat" placeholder="Latitude"></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label>Longitude</ion-label>
-                <ion-input type="number" formControlName="lng" placeholder="Longitude"></ion-input>
-              </ion-item>
-            </ion-item-group>
             <ion-item-divider icon-right color="light" class="header-btn"  (click)="showInfo = !showInfo">
               Outros Atributos
               <ion-icon name="arrow-dropright" *ngIf="!showInfo" item-right></ion-icon>
@@ -178,8 +174,9 @@
                     </button>
                 </ion-item>
             </span>
-          </ion-list>
-        </span>
+          </span>
+        </ion-list>
+
         <ion-list  *ngSwitchCase="'relations'">
           <span formGroupName="relations">
             <ion-item-divider icon-right color="light"> Associações</ion-item-divider>
