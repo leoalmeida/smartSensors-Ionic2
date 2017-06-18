@@ -1,0 +1,170 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Facebook Graph</ion-title>
+    <ion-buttons end>
+     <button ion-button icon-only (click)="scanBarCode()">
+       <ion-icon name="barcode"></ion-icon>
+     </button>
+   </ion-buttons>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="cards-bg preview-cards">
+  <!--<ion-fab left top>
+    <app-mq-status></app-mq-status>
+  </ion-fab>-->
+  <ion-card class="advanced-background" *ngFor="let item of channels; let i = index; trackBy: trackByFn" [attr.data-index]="i">
+    <img [src]='item.data.configurations?.image'>
+    <ion-fab right top>
+      <button ion-fab mini>
+        <ion-icon [name]="item.data.configurations?.pin.icon" [color]="item.data.configurations?.pin.color"></ion-icon>
+      </button>
+    </ion-fab>
+
+    <ion-item class="advanced-trans">
+      <p item-start>{{item.data.configurations?.label}}</p>
+      <p item-end>{{item.data.configurations?.description}}</p>
+      <p item-end>
+        <button color="light" ion-button icon-left clear small>
+          <ion-icon name="eye"></ion-icon>
+          <div>{{item.relations.subscribedBy.length}}</div>
+        </button>
+      </p>
+    </ion-item>
+
+    <p class="advanced-background-title advanced-background-title-large">
+      <ion-icon name='thunderstorm'></ion-icon>
+      <!--<ion-img [src]="item.data.configurations?.icon"></ion-img>-->
+      <span>{{item.data.updatedValue}} {{item.data.configurations.unit}}</span>
+    </p>
+    <ion-grid no-padding>
+      <ion-row>
+        <ion-col>
+          <button ion-button full icon-left clear small>
+            <ion-icon name="thumbs-up"></ion-icon>
+            <div> {{item.data.likes}} Likes</div>
+          </button>
+        </ion-col>
+        <ion-col >
+          <button ion-button full icon-left clear small color="dark">
+            <ion-icon name="text"></ion-icon>
+            <div>{{item.data.comments}} Comments</div>
+          </button>
+        </ion-col>
+        <ion-col center text-center >
+          <ion-note>
+            à {{changed(item.sync)}} minutos
+          </ion-note>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar position="bottom">
+    <ion-grid no-padding>
+      <ion-row>
+        <ion-col width-33><button ion-button clear full icon-left color="primary" (click)="login()">Login</button></ion-col>
+        <ion-col width-33><button ion-button clear full icon-left color="secondary"(click)="getdetails()">Get Details</button></ion-col>
+        <ion-col width-33><button ion-button clear full icon-left color="danger"(click)="logout()">Logout</button></ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-toolbar>
+</ion-footer>
+<!--<ion-footer>
+
+    <button (click)="addNotifications()" ion-button color="primary" full>Schedule</button>
+    <button (click)="cancelAll()" ion-button color="danger" full>Leave me alone!</button>
+
+</ion-footer>-->
+<!--
+<ion-content>
+  <ion-content class="card-background-page">
+    <ion-card>
+      <img src="assets/images/background_downtown.jpg">
+      <div class="card-title">São Carlos</div>
+      <ion-buttons start class="card-subtitle">
+        <button ion-button color="light" icon-left clear>
+          <ion-icon name="eye"></ion-icon> 41 Ouvintes
+        </button>
+      </ion-buttons>
+      <ion-buttons end>
+        <button ion-button icon-left clear item-end><ion-icon name="heart" color="danger"></ion-icon> 53 likes</button>
+        <button ion-button icon-left clear item-end><ion-icon name="chatbubbles" color="primary"></ion-icon>  10 Comentários</button>
+      </ion-buttons>
+      <ion-fab right top>
+        <button ion-fab>
+          <ion-icon name="pin"></ion-icon>
+        </button>
+      </ion-fab>
+
+      <ion-item>
+        <ion-icon name="football" item-left large></ion-icon>
+        <h2>Museum of Football</h2>
+        <p>11 N. Way St, Madison, WI 53703</p>
+      </ion-item>
+
+      <ion-item>
+        <ion-icon name="wine" item-left large ></ion-icon>
+        <h2>Institute of Fine Cocktails</h2>
+        <p>14 S. Hop Avenue, Madison, WI 53703</p>
+      </ion-item>
+
+      <ion-item>
+        <span item-left>18 min</span>
+        <span item-left>(2.6 mi)</span>
+        <button ion-button icon-left clear item-right>
+          <ion-icon name="navigate"></ion-icon>
+          Start
+        </button>
+      </ion-item>
+    </ion-card>
+
+    <ion-card>
+      <img src="assets/images/profile_header_nature.jpeg"/>
+      <div class="card-title">Madison</div>
+      <ion-buttons start class="card-subtitle">
+        <button ion-button color="light" icon-left clear>
+          <ion-icon name="eye"></ion-icon> 28 Ouvintes
+        </button>
+      </ion-buttons>
+      <ion-buttons end>
+        <button ion-button icon-left clear item-end><ion-icon name="heart" color="danger"></ion-icon> 53 likes</button>
+        <button ion-button icon-left clear item-end><ion-icon name="chatbubbles" color="primary"></ion-icon>  10 Comentários</button>
+      </ion-buttons>
+
+      <ion-fab right top>
+        <button ion-fab>
+          <ion-icon name="pin"></ion-icon>
+        </button>
+      </ion-fab>
+
+      <ion-item>
+        <ion-icon name="football" item-left large></ion-icon>
+        <h2>Museum of Football</h2>
+        <p>11 N. Way St, Madison, WI 53703</p>
+      </ion-item>
+
+      <ion-item>
+        <ion-icon name="wine" item-left large ></ion-icon>
+        <h2>Institute of Fine Cocktails</h2>
+        <p>14 S. Hop Avenue, Madison, WI 53703</p>
+      </ion-item>
+
+      <ion-item>
+        <span item-left>18 min</span>
+        <span item-left>(2.6 mi)</span>
+        <button ion-button icon-left clear item-right>
+          <ion-icon name="navigate"></ion-icon>
+          Start
+        </button>
+      </ion-item>
+    </ion-card>
+  </ion-content>
+
+</ion-content>
+-->

@@ -1,0 +1,18 @@
+{
+    "host": "m11.cloudmqtt.com",
+    "port": 31102,
+    "path": "",
+    "ssl": true,
+
+    "user": "guest",
+    "pass": "guest",
+
+    "subscribe": [
+        "channels"
+    ],
+    "publish": [
+        "channels"
+    ],
+
+    "keepalive": 10
+}

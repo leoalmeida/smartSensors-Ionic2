@@ -1,0 +1,49 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Profile</ion-title>
+  </ion-navbar>
+</ion-header>
+<ion-content>
+  <div id="profile-bg"></div>
+  <div id="content" *ngIf="profile">
+        <div id="profile-info">
+          <img id="profile-image" [src]="profile.data?.photoURL">
+          <h3 id="profile-name">{{profile.data?.name}}</h3>
+          <span id="profile-description">{{profile.data?.email}}</span>
+        </div>
+        <h4 class="padding">Seguindo</h4>
+        <ion-list>
+          <ion-item-sliding [animateItemSliding]="shouldAnimate" *ngFor="let follow of followings">
+            <ion-item>
+              <ion-avatar item-left>
+                <img [src]="follow.data?.configurations.icon">
+              </ion-avatar>
+              <h2>{{follow.data?.configurations.name}}</h2>
+              <p>{{follow.type}}</p>
+              <p>{{follow.category}}</p>
+              <ion-icon name="chatbubble" muted></ion-icon>
+            </ion-item>
+            <ion-item-options side="left">
+              <button ion-button color="primary">
+                <ion-icon name="chatbubbles"></ion-icon>
+                Comentar
+              </button>
+              <button ion-button color="secondary">
+                <ion-icon name="call"></ion-icon>
+                Chamar
+              </button>
+            </ion-item-options>
+            <ion-item-options side="right">
+              <button ion-button color="primary">
+                <ion-icon name="mail"></ion-icon>
+                E-mail
+              </button>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ion-list>
+    </div>
+
+</ion-content>

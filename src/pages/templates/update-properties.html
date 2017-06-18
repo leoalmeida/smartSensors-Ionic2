@@ -1,0 +1,20 @@
+<div class="modal">
+  <!-- Modal header bar -->
+  <ion-header-bar class="bar-header bar-calm">
+    <div class="h1 title light">{{selectedItem}}</div>
+    <div class="buttons buttons-right header-item">
+    <span class="right-buttons">
+      <button class="button button-balanced button-fab" ng-click="closeEditModal()">
+        <i class="icon ion-close"></i>
+      </button>
+    </span>
+    </div>
+  </ion-header-bar>
+
+  <!-- Modal content area -->
+  <ion-content>
+      <div class="list">
+        <ion-md-input placeholder="{{selectedItem}}" highlight-color="balanced" type="text" ng-model="values[selectedItem]"></ion-md-input>
+      </div>
+  </ion-content>
+</div>

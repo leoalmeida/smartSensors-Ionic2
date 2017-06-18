@@ -1,39 +1,141 @@
 {
-  "name": "ssIonic3",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "http://ionicframework.com/",
-  "private": true,
-  "scripts": {
-    "clean": "ionic-app-scripts clean",
-    "build": "ionic-app-scripts build",
-    "lint": "ionic-app-scripts lint",
-    "ionic:build": "ionic-app-scripts build",
-    "ionic:serve": "ionic-app-scripts serve"
-  },
-  "dependencies": {
-    "@angular/common": "4.1.3",
-    "@angular/compiler": "4.1.3",
-    "@angular/compiler-cli": "4.1.3",
-    "@angular/core": "4.1.3",
-    "@angular/forms": "4.1.3",
-    "@angular/http": "4.1.3",
-    "@angular/platform-browser": "4.1.3",
-    "@angular/platform-browser-dynamic": "4.1.3",
-    "@ionic-native/core": "3.10.2",
-    "@ionic-native/splash-screen": "3.10.2",
-    "@ionic-native/status-bar": "3.10.2",
-    "@ionic/storage": "2.0.1",
-    "ionic-angular": "3.4.2",
-    "ionicons": "3.0.0",
-    "rxjs": "5.4.0",
-    "sw-toolbox": "3.6.0",
-    "zone.js": "0.8.12"
-  },
-  "devDependencies": {
-    "@ionic/app-scripts": "1.3.7",
-    "@ionic/cli-plugin-ionic-angular": "1.3.1",
-    "typescript": "2.3.3"
-  },
-  "description": "An Ionic project"
+    "name": "smartSensors",
+    "version": "0.0.1",
+    "author": "Leonardo Almeida",
+    "homepage": "",
+    "scripts": {
+        "clean": "ionic-app-scripts clean",
+        "build": "ionic-app-scripts build",
+        "lint": "ionic-app-scripts lint",
+        "ionic:build": "ionic-app-scripts build",
+        "ionic:serve": "ionic-app-scripts serve"
+    },
+    "dependencies": {
+        "@angular/common": "4.1.3",
+        "@angular/compiler": "4.1.3",
+        "@angular/compiler-cli": "4.1.3",
+        "@angular/core": "4.1.3",
+        "@angular/forms": "4.1.3",
+        "@angular/http": "4.1.3",
+        "@angular/platform-browser": "4.1.3",
+        "@angular/platform-browser-dynamic": "4.1.3",
+        "@ionic-native/background-geolocation": "^3.12.1",
+        "@ionic-native/background-mode": "^3.12.1",
+        "@ionic-native/barcode-scanner": "^3.12.1",
+        "@ionic-native/camera": "^3.12.1",
+        "@ionic-native/core": "^3.12.1",
+        "@ionic-native/device": "^3.12.1",
+        "@ionic-native/diagnostic": "^3.12.1",
+        "@ionic-native/dialogs": "^3.12.1",
+        "@ionic-native/facebook": "^3.12.1",
+        "@ionic-native/geofence": "^3.12.1",
+        "@ionic-native/geolocation": "^3.12.1",
+        "@ionic-native/in-app-browser": "^3.12.1",
+        "@ionic-native/local-notifications": "^3.12.1",
+        "@ionic-native/location-accuracy": "^3.12.1",
+        "@ionic-native/native-geocoder": "^3.12.1",
+        "@ionic-native/native-storage": "^3.12.1",
+        "@ionic-native/push": "^3.12.1",
+        "@ionic-native/social-sharing": "^3.12.1",
+        "@ionic-native/splash-screen": "^3.12.1",
+        "@ionic-native/status-bar": "^3.12.1",
+        "@ionic/cloud-angular": "^0.12.0",
+        "@ionic/storage": "^2.0.1",
+        "@types/leaflet": "^1.0.63",
+        "@types/node": "^7.0.31",
+        "cordova-android": "^6.2.3",
+        "cordova-browser": "^4.1.0",
+        "cordova-ios": "^4.4.0",
+        "cordova-plugin-add-swift-support": "^1.6.2",
+        "cordova-plugin-background-mode": "^0.7.2",
+        "cordova-plugin-camera": "^2.4.1",
+        "cordova-plugin-cocoalumberjack": "0.0.4",
+        "cordova-plugin-compat": "^1.1.0",
+        "cordova-plugin-console": "^1.0.5",
+        "cordova-plugin-device": "^1.1.4",
+        "cordova-plugin-dialogs": "^1.3.3",
+        "cordova-plugin-facebook4": "^1.9.1",
+        "cordova-plugin-geofence": "^0.7.0",
+        "cordova-plugin-geolocation": "^2.4.3",
+        "cordova-plugin-inappbrowser": "^1.7.1",
+        "cordova-plugin-mauron85-background-geolocation": "^2.2.5",
+        "cordova-plugin-nativegeocoder": "^1.0.2",
+        "cordova-plugin-nativestorage": "^2.2.2",
+        "cordova-plugin-request-location-accuracy": "^2.2.1",
+        "cordova-plugin-splashscreen": "^4.0.3",
+        "cordova-plugin-statusbar": "^2.2.2",
+        "cordova-plugin-whitelist": "^1.3.1",
+        "cordova-plugin-x-socialsharing": "^5.1.8",
+        "cordova.plugins.diagnostic": "^3.6.5",
+        "es6-promise-plugin": "^4.1.0",
+        "es6-shim": "^0.35.3",
+        "ionic": "^3.4.0",
+        "ionic-angular": "3.4.2",
+        "ionic-plugin-keyboard": "^2.2.1",
+        "ionicons": "3.0.0",
+        "leaflet": "^1.0.3",
+        "localforage": "^1.5.0",
+        "mqtt": "^2.9.0",
+        "phonegap-plugin-barcodescanner": "^6.0.6",
+        "rxjs": "5.4.0",
+        "sw-toolbox": "3.6.0",
+        "zone.js": "0.8.12"
+    },
+    "devDependencies": {
+        "@ionic/app-scripts": "1.3.7",
+        "@ionic/cli-plugin-cordova": "1.4.0",
+        "@ionic/cli-plugin-ionic-angular": "1.3.1",
+        "typescript": "2.3.3"
+    },
+    "cordovaPlatforms": [
+        "ios",
+        {
+            "platform": "ios",
+            "version": "",
+            "locator": "ios"
+        }
+    ],
+    "description": "Version Mobile (Ionic/Cordova) of smartSensors application",
+    "cordova": {
+        "plugins": {
+            "cordova-plugin-camera": {},
+            "cordova-plugin-geolocation": {
+                "GEOLOCATION_USAGE_DESCRIPTION": " "
+            },
+            "cordova-plugin-dialogs": {},
+            "cordova-plugin-inappbrowser": {},
+            "cordova-plugin-background-mode": {},
+            "cordova-plugin-statusbar": {},
+            "cordova-plugin-whitelist": {},
+            "cordova-plugin-x-socialsharing": {},
+            "phonegap-plugin-barcodescanner": {
+                "CAMERA_USAGE_DESCRIPTION": " "
+            },
+            "cordova-plugin-geofence": {},
+            "cordova-plugin-nativegeocoder": {},
+            "cordova-plugin-splashscreen": {},
+            "cordova.plugins.diagnostic": {},
+            "cordova-plugin-request-location-accuracy": {},
+            "cordova-plugin-add-swift-support": {},
+            "cordova-plugin-compat": {},
+            "cordova-plugin-console": {},
+            "cordova-plugin-device": {},
+            "ionic-plugin-keyboard": {},
+            "cordova-plugin-mauron85-background-geolocation": {
+                "ACCOUNT_TYPE": "$PACKAGE_NAME.account",
+                "CONTENT_AUTHORITY": "$PACKAGE_NAME",
+                "ALWAYS_USAGE_DESCRIPTION": "This app requires background location tracking"
+            },
+            "cordova-plugin-facebook4": {
+                "APP_ID": "240020133093766",
+                "APP_NAME": "SmartSensors"
+            },
+            "cordova-plugin-nativestorage": {}
+        },
+        "platforms": [
+            "android",
+            "browser",
+            "ios"
+        ]
+    }
 }

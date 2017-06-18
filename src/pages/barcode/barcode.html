@@ -1,0 +1,28 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Código de barras</ion-title>
+    <ion-buttons end>
+     <button ion-button icon-only (click)="openMenu()">
+       <ion-icon name="barcode"></ion-icon>
+     </button>
+   </ion-buttons>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col col-6>Nome</ion-col>
+      <ion-col col-6>Valor</ion-col>
+    </ion-row>
+    <ion-row *ngFor="let item of barcodes" (click)="openUrl(item[1])">
+      <ion-col col-6>{{item[0]}}</ion-col>
+      <ion-col col-6>{{item[1]}}</ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content>

@@ -1,0 +1,57 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>{{pageTitle}}</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only (click)="logout()">
+        <ion-icon name="log-out"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+<ion-content class="padding">
+    <ion-list *ngIf="channelMsgs">
+      <ion-list-header color="light">
+        <h2>{{channel.data?.label}}</h2>
+        <p>{{changed(channelMsgs.sync)}}</p>
+        <button color="light" ion-button icon-right item-right clear small>
+          <span>{{channel.relations.subscribedBy.length}}</span>
+          <ion-icon name="eye" ></ion-icon>
+        </button>
+      </ion-list-header>
+      <ion-item-sliding *ngFor="let message of channelMsgs.objects; let i = index;">
+        <ion-item>
+          <ion-avatar item-left>
+            <img [src]="message.data?.message"/>
+          </ion-avatar>
+          <h2>{{message.data?.message}}</h2>
+          <p *ngIf="message.data?.likes>0">{{message.data?.likes}} gostaram</p>
+          <ion-note item-right>{{changed(message.sync)}} min</ion-note>
+        </ion-item>
+        <ion-item-options side="left" *ngIf="message.data.profile === userKey ">
+          <button ion-button color="danger">
+            <ion-icon name="trash" large></ion-icon>
+          </button>
+        </ion-item-options>
+        <ion-item-options side="right" *ngIf="message.data.profile === userKey ">
+          <button ion-button color="primary">
+            <ion-icon name="pen" large></ion-icon>
+          </button>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+</ion-content>
+
+<ion-footer>
+    <ion-grid no-padding>
+      <ion-row>
+        <ion-col>
+          <ion-input type="text" placeholder="Mensagem" clearInput [(ngModel)]="inputMsg"></ion-input>
+        </ion-col>
+        <!--<ion-col col-auto>
+          <button ion-fab mini class="mic" color="light" icon-only (click)="publishMessage(channel._id)">
+            <ion-icon name="mic"></ion-icon>
+          </button>
+        </ion-col>-->
+      </ion-row>
+    </ion-grid>
+</ion-footer>

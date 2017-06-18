@@ -1,0 +1,39 @@
+<div class="modal">
+
+  <!-- Modal header bar -->
+  <ion-header-bar class="bar-secondary">
+    <h1 class="title">Configurações adicionais</h1>
+    <button class="button button-clear button-positive" ng-click="closeStartObject()">Cancelar</button>
+  </ion-header-bar>
+
+  <!-- Modal content area -->
+  <ion-content>
+
+    <form ng-submit="createItem(newobj)">
+      <div class="list">
+        <label class="item item-input">
+          {{configurations.object.data.name}} - {{configurations.object._id}}
+        </label>
+        <label class="item item-input">
+          Tipo de objeto: {{configurations.object.category}}
+        </label>
+        <label class="item item-input">
+          Usuário: {{configurations.email}}
+        </label>
+        <label class="item item-input">
+          <input type="text" placeholder="ip" ng-model="configurations.hostip">
+        </label>
+        <label class="item item-input">
+          <input type="number" placeholder="porta" ng-model="configurations.hostport">
+        </label>
+        <label class="item item-input" ng-hide="true">
+          <input type="text" placeholder="porta serial" ng-model="configurations.serialport">
+        </label>
+      </div>
+      <div class="padding">
+        <button type="submit" class="button button-block button-positive">Iniciar Hub</button>
+      </div>
+    </form>
+
+  </ion-content>
+</div>

@@ -14,3 +14,86 @@
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
+h1 {
+  color: #b2b2b2;
+  text-shadow: 0 1px 0px #000;
+  font-size: 42px;
+}
+
+em {
+  font-style: italic;
+}
+
+.menu .bar.bar-header.expanded {
+  transition: all .5s ease-in-out;
+}
+
+.menu-open .bar.bar-header.expanded {
+  background-color: #222;
+}
+
+.menu h2 {
+  bottom: 0;
+  font-size: 18px;
+  left: 16px;
+  position: absolute;
+}
+
+.menu .avatar {
+  height: 88px;
+  width: 88px;
+}
+
+.menu.menu-left * {
+  font-weight: bold;
+}
+
+.menu-open .ion-navicon {
+  transform: rotate(-360deg);
+  -webkit-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+.menu-open .ion-navicon:before {
+  content: "\f2ca";
+}
+
+@-webkit-keyframes slidingAnimation {
+  0% {
+    transform: translate3d(0,0,0);
+    -webkit-transform: translate3d(0,0,0);
+  }
+
+  50% {
+    transform: translate3d(-70px,0,0);
+    -webkit-transform: translate3d(-70px,0,0);
+  }
+
+  100% {
+    transform: translate3d(0,0,0);
+    -webkit-transform: translate3d(0,0,0);
+  }
+}
+
+.itemSlidingAnimation {
+    -webkit-animation: slidingAnimation;
+    animation: slidingAnimation;
+    -webkit-animation-duration: 1000ms;
+    animation-duraton: 1000ms;
+}
+
+.action-sheets-basic-page {
+  .ion-md-share {
+    color: #ED4248;
+  }
+  .ion-md-arrow-dropright-circle {
+    color: #508AE4;
+  }
+  .ion-md-heart-outline {
+    color: #31D55F;
+  }
+  .action-sheet-cancel ion-icon,
+  .action-sheet-destructive ion-icon {
+    color: #757575;
+  }
+}

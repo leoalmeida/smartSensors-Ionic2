@@ -1,0 +1,80 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Meus Canais</ion-title>
+    <ion-buttons end>
+     <button ion-button icon-only (click)="logout()">
+       <ion-icon name="log-out"></ion-icon>
+     </button>
+   </ion-buttons>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="preview-cards" *ngIf="objectChannels">
+  <!--<ion-fab left top>
+    <app-mq-status></app-mq-status>
+  </ion-fab>-->
+  <ion-fab right bottom>
+    <button ion-fab mini (touchstart)="doSpeech()" color="light" (touchend)="stopSpeech()">
+      <ion-icon name="mic" ></ion-icon>
+    </button>
+  </ion-fab>
+
+  <ion-card class="background" *ngFor="let item of objectChannels.objects; let i = index; trackBy: trackBySync" [attr.data-index]="i">
+
+    <img [src]='item.data.configurations?.image'>
+
+    <button color="light" ion-item (click)="openChats($event, item )"  class="advanced-top">
+      <ion-avatar item-left>
+        <img [src]="item.data.configurations?.icon">
+      </ion-avatar>
+      <h2>{{item.data.configurations?.label}}</h2>
+      <p>{{item.data.configurations?.description}}</p>
+      <button color="light" ion-button icon-right item-right clear small>
+        <span>{{item.relations.subscribedBy.length}}</span>
+        <ion-icon name="eye" ></ion-icon>
+      </button>
+    </button>
+
+    <ion-list  class="advanced-middle" *ngIf="objectLastMsgs[item._id]">
+      Últimos comentários
+      <ion-item *ngFor="let msg of objectLastMsgs[item._id].objects; let m = index; trackBy: trackBySync">
+        <ion-avatar item-left>
+          <img src="assets/icons/img/mike.png">
+        </ion-avatar>
+        <h2>{{msg.data.message}}</h2>
+        <p>{{item.data.profile}}</p>
+        <ion-note item-right>{{changed(item.sync)}} min</ion-note>
+      </ion-item>
+    </ion-list>
+
+    <ion-grid no-padding  class="advanced-bottom">
+      <ion-row>
+        <ion-col>
+          <button class="no-margin likes" ion-button full icon-left clear>
+            <ion-icon name="thumbs-up"></ion-icon>
+            <div> {{item.data.likes}}</div>
+          </button>
+        </ion-col>
+        <ion-col>
+          <button class="no-margin messages" ion-button full icon-left clear color="secondary">
+            <ion-icon name="text" class="shadow"></ion-icon>
+            <div>{{item.data.comments}}</div>
+          </button>
+        </ion-col>
+        <ion-col>
+          <ion-note item-right>{{changed(item.sync)}} min </ion-note>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+
+    <!--<ion-fab right top>
+      <button iion-fab mini color="light" (click)="share(item.data)">
+          <ion-icon name="share"></ion-icon>
+      </button>
+    </ion-fab>-->
+  </ion-card>
+</ion-content>

@@ -1,0 +1,16 @@
+<ion-list>
+  <ion-item color="light">
+    <ion-label>{{objectEle.label}}</ion-label>
+  </ion-item>
+  <ion-item-group *ngFor="let item of objectEle.evaluation;let index = index;">
+      <ion-item>
+        {{item.attribute}}
+      </ion-item>
+      <ion-item>
+        {{displayConnector(item.connector)}}
+      </ion-item>
+      <ion-item>
+        {{item.value}}
+      </ion-item>
+  </ion-item-group>
+</ion-list>

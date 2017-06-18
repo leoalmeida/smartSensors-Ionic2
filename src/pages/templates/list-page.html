@@ -1,0 +1,49 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>{{pageTitle}}</ion-title>
+    <ion-buttons end>
+     <button ion-button icon-only (click)="openMenu()">
+       <ion-icon name="more"></ion-icon>
+     </button>
+   </ion-buttons>
+  </ion-navbar>
+</ion-header>
+<ion-content>
+  <ion-fab top right edge>
+    <button ion-fab mini (click)="showMap()"><ion-icon name="compass"></ion-icon></button>
+  </ion-fab>
+  <ion-list>
+    <ion-item-sliding [animateItemSliding]="shouldAnimate" *ngFor="let object of objects; let i = index;" #objectItem>
+      <button ion-item (click)="itemTapped($event, object._id)">
+        <ion-avatar item-left>
+          <img [src]="(object.data.icon)?object.data.icon:imgdef">
+        </ion-avatar>
+        <h2>{{object.data.name}}</h2>
+        <h3><em>{{object.data.type}}</em></h3>
+        <p>{{object._id}}</p>
+        <ion-icon name="chevron-right" item-right></ion-icon>
+      </button>
+      <ion-item-options side="right">
+        <button ion-button color="secondary" (click)="updateItem($event, object._id)">
+          Editar
+        </button>
+        <button *ngIf="object.type === 'topic'" ion-button color="primary" (click)="toggleItemStatus(object)">
+          <span *ngIf="!watchID[object._id] || watchID[object._id]?.closed">Iniciar</span>
+          <span *ngIf="watchID[object._id] && !watchID[object._id]?.closed">Parar</span>
+        </button>
+        <button *ngIf="object.type === 'board'" ion-button color="primary" (click)="toggleItemStatus(object._id)">
+          <span *ngIf="!object.data.connected">Iniciar</span>
+          <span *ngIf="object.data.connected">Parar</span>
+        </button>
+      </ion-item-options>
+      <ion-item-options side="left">
+        <button ion-button color="danger"  (click)="removeItem($event, object._id)">
+          <ion-icon name="remove-circle"></ion-icon>
+        </button>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>

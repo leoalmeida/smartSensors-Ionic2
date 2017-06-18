@@ -1,0 +1,73 @@
+<ion-content padding>
+
+  <div>
+      <div class="content">
+          <div class="app-icon"></div>
+          <h1>smartSensors</h1>
+      </div>
+  </div>
+
+  <div *ngIf="showVerifyCode">
+    <ion-item>
+        <ion-label stacked>Código de Verificação</ion-label>
+        <ion-input type="number" [(ngModel)]="resetCode"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label stacked>Nova Senha</ion-label>
+      <ion-input type="password" [(ngModel)]="newPassword"></ion-input>
+    </ion-item>
+  </div>
+
+  <ion-list >
+    <ion-item *ngIf="showLogin || showForgotten" >
+      <ion-label stacked>Email</ion-label>
+      <ion-input type="email" [(ngModel)]="email"></ion-input>
+    </ion-item>
+
+    <ion-item *ngIf="showLogin && !showForgotten" >
+      <ion-label stacked>Senha</ion-label>
+      <ion-input type="password" [(ngModel)]="password"></ion-input>
+    </ion-item>
+  </ion-list>
+
+  <div *ngIf="showRegister">
+
+    <ion-item>
+      <ion-label stacked>Nome</ion-label>
+      <ion-input type="text" [(ngModel)]="name"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label stacked>Email</ion-label>
+      <ion-input type="email" [(ngModel)]="email"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-input type="password" placeholder="Senha" [(ngModel)]="password"></ion-input>
+    </ion-item>
+  </div>
+
+  <div padding>
+      <button ion-button color="assertive" class="ink" *ngIf="showLogin && !showForgotten" full (click)="doLogin()">Conectar</button>
+      <button ion-button color="assertive" class="ink" *ngIf="(showLogin && !showForgotten) || showRegister" full (click)="doRegister()">Registrar</button>
+      <button ion-button color="assertive" class="ink" *ngIf="showLogin || showForgotten" full (click)="doForgotten()">Esqueci a senha</button>
+      <button ion-button color="assertive" class="ink" *ngIf="showVerifyCode" full (click)="doCodeVerification()">Trocar senha</button>
+      <button ion-button color="assertive" class="ink" *ngIf="!showLogin || showForgotten" full (click)="doGoBack()">Voltar</button>
+
+      <!--<button ion-button color="assertive" class="ink" full (click)="goGraph()">Facebook Session</button>-->
+  </div>
+
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar position="bottom">
+    <ion-grid no-padding>
+      <ion-row>
+         <ion-col width-50><button ion-button clear full icon-left color="danger" (click)="doGoogleSignIn()"><ion-icon name="logo-google"></ion-icon> Google+</button></ion-col>
+         <!--<ion-col width-33><button ion-button clear full icon-left color="dark" (click)="doTwitterSignIn()"><ion-icon name="logo-twitter"></ion-icon> Twitter</button></ion-col>-->
+         <ion-col width-50><button ion-button clear full icon-left color="primary" (click)="doFbLogin()"><ion-icon name="logo-facebook"></ion-icon> Facebook</button></ion-col>
+       </ion-row>
+     </ion-grid>
+  </ion-toolbar>
+</ion-footer>

@@ -1,0 +1,150 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons start>
+      <button ion-button (click)="dismiss()">
+        <span ion-text color="primary" showWhen="ios">Cancel</span>
+        <ion-icon name="md-close" showWhen="android, windows"></ion-icon>
+      </button>
+    </ion-buttons>
+    <ion-title>
+      {{pageTitle}}
+    </ion-title>
+    <ion-buttons end>
+      <button ion-button (click)="save()">
+        <span ion-text color="primary" showWhen="ios">Salvar</span>
+        <ion-icon name="md-create" showWhen="android, windows"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-list>
+    <ion-item>
+      <ion-label color="dark">Tipo</ion-label>
+      {{category.label}} <ion-note>{{category.type}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label color="primary">Nome</ion-label>
+      <ion-input type="text" [(ngModel)]="label" ></ion-input>
+    </ion-item>
+    <ion-item *ngIf="false">
+      <ion-label color="primary">Conhecimento</ion-label>
+      <ion-select [(ngModel)]="knowledge">
+        <ion-option *ngFor="let item of knowledges" [value]="item._id">{{item.name}}</ion-option>
+      </ion-select>
+    </ion-item>
+    <span *ngIf="type === 'rule'">
+
+      <span *ngIf="!category.multiple">
+        <ion-item>
+          <ion-label color="primary">Atributo avaliado</ion-label>
+          <ion-select [(ngModel)]="ruleSelection.evaluatedAttribute" >
+            <ion-option *ngFor="let attr of category.evaluatedAttributes" #item [value]="attr">{{attr.name}}</ion-option>
+          </ion-select>
+        </ion-item>
+        <ion-item *ngIf="ruleSelection.evaluatedAttribute">
+          <ion-label color="primary">Sinal</ion-label>
+          <ion-select [(ngModel)]="ruleSelection.evaluatedAttribute.sign">
+            <ion-option *ngFor="let item of categories.Signs" [value]="item.category">{{item.label}}</ion-option>
+          </ion-select>
+          <ion-input *ngIf="ruleSelection.evaluatedAttribute.dualKnobs" disabled [(ngModel)]="ruleSelection.evaluatedAttribute.sign" value="BT">Entre</ion-input>
+        </ion-item>
+        <ion-item *ngIf="ruleSelection.evaluatedAttribute">
+          <ion-label color="primary">Resultado esperado</ion-label>
+          <ion-range *ngIf="ruleSelection.evaluatedAttribute.type==='number'" [min]="ruleSelection.evaluatedAttribute.min" [max]="ruleSelection.evaluatedAttribute.max" [(ngModel)]="ruleSelection.evaluatedAttribute.expectedResult"
+                     color="primary" pin="true"  snaps="true">
+            <ion-icon range-left small name="radio-button-off"></ion-icon>
+            <ion-icon range-right name="radio-button-on"></ion-icon>
+          </ion-range>
+          <ion-checkbox *ngIf="ruleSelection.evaluatedAttribute.type==='boolean'" [(ngModel)]="ruleSelection.evaluatedAttribute.expectedResult">Resultdo Esperado</ion-checkbox>
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary">Tempo de busca</ion-label>
+          <ion-range [min]="0" [max]="100" [(ngModel)]="ruleSelection.evaluatedAttribute.time"
+                     color="primary" pin="true"  snaps="true">
+            <ion-icon range-left small name="radio-button-off"></ion-icon>
+            <ion-icon range-right name="radio-button-on"></ion-icon>
+          </ion-range>
+        </ion-item>
+      </span>
+      <span *ngIf="category.multiple">
+        <span *ngFor="let evalItem of ruleSelection.evaluatedAttributes">
+          <ion-item>
+            <ion-label color="primary">Atributo avaliado</ion-label>
+            {{evalItem.label}}
+          </ion-item>
+          <ion-item>
+            <ion-label color="primary">Sinal</ion-label>
+            <ion-select [(ngModel)]="evalItem.sign">
+              <ion-option *ngFor="let item of categories.Signs" [value]="item.category">{{item.label}}</ion-option>
+            </ion-select>
+            <ion-input *ngIf="evalItem.dualKnobs" disabled [(ngModel)]="evalItem.sign" value="BT">Entre</ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label color="primary">Resultado esperado</ion-label>
+            <ion-range *ngIf="evalItem.type==='number'" [min]="evalItem.min" [max]="evalItem.max" [(ngModel)]="evalItem.expectedResult"
+                       color="secondary" pin="true"  snaps="true">
+              <ion-icon range-left small name="sunny"></ion-icon>
+              <ion-icon range-right name="sunny"></ion-icon>
+            </ion-range>
+            <ion-checkbox *ngIf="evalItem.type==='boolean'" [(ngModel)]="evalItem.expectedResult">Resultdo Esperado</ion-checkbox>
+          </ion-item>
+        </span>
+      </span>
+      <span *ngIf="ruleSelection.category==='google'">
+        <ion-item>
+          <ion-label color="primary">Parâmetro de Busca</ion-label>
+          <ion-select [(ngModel)]="ruleSelection.searchOption">
+            <ion-option *ngFor="let item of category.searchOptions" [value]="item.value">{{item.label}}</ion-option>
+          </ion-select>
+        </ion-item>
+        <span *ngFor="let evalItem of ruleSelection.categoryParmsRequest">
+          <ion-item>
+            <ion-label color="primary">Sinal</ion-label>
+            <ion-select [(ngModel)]="evalItem.sign" *ngIf="!evalItem.dualKnobs">
+              <ion-option *ngFor="let item of categories.Signs" [value]="item.category">{{item.label}}</ion-option>
+            </ion-select>
+            <ion-input *ngIf="evalItem.dualKnobs" disabled [(ngModel)]="evalItem.sign" value="BT">Entre</ion-input>
+          </ion-item>
+          <ion-item>
+          <ion-label color="primary">Resultado esperado</ion-label>
+          <ion-range *ngIf="evalItem.type==='number'" [min]="evalItem.min" [max]="evalItem.max" [(ngModel)]="evalItem.expectedResult"
+                     color="secondary" pin="true"  snaps="true">
+            <ion-icon range-left small name="sunny"></ion-icon>
+            <ion-icon range-right name="sunny"></ion-icon>
+          </ion-range>
+          <ion-checkbox *ngIf="evalItem.type==='boolean'" [(ngModel)]="evalItem.expectedResult">Resultdo Esperado</ion-checkbox>
+        </ion-item>
+        </span>
+      </span>
+      <ion-item *ngIf="hasConnector">
+        <ion-label color="primary">Conector</ion-label>
+        <ion-select [(ngModel)]="ruleSelection.connector">
+          <ion-option value=""></ion-option>
+          <ion-option *ngFor="let item of categories.Connectors" [value]="item.category">{{item.label}}</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item *ngIf="!hasConnector">
+        <ion-label color="primary">Conector</ion-label>
+        <ion-checkbox [(ngModel)]="connector" value="NOT">NOT</ion-checkbox>
+      </ion-item>
+    </span>
+    <span *ngIf="type === 'action'">
+      <span *ngFor="let attr of actionSelection.changedAttributes">
+        <ion-item>
+          <ion-label color="primary">{{attr.name}} <ion-note>Atributo</ion-note></ion-label>
+          <ion-checkbox *ngIf="attr.type==='boolean'" [(ngModel)]="attr.command"></ion-checkbox>
+          <ion-input *ngIf="attr.type==='string'" type="text" [ngModel]="attr.command " ></ion-input>
+          <ion-range *ngIf="attr.type==='number'" [min]="attr.min" [max]="attr.max" [(ngModel)]="attr.command"
+                     color="secondary" pin="true"  snaps="true">
+              <ion-icon range-left small name="sunny"></ion-icon>
+              <ion-icon range-right name="sunny"></ion-icon>
+          </ion-range>
+        </ion-item>
+      </span>
+    </span>
+  </ion-list>
+  <div padding>
+    <button ion-button color="assertive" class="ink" full (click)="doSave()">Salvar</button>
+  </div>
+</ion-content>

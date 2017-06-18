@@ -1,0 +1,22 @@
+ion-header{
+  background-color: transparent !important;
+}
+ion-content{
+  background: url('/assets/images/profile_header6.png') center;
+  background-size: cover;
+}
+
+.app-icon {
+  background-color: #e3ceb9;
+  background: url('/assets/images/SmartSensorsLogo.svg') center;
+  background-size: cover;
+  border-radius: 50%;
+  height: 125px;
+  margin: 0 auto;
+  width: 125px;
+}
+
+.social-login {
+  position: fixed;
+  bottom: 0;
+}

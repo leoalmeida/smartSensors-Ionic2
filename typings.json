@@ -1,0 +1,7 @@
+{
+  "globalDependencies": {
+    "cordova-plugin-geofence": "file:./plugins/cordova-plugin-geofence/typings/cordova-plugin-geofence.d.ts",
+    "es6-shim": "registry:dt/es6-shim#0.31.2+20160726072212"
+  },
+  "dependencies": {}
+}

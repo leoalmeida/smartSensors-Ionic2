@@ -1,0 +1,101 @@
+ion-card .item.advanced-top.item {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  background: transparent;
+
+  p {
+    font-size: 12px;
+    letter-spacing: 1.7px;
+    font-weight: 500;
+    opacity: 0.7;
+  }
+}
+
+ion-card .advanced-bottom.grid {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(255,255,255,0.3);
+
+  ion-note {
+    color: #444;
+    font-size: 12px;
+    align-self: flex-start;
+    margin-top: 14px;
+
+    font-weight: 500;
+    opacity: 0.7;
+  }
+
+  .messages {
+    ion-icon {
+      color: #21b94e;
+    }
+    div {
+      color: #000;
+    }
+  }
+  .likes {
+    ion-icon {
+      color: #1569ff;
+    }
+    div {
+      color: #000;
+    }
+  }
+}
+
+
+.preview-cards {
+
+  ion-card ion-list {
+    font-size: 1.0em;
+    position: absolute;
+    width: 100%;
+    color: #fff !important;
+  }
+
+  .background {
+    position: relative;
+    text-align: center !important;
+  }
+
+  ion-card .list.advanced-middle {
+    position: absolute;
+    top: 18%;
+    left: 0;
+    width: 100%;
+  }
+
+  ion-card .list.advanced-middle .item {
+    margin: 2px 0 2px 0;
+    background: #fff;
+
+    opacity: 0.7;
+    ion-avatar{
+      margin: 0 16px 0 0;
+    }
+    .label {
+      margin: 0;
+    }
+  }
+
+  ion-note {
+    color: #444;
+    font-size: 12px;
+    align-self: flex-start;
+    margin-top: 14px;
+    font-weight: 500;
+    opacity: 0.7;
+  }
+
+  md-ripple {
+    background: rgba(255,255,255, 0.15);
+  }
+}
+
+.no-margin{
+  margin:0;
+}
+

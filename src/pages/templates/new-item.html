@@ -1,0 +1,24 @@
+<div class="modal">
+
+  <!-- Modal header bar -->
+  <ion-header-bar class="bar-secondary">
+    <h1 class="title">{{constantsWindows.newItemWindow.title}}</h1>
+    <button class="button button-clear button-positive" ng-click="closeNewItem()">Cancelar</button>
+  </ion-header-bar>
+
+  <!-- Modal content area -->
+  <ion-content>
+
+    <form ng-submit="createItem(newobj)">
+      <div class="list">
+        <label class="item item-input">
+          <input type="text" placeholder="{{constantsWindows.newItemWindow.mensagem}}" ng-model="newobj.name">
+        </label>
+      </div>
+      <div class="padding">
+        <button type="submit" class="button button-block button-positive">{{constantsWindows.newItemWindow.create}}</button>
+      </div>
+    </form>
+
+  </ion-content>
+</div>

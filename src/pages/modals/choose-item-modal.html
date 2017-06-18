@@ -1,0 +1,122 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      {{pageTitle}}
+    </ion-title>
+    <ion-buttons end>
+     <button ion-button icon-only (click)="dismiss()">
+       <span ion-text color="primary" showWhen="ios">Cancel</span>
+       <ion-icon name="md-close" showWhen="android, windows"></ion-icon>
+       <ion-icon name="close" hideWhen="ios, android, windows"></ion-icon>
+     </button>
+   </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="home" >
+  <ion-slides pager="true" paginationType="progress" parallax="true" (ionSlideDidChange)="slideChanged()" (ionSlideWillChange)="ionSlideWillChange()" >
+    <ion-slide *ngFor="let slide of slideList; index as i;">
+
+      <ion-grid *ngIf="i<firstSlide">
+        <ion-row wrap *ngIf="slide.length" align-items-center>
+          <ion-col *ngFor="let item of slide;index as idx;" (click)="itemSelected(idx, i)">
+                <div class="card-title">{{item.name}}</div>
+                <div class="card-subtitle">{{listType}}</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      <span *ngIf="firstSlide<=slides.getActiveIndex()">
+        <ion-item inset *ngIf="slide.type === 'string' || !slide.type || slide.type === 'array' || slide.type === 'object'">
+            <ion-input placeholder="{{slide.display}}" clearInput [(ngModel)]="slide.value" autofocus></ion-input>
+        </ion-item>
+
+        <ion-item *ngIf="slide.type === 'number'">
+          <ion-label>{{slide.display}}
+            <ion-badge color="primary" item-right>{{slide.value}}</ion-badge>
+          </ion-label>
+          <ion-range min="{{slide.min}}" max="{{slide.max}}" [(ngModel)]="slide.value" color="secondary" pin="true"  snaps="true">
+            <ion-label range-left>-{{slide.min}}</ion-label>
+            <ion-label range-right>{{slide.max}}</ion-label>
+          </ion-range>
+        </ion-item>
+
+        <ion-item *ngIf="slide.type === 'range'">
+          <ion-label>{{slide.display}}
+            <ion-badge color="danger" item-right>{{slide.value.lower}}</ion-badge>
+            <ion-badge color="danger" item-right>{{slide.value.upper}}</ion-badge>
+          </ion-label>
+          <ion-range min="{{slide.min}}" max="{{slide.max}}" dualKnobs="{{slide.dualKnobs}}" [(ngModel)]="slide.value"
+                     color="secondary" pin="{{slide.pin}}"  snaps="{{slide.snaps}}">
+            <ion-icon range-left small name="{{slide.icon}}"></ion-icon>
+            <ion-icon range-right name="{{slide.icon}}"></ion-icon>
+          </ion-range>
+        </ion-item>
+
+        <ion-item *ngIf="slide.type === 'boolean'">
+          <ion-label>{{slide.display}}</ion-label>
+          <ion-toggle [(ngModel)]="slide.value"></ion-toggle>
+        </ion-item>
+        <!--<ion-item *ngIf="slide.type === 'array' || slide.type === 'object'">
+          <ion-label>{{slide.display}}</ion-label>
+          <ion-input type="{{slide.type}}" [(ngModel)]="slide.value"></ion-input>
+        </ion-item>-->
+        <ion-item *ngIf="slide.type === 'image'">
+            <ion-label>{{slide.display}}</ion-label>
+            <img [src]="slide.value"/>
+            <ion-input type="file" [(ngModel)]="slide.value" autofocus></ion-input>
+        </ion-item>
+
+        <ion-item-group *ngIf="slide.type === 'geo'">
+            <ion-item-divider color="light">
+              Endereço
+              <ion-icon name="locate" (click)="geoLocate()" item-right></ion-icon>
+            </ion-item-divider>
+            <ion-item *ngFor="let attr of slide.prototype">
+              <ion-label>{{attr.display}}</ion-label>
+              <ion-input type="{{attr.type}}" [(ngModel)]="attr.value" placeholder="{{attr.display}}"></ion-input>
+            </ion-item>
+        </ion-item-group>
+
+        <ion-list class="radio-group-margin-fix" *ngIf="slide.type === 'select'" radio-group [(ngModel)]="slide.value">
+          <ion-item *ngFor="let opt of listReferences[slide.valid]">
+            <ion-label>{{opt.display}}</ion-label>
+            <ion-radio [value]="opt.value"></ion-radio>
+          </ion-item>
+        </ion-list>
+
+        <ion-list class="radio-group-margin-fix" *ngIf="slide.type === 'radio'" radio-group [(ngModel)]="slide.value">
+          <ion-item *ngFor="let opt of slide.valid">
+            <ion-label>{{opt.display}}</ion-label>
+            <ion-radio [value]="opt.value"></ion-radio>
+          </ion-item>
+        </ion-list>
+
+        <ion-list *ngIf="slide.type === 'checkbox'" >
+          <ion-item *ngFor="let opt of slide.options;index as idx;">
+            <ion-label>{{opt.display}}</ion-label>
+            <ion-checkbox [(ngModel)]="opt.value"></ion-checkbox>
+          </ion-item>
+        </ion-list>
+
+        <ion-fab bottom left  *ngIf="firstSlide<slides.getActiveIndex()">
+          <button ion-fab clear color="dark" (click)="goBack()">
+            <ion-icon name="arrow-back"></ion-icon>
+          </button>
+        </ion-fab>
+
+        <ion-fab bottom right  *ngIf="!slides.isEnd()" >
+          <button ion-fab clear color="dark" (click)="goNext()">
+            <ion-icon name="arrow-forward"></ion-icon>
+          </button>
+        </ion-fab>
+
+        <ion-fab bottom right  *ngIf="slides.isEnd()" >
+          <button ion-fab clear color="primary" (click)="doSave()">
+            <ion-icon name="send"></ion-icon>
+          </button>
+        </ion-fab>
+
+      </span>
+
+    </ion-slide>
+  </ion-slides>
+</ion-content>

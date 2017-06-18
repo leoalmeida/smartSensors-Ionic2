@@ -1,0 +1,34 @@
+geofence-page {
+  [noScroll] {
+    overflow: hidden;
+  }
+
+
+  .geofence-radius-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+
+    .geofence-radius-input-container {
+      width: 100%;
+      padding-left: 10px;
+      padding-right: 10px;
+
+      input {
+        width: 100%;
+      }
+    }
+  }
+
+  .map-container {
+    width: 100%;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+  }
+
+  #fencemap {
+    height: 100%;
+    width: 100%;
+  }
+}
