@@ -6,6 +6,35 @@ import * as Leaflet from "leaflet";
 
 import { DataService }  from './apiData.service';
 
+const iconUrls = {
+  shadow: 'assets/leaflet/images/marker-shadow.png',
+  default: 'assets/leaflet/images/marker-icon.png',
+  default2x: 'assets/leaflet/images/marker-icon-2x.png',
+  black2x: 'assets/leaflet/images/marker-icon-2x-black.png',
+  blue2x: 'assets/leaflet/images/marker-icon-2x-blue.png',
+  green2x: 'assets/leaflet/images/marker-icon-2x-green.png',
+  grey2x: 'assets/leaflet/images/marker-icon-2x-grey.png',
+  orange2x: 'assets/leaflet/images/marker-icon-2x-orange.png',
+  red2x: 'assets/leaflet/images/marker-icon-2x-red.png',
+  violet2x: 'assets/leaflet/images/marker-icon-2x-violet.png',
+  yellow2x: 'assets/leaflet/images/marker-icon-2x-yellow.png',
+  black: 'assets/leaflet/images/marker-icon-black.png',
+  blue: 'assets/leaflet/images/marker-icon-blue.png',
+  green: 'assets/leaflet/images/marker-icon-green.png',
+  grey: 'assets/leaflet/images/marker-icon-grey.png',
+  orange: 'assets/leaflet/images/marker-icon-orange.png',
+  red: 'assets/leaflet/images/marker-icon-red.png',
+  violet: 'assets/leaflet/images/marker-icon-violet.png',
+  yellow: 'assets/leaflet/images/marker-icon-yellow.png',
+};
+//const colors = ["green", "grey", "orange", "red", "violet", "yellow", "black"];
+const newIcon = function (color){
+  if (!color) color = 'default';
+  return new Leaflet.Icon({
+    iconUrl: iconUrls[color], shadowUrl: iconUrls.shadow, iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+  });
+};
+
 @Injectable()
 export class LocationTracker {
 
@@ -15,7 +44,11 @@ export class LocationTracker {
   private _circle: any;
   private _marker: any;
   private _evaluation: any;
-  private _itemId: any;
+  private _equipLayers: any = {};
+  private _layerControl: any = false;
+  private _items: Array<any>;
+  private _type: string = "";
+  private _category: string = "";
   private _running:boolean = false;
   private _status:any;
   private locals = [];
@@ -27,7 +60,7 @@ export class LocationTracker {
               private dataService: DataService) {}
 
   // Background Tracking
-  startTracking(latlng: any, radius: number, itemId: string, evaluation: any) {
+  startTracking(latlng: any, radius: number, params: any, evaluation: any) {
 
     let config = {
       desiredAccuracy: 0,
@@ -42,8 +75,10 @@ export class LocationTracker {
     this._circle = Leaflet.circle(latlng, this.radius);
     this._latLng = latlng;
     this.radius = radius;
-    this._itemId = itemId;
     this._evaluation = evaluation;
+    if (params.items) this._items = params.items;
+    if (params.type) this._type = params.type;
+    if (params.category) this._category = params.category;
     this._running = true;
 
     this.backgroundGeolocation.configure(config).subscribe((location) => {
@@ -91,50 +126,56 @@ export class LocationTracker {
   }
 
   bindProcessing(latlng){
-    var options = {
-      "topicKeys": [
-        { "topicId": this._itemId }
-      ],
-      "coordinates": [this._latLng.lat, this._latLng.lng],
-      "radius": this.radius
-    };
+    var options = {};
+    if (this._evaluation === "evaluateTopic"){
+      options = {
+        "topicKeys": [
+          { "topicId": this._items[0] }
+        ],
+        "coordinates": [this._latLng.lat, this._latLng.lng],
+        "radius": this.radius
+      };
+    }else{
+      //for (let layer of Object.keys(this._equipLayers)) this._equipLayers[layer].clearLayers();
+      options["coordinates"] = [this._latLng.lat, this._latLng.lng];
+      options["radius"] = this.radius;
+      if (this._type) options["type"] = this._type;
+      if (this._category) options["category"] = this._category;
+    }
+
+    for (let layer of Object.keys(this._equipLayers)) this._equipLayers[layer].clearLayers();
 
     //this._evaluation.bind ( this )
     this.dataService[this._evaluation](options)
       .subscribe((data) => {
-        console.log ( data );
-        this._status = data;
-        if (data[0].result.err)
-          this.marker
-            .bindPopup(data[0].result.err.msg +" / "+ data[0].result.sync)
-            .openPopup();
-        else
-          this.marker
-            .bindPopup(data[0].result.value +" / "+ data[0].result.sync)
-            .openPopup();
-
-        /*
-        let overlayMaps = {};
-        let qtdcolor = 0;
-        for ( let equip of data[0].topicInfo.messages ) {
-          if ( ! this.equipLayers[ equip.category ] ) {
-            if ( ! this.categoryColor[ equip.category ] ) this.categoryColor[ equip.category ] = colors[ qtdcolor ++ ];
-            this.equipLayers[ equip.category ] = Leaflet.layerGroup ( [] );
-            this.equipLayers[ equip.category ].addTo ( this.map );
-            overlayMaps[ equip.category ] = this.equipLayers[ equip.category ];
-            if ( qtdcolor >= colors.length ) qtdcolor = 0;
+        if (this._evaluation === "evaluateTopic"){
+            console.log ( data );
+            this._status = data;
+            if (data[0].result.err)
+              this.marker
+                .bindPopup(data[0].result.err.msg +" / "+ data[0].result.sync)
+                .openPopup();
+            else
+              this.marker
+                .bindPopup(data[0].result.value +" / "+ data[0].result.sync)
+                .openPopup();
+           this._items = data[0].equipments;
+           for (let equip of this._items["connected"])
+             this._equipLayers["green"].addLayer(Leaflet.marker(Leaflet.latLng(equip.location.coordinates),{icon: newIcon("green")}).bindPopup(equip.data.label + "  (" + equip.category + ")"));
+           for (let equip of this._items["disconnected"])
+             this._equipLayers["red"].addLayer(Leaflet.marker(Leaflet.latLng(equip.location.coordinates),{icon: newIcon("red")}).bindPopup(equip.data.label + "  (" + equip.category + ")"));
+        }else{
+          this._items = data;
+          for (let equip of data){
+            let itemColor = equip.data.connected?"green":"red";
+            this._equipLayers[itemColor].addLayer(Leaflet.marker(Leaflet.latLng(equip.location.coordinates),{icon: newIcon(itemColor)}).bindPopup(equip.data.label + "  (" + equip.category + ")"));
           }
-          let itemMarker = Leaflet.marker (
-            Leaflet.latLng ( equip.location.coordinates ),{
-              icon:      newIcon ( this.categoryColor[ equip.category ] ),
-              draggable: this.change
-            }).bindPopup ( equip.data.name );
-          this.equipLayers[ equip.category ].addLayer ( itemMarker );
-        }*/
+        }
       },error =>  console.log(<any>error));
 
     this.locals.push(latlng);
     //this.storage.set("locals" + this.userKey + this.item._id, this.locals);
+
   }
 
   stopTracking() {
@@ -156,9 +197,25 @@ export class LocationTracker {
     this._circle.setLatLng(latlng);
     this._marker.setLatLng(latlng);
   }
+
   get latLng(){
     return this._latLng;
   }
+
+  set equipLayers(equipLayers) {
+    this._equipLayers = equipLayers;
+  }
+
+  get equipLayers(){
+    return this.equipLayers;
+  }
+  set layerControl(layerControl) {
+    this._layerControl = layerControl;
+  }
+  get layerControl(){
+    return this._layerControl;
+  }
+
   get marker(){
     return this._marker;
   }

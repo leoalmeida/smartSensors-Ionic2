@@ -118,7 +118,7 @@ export class HubPage implements OnInit {
   }
 
   showMap() {
-    let modal = this.modalCtrl.create(ShowMapModal,{ items: this.objects, key: this.userKey });
+    let modal = this.modalCtrl.create(ShowMapModal,{ items: this.objects, key: this.userKey, type: "board" });
     modal.present();
   }
 

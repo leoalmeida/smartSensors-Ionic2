@@ -51,7 +51,7 @@ export class AccessoryPage implements OnInit {
   }
 
   showMap() {
-    let modal = this.modalCtrl.create(ShowMapModal,{ items: this.objects, key: this.userKey });
+    let modal = this.modalCtrl.create(ShowMapModal,{ items: this.objects, key: this.userKey, type: "actuator"});
     modal.present();
   }
 

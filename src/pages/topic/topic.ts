@@ -93,14 +93,14 @@ export class TopicPage {
     else this.watchID[item].unsubscribe();
 */
 
-    let modal = this.modalCtrl.create(ShowMapModal,{ item: item, type: "dynamicTopic", key: this.userKey });
+    let modal = this.modalCtrl.create(ShowMapModal,{ item: item, model: "dynamicTopic", key: this.userKey});
 
     modal.present();
   };
 
 
   showMap() {
-    let modal = this.modalCtrl.create(ShowMapModal,{ items: this.objects, key: this.userKey });
+    let modal = this.modalCtrl.create(ShowMapModal,{ items: this.objects, key: this.userKey, type: "topic"});
     modal.present();
   }
 

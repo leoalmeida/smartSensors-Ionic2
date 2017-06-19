@@ -60,8 +60,8 @@ export class MyApp {
       { title: 'Equipamentos', component: EquipmentsPage },
       //{ title: 'Graph', component: GraphPage },
       { title: 'Mapas', component: MapsPage },
-      { title: 'Geofence', component: GeofenceDetailsPage },
-      { title: 'Barcodes', component: BarcodePage },
+      //{ title: 'Geofence', component: GeofencePage },
+      //{ title: 'Barcodes', component: BarcodePage },
       { title: 'Perfil', component: ProfilePage },
       { title: 'Configurations', component: ConfigurationsPage }
     ];
@@ -74,28 +74,31 @@ export class MyApp {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
       if(this.auth.isAuthenticated()) {
-
-        let loader = this.loadingCtrl.create({
-          content: "Conectando..."
-        });
-        loader.present();
-        this.dataService.getStaticData(["data", "data.email", this.user.details.email], "owner")
-              .then(value => {
-                if (value.length === 0) {
-                  this.auth.logout();
-                  this.nav.setRoot(LoginPage);
-                  
-                }else{
-                  this.userKey  = value[0]._id
-                  loader.dismissAll();
-                  this.nav.setRoot(HomePage, {"key": this.userKey})
-                }
-              },error =>  this.errorMessage = <any>error);
+        this.identifyUser(HomePage);
       }else{
         this.nav.setRoot(LoginPage);
       }
 
     });
+  }
+
+  private identifyUser(page){
+    let loader = this.loadingCtrl.create({
+      content: "Conectando..."
+    });
+    loader.present();
+    this.dataService.getStaticData(["data", "data.email", this.user.details.email], "owner")
+          .then(value => {
+            if (value.length === 0) {
+              loader.dismissAll();
+              this.auth.logout();
+              this.nav.setRoot(LoginPage);
+            }else{
+              this.userKey  = value[0]._id
+              loader.dismissAll();
+              this.nav.setRoot(page, {"key": this.userKey})
+            }
+          },error =>  this.errorMessage = <any>error);
   }
 
 
@@ -114,7 +117,10 @@ export class MyApp {
   openPage(page) {
     // Reset the content nav to have just this page
     // we wouldn't want the back button to show in this scenario
-    this.nav.setRoot(page.component, {"key": this.userKey});
+    if (this.userKey)
+      this.nav.setRoot(page.component, {"key": this.userKey});
+    else
+      this.identifyUser(page.component)
   }
 
 }

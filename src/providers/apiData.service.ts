@@ -65,6 +65,17 @@ export class DataService {
       .catch(this.handleError);
   };
 
+  getEquipmentSpots(options: any): Observable<KnowledgeModel<EquipmentModel, AssociationModel>[]> {
+    let parameters = ["loc", options.coordinates[0], options.coordinates[1], options.radius];
+    if (options.type) parameters.push(options.type);
+    if (options.category) parameters.push(options.category);
+    //parameters.push("ownedBy", this.userKey);
+
+    let url = this.dbUrl + "api/knowledge/" + parameters.join("/");
+    return this.http.get(url, this.generateHeader(true))
+      .map(response => response.json() as KnowledgeModel<EquipmentModel, AssociationModel>[]);
+  };
+
   getReferenceData(resource: Array<string>): Observable<KnowledgeModel<EquipmentModel, AssociationModel>[]> {
     return this.http.get(this.dbUrl + "api/reference/" + resource.join("/"), this.generateHeader(true))
       .map(response => response.json() as any);

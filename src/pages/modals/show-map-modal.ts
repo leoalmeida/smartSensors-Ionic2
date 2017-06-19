@@ -51,8 +51,6 @@ export class ShowMapModal implements OnInit{
   userKey: any;
 
   private categoryColor: any = {};
-  private equipLayers: any = {};
-  private layerControl: any = false;
   private _radius: number = 3000;
   //private _latLng: any;
   //private circle: any;
@@ -66,6 +64,8 @@ export class ShowMapModal implements OnInit{
   change: boolean;
 
   private type: string = "";
+  private category: string = "";
+  private mapModel: string = "";
   private errorMessage: string = "";
   private status = {};
 
@@ -86,10 +86,12 @@ export class ShowMapModal implements OnInit{
     });
     this.loader.present();
 
+    this.mapModel = navParams.get('model');
     this.type = navParams.get('type');
+    this.category = navParams.get('category');
 
     this.change = navParams.get('change');
-    if (this.change || this.type)
+    if (this.change || this.mapModel)
       this.item = navParams.get('item');
     else
       this.items = navParams.get('items');
@@ -138,11 +140,22 @@ export class ShowMapModal implements OnInit{
 
   //when we have a location draw a marker and accuracy circle
   onLocationFound(e) {
-    this.locationTracker.startTracking(e.latlng, this.radius, this.item._id, "evaluateTopic");
+    this.drawLayers();
+
+    if (this.mapModel === "dynamicTopic"){
+      let params = {items: [this.item._id]}
+      this.locationTracker.startTracking(e.latlng, this.radius, params, "evaluateTopic");
+    }else{
+      let params = {
+        type: this.type,
+        category: this.category,
+        items: [this.items]}
+      this.locationTracker.startTracking(e.latlng, this.radius, params, "getEquipmentSpots");
+    }
     this.setMarker();
   }
 
-  setMarker(){
+  private setMarker(){
     this.map.setZoom(13);
     this.locationTracker.marker.addTo(this.map);
     this.locationTracker.circle.addTo(this.map);
@@ -150,30 +163,33 @@ export class ShowMapModal implements OnInit{
     this.loader.dismissAll();
   }
 
-/*  private drawLayers() {
+  private drawLayers() {
     var qtdcolor = 0;
     var overlayMaps = {};
-
-    if (!(this.type === "dynamicTopic")) {
-      for ( let equip of this.items ) {
-        if ( ! this.equipLayers[ equip.category ] ) {
-          if ( ! this.categoryColor[ equip.category ] ) this.categoryColor[ equip.category ] = colors[ qtdcolor ++ ];
-          this.equipLayers[ equip.category ] = Leaflet.layerGroup ( [] );
-          this.equipLayers[ equip.category ].addTo ( this.map );
-          overlayMaps[ equip.category ] = this.equipLayers[ equip.category ];
-          if ( qtdcolor >= colors.length ) qtdcolor = 0;
-        }
-        let itemMarker = Leaflet.marker (
-                            Leaflet.latLng ( equip.location.coordinates ),{
-                                icon:      newIcon ( this.categoryColor[ equip.category ] ),
-                                draggable: this.change
-                              }).bindPopup ( equip.data.name );
-        this.equipLayers[ equip.category ].addLayer ( itemMarker );
-      }
-    }
-    this.layerControl = Leaflet.control.layers(this.baseLayout,overlayMaps).addTo(this.map);
+    let equipLayers = {};
+    equipLayers[ "green" ] = Leaflet.layerGroup ( [] );
+    equipLayers[ "green" ].addTo ( this.map );
+    overlayMaps[ "Conectado" ] = equipLayers[ "green" ];
+    equipLayers[ "red" ] = Leaflet.layerGroup ( [] );
+    equipLayers[ "red" ].addTo ( this.map );
+    overlayMaps[ "Desconectado" ] = equipLayers[ "red" ];
+    this.locationTracker.layerControl = Leaflet.control.layers(this.baseLayout,overlayMaps).addTo(this.map);
+    if (this.mapModel === "dynamicTopic") this.addEquipmentsToDrawer(equipLayers);
+    this.locationTracker.equipLayers = equipLayers;
   }
-*/
+
+  private addEquipmentsToDrawer(equipLayers){
+    for ( let equip of this.items ) {
+      var itemColor = equip.data.connected?"green":"red";
+      let itemMarker = Leaflet.marker (
+                          Leaflet.latLng ( equip.location.coordinates ),{
+                              icon:      newIcon ( itemColor ),
+                              draggable: this.change
+                            }).bindPopup ( equip.data.name );
+      equipLayers[ itemColor ].addLayer ( itemMarker );
+    }
+  }
+
   stop(){
     this.locationTracker.stopTracking();
   }
