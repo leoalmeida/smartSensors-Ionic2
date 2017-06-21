@@ -9,7 +9,7 @@ import { User } from '@ionic/cloud-angular';
 
 import { ItemPopOverPage } from './item-popover';
 
-import { AssociationModel, EquipmentModel, KnowledgeModel, TopicModel } from '../../models/interfaces';
+import { AssociationModel, EquipmentModel, KnowledgeInterface, TopicModel } from '../../models/interfaces';
 import { RelationModalPage } from '../modals/relation-item-modal';
 import { RuleModalPage } from '../modals/rule-item-modal';
 import { ReferenceService } from '../../providers/reference.service';
@@ -47,7 +47,7 @@ export class TopicDesignerPage implements OnInit{
 
   dynamic: boolean = false;
 
-  object: KnowledgeModel<TopicModel, AssociationModel>;
+  object: KnowledgeInterface<TopicModel, AssociationModel>;
 
   ruleCategoryItems: any;
   actionCategoryItems: any;

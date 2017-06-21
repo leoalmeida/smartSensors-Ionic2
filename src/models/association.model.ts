@@ -10,7 +10,6 @@ export class AssociationModel {
   public commentedAt: Array<RelationModel> = [];
   public subscribedBy: Array<RelationModel> = [];
 
-  private formGroup: FormGroup;
   private formOwnedByArray: FormArray;
   private formConnectArray: FormArray;
   private formSubscriberAtArray: FormArray;
@@ -19,6 +18,7 @@ export class AssociationModel {
   private formSubscribedByArray: FormArray;
 
   private fb: FormBuilder;
+  private formGroup: FormGroup;
 
   constructor(input?: any, fb?: FormBuilder){
     this.fb = fb;
@@ -93,6 +93,21 @@ export class AssociationModel {
         commentedAt: this.formCommentedAtArray,
         subscribedBy: this.formSubscribedByArray
       })
+  }
+
+  public push(type, input){
+    var newRelation = new RelationModel(input,this.fb);
+    if (this[type])
+      this[type].push(newRelation.getFormGroup());
+  }
+
+  public removeAt(type, removedIndex){
+    if (this[type])
+      this[type].removeAt(removedIndex);
+  }
+
+  public getFormFromType(type){
+    return this[type];
   }
 
   public fillTemplate(input, fb){

@@ -15,7 +15,7 @@ import { CreateKnowledgePage } from '../create-knowledge/create-knowledge';
 
 
 import {
-  AssociationModel, AttributeModel, EquipmentModel, KnowledgeModel,
+  AssociationModel, AttributeModel, EquipmentModel, KnowledgeInterface,
   RelationModel
 } from '../../models/interfaces';
 import { ChooseItemModal } from '../modals/choose-item-modal';
@@ -37,12 +37,12 @@ export class SourceDetailsPage {
   selectedItem: any;
   userKey: any;
 
-  object: KnowledgeModel<EquipmentModel, AssociationModel>;
+  object: KnowledgeInterface<EquipmentModel, AssociationModel>;
   configurations: Array<AttributeModel> = [];
 
   data: EquipmentModel;
   info: Array<AttributeModel> = [];
-  knowledges: Array<KnowledgeModel<EquipmentModel, AssociationModel>> = [];
+  knowledges: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
   changed: boolean[];
 
   refData = {};
@@ -80,7 +80,7 @@ export class SourceDetailsPage {
 
   selectObject() {
     this.dataService.getOne<EquipmentModel>([ this.selectedItem])
-                     .subscribe((result:KnowledgeModel<EquipmentModel, AssociationModel>) => {
+                     .subscribe((result:KnowledgeInterface<EquipmentModel, AssociationModel>) => {
                        this.pageTitle  = result.data.name;
                        this.info = result.data.info;
                        this.configurations = result.data.configurations;

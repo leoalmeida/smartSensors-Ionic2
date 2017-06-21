@@ -3,7 +3,7 @@ import { Component, ViewChild} from '@angular/core';
 import { AlertController, NavParams, ViewController, Slides, ToastController } from 'ionic-angular';
 import { DataService } from '../../providers/apiData.service';
 import { ReferenceService } from '../../providers/reference.service';
-import { AttributeModel } from '../../models/attribute.model';
+import { KnowledgeInterface, EquipmentModel, AssociationModel, AttributeModel, RelationModel } from '../../models/interfaces';
 
 import { Geolocation, Geoposition } from '@ionic-native/geolocation';
 import { NativeGeocoder, NativeGeocoderReverseResult } from '@ionic-native/native-geocoder';
@@ -36,6 +36,10 @@ export class ChooseItemModal {
   selectedName: string = "";
   firstSlide: number;
 
+  selectBoardOpen: boolean;
+  connectedBoard: RelationModel;
+  boardList: KnowledgeInterface<EquipmentModel, AssociationModel>[];
+
   constructor(
     private navParams: NavParams,
     private dataService:DataService,
@@ -53,6 +57,9 @@ export class ChooseItemModal {
     this.pageTitle = this.navParams.get('title');
     this.listType = this.navParams.get('listType');
     this.itemType = this.navParams.get('itemType');
+    if (this.itemType == "sensor" || this.itemType == "actuator"){
+      this.getBoardList();
+    }
     this.getReferenceData();
   }
 
@@ -73,6 +80,9 @@ export class ChooseItemModal {
     if (this.selectedItem.options.length){
       this.pageTitle = "Novo " + this.selectedItem.name;
       this.selectedType = this.selectedItem.name;
+      if (!this.boardList && (this.selectedType == "sensor" || this.selectedType == "actuator")){
+        this.getBoardList();
+      }
       this.slideList.push("");
       this.slideList[slideIndex+1] = this.selectedItem.options;
       this.slides.lockSwipeToNext(false);
@@ -80,17 +90,72 @@ export class ChooseItemModal {
       this.firstSlide++;
       //this.slides.slideNext(500, true);
     }else if (this.selectedItem.properties.length){
-      this.slideList[slideIndex+1] = this.selectedItem.info[0];
-      for (let attr of this.selectedItem.properties)
-        if (!attr.hidden)
-          this.slideList.push(attr);
-
-      this.slides.lockSwipeToNext(false);
-      //this.slides.slideTo(slideIndex+1, 500, true);
-      this.slides.slideTo(slideIndex+1, 500, true);
+      if (this.selectedType == "sensor" || this.selectedType == "actuator"){
+        this.selectConnected(slideIndex);
+      }else{
+        this.fillAttributes(slideIndex);
+      }
     }else{
       this.doSave();
     }
+  }
+
+  private fillAttributes(slideIndex){
+    this.slideList[slideIndex+1] = this.selectedItem.info[0];
+    for (let attr of this.selectedItem.properties)
+      if (!attr.hidden)
+        this.slideList.push(attr);
+
+    this.slides.lockSwipeToNext(false);
+    //this.slides.slideTo(slideIndex+1, 500, true);
+    this.slides.slideTo(slideIndex+1, 500, true);
+  }
+
+  private selectConnected(slideIndex) {
+    let alert = this.alertCtrl.create();
+    alert.setTitle('Selecione o hub');
+
+    let i = 0;
+    for (let board of this.boardList)
+      alert.addInput({
+        type: 'radio',
+        label: board.data.name,
+        value: board._id,
+        checked: (i++)?false:true
+      });
+
+    alert.addInput({
+      type: 'radio',
+      label: "Criar Novo",
+      value: "new"
+    });
+
+    alert.addButton('Cancelar');
+    alert.addButton({
+      text: 'Continuar',
+      handler: data => {
+        if (data == "new")
+          this.restart("board");
+        else{
+          console.log('Radio data:', data);
+          this.selectBoardOpen = false;
+          this.connectedBoard = {
+            id: data
+          };
+          this.fillAttributes(slideIndex);
+        }
+      }
+    });
+    alert.present().then(() => {
+      this.selectBoardOpen = true;
+    });
+  }
+
+  private getBoardList(){
+    this.dataService.getData<EquipmentModel>(["board" , "ownedBy", this.userKey], null)
+      .subscribe(
+        (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.boardList = data,
+        error =>  this.errorMessage = <any>error);
   }
 
   goBack(){
@@ -212,11 +277,17 @@ export class ChooseItemModal {
                        error =>  this.errorMessage = <any>error);*/
   }
 
+  restart(type){
+    this.viewCtrl.dismiss({
+      type: type
+    })
+  }
 
   doSave(){
     this.selectedItem.type = this.selectedType;
     this.viewCtrl.dismiss({
-      itemTemplate: this.selectedItem
+      itemTemplate: this.selectedItem,
+      connectedBoard : this.connectedBoard
     });
   }
 

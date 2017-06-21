@@ -118,6 +118,26 @@ export class SourcePage implements OnInit {
     });
   }
 
+  openModal(type){
+    let modal = this.modalCtrl.create(ChooseItemModal, {key: this.userKey, listType: 'equipment', itemType: type, title: 'Novo Sensor'});
+    modal.present();
+    modal.onWillDismiss((data: any) => {
+      if (data) {
+        if (data.type)
+          this.openModal(data.type);
+        else{
+          this.navCtrl.push(CreateKnowledgePage, {
+              template: data.itemTemplate,
+              connectedBoard : data.connectedBoard,
+              item: "",
+              key: this.userKey
+          });
+          console.log('MODAL DATA', data);
+        }
+      }
+    });
+  }
+
   openMenu() {
     let actionSheet = this.actionsheetCtrl.create({
       title: 'Sensores',
@@ -127,18 +147,7 @@ export class SourcePage implements OnInit {
           text: 'Novo',
           icon: !this.platform.is('ios') ? 'add' : null,
           handler: () => {
-            let modal = this.modalCtrl.create(ChooseItemModal, {key: this.userKey, listType: 'equipment', itemType: 'sensor', title: 'Novo Sensor'});
-            modal.present();
-            modal.onWillDismiss((data: any) => {
-              if (data) {
-                this.navCtrl.push(CreateKnowledgePage, {
-                    template: data.itemTemplate,
-                    item: "",
-                    key: this.userKey
-                });
-                console.log('MODAL DATA', data);
-              }
-            });
+            this.openModal('sensor');
           }
         },
         {

@@ -15,9 +15,9 @@ import { TopicPage } from '../pages/topic/topic';
 import { ChatsPage } from '../pages/chats/chats';
 import { MapsPage } from '../pages/maps/maps';
 import { HubPage } from '../pages/hub/hub';
-import { BarcodePage } from '../pages/barcode/barcode';
+//import { BarcodePage } from '../pages/barcode/barcode';
 import { User, Auth } from '@ionic/cloud-angular';
-import { GeofenceDetailsPage } from "../pages/geofence/geofence";
+//import { GeofenceDetailsPage } from "../pages/geofence/geofence";
 //import { GraphPage } from '../pages/graph/graph';
 //import { Storage } from '@ionic/storage';
 

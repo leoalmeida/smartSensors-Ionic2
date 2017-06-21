@@ -53,6 +53,35 @@ export class KnowledgeModel {
     });
   }
 
+  public updateGeoLocation(position, text){
+    this.location.updateLocation([position.coords.latitude, position.coords.longitude], text);
+  }
+
+  public removeItem(type: string, arrayIndex: number){
+    if (this.data)
+      console.log("");//this.data.removeAt(type, arrayIndex);
+  }
+
+  public pushItem(type: string){
+    return "";//this.data.newItem(type, this.fb);
+  }
+  public getItem(type:string){
+    console.log("");
+  }
+
+  public removeRelation(type: string, arrayIndex: number){
+    this.relations.removeAt(type, arrayIndex);
+  }
+
+  public pushRelation(type: string, input){
+    this.relations.push(type, input);
+  }
+
+  public getRelations(type:string){
+    console.log(this.relations.getFormFromType(type));
+    return this.relations.getFormFromType(type);
+  }
+
   public fillTemplate(input, fb){
 
     this.root = input.template.root;

@@ -11,7 +11,7 @@ import { DataService } from '../../providers/apiData.service';
 import * as Leaflet from "leaflet";
 import { Geolocation } from '@ionic-native/geolocation';
 
-import { AssociationModel, EquipmentModel, KnowledgeModel } from '../../models/interfaces';
+import { AssociationModel, EquipmentModel, KnowledgeInterface } from '../../models/interfaces';
 
 const iconUrls = {
   shadow: 'assets/leaflet/images/marker-shadow.png',
@@ -54,7 +54,7 @@ export class MapsPage implements OnInit{
   private marker: any;
   private layerControl: any = false;
   private map: any = false;
-  private equipments: KnowledgeModel<EquipmentModel, AssociationModel>[];
+  private equipments: KnowledgeInterface<EquipmentModel, AssociationModel>[];
 
   position: any;
   errorMessage: string;
@@ -134,7 +134,7 @@ export class MapsPage implements OnInit{
 
     //this.dataService.getData<EquipmentModel>(["loc", this.locationTracker.latLng.lat, this.locationTracker.latLng.lng, this.locationTracker.radius],null)
     this.dataService.getData<EquipmentModel>(parameters, null)
-          .subscribe((equipments: KnowledgeModel<EquipmentModel, AssociationModel>[]) => {
+          .subscribe((equipments: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => {
             this.equipments = equipments;
             let connected = "red";
             for (let equip of equipments){

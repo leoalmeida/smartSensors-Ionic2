@@ -1,6 +1,6 @@
 import { Component, ViewChild, ElementRef, OnInit  } from '@angular/core';
 import { NavParams, ViewController, Platform, LoadingController } from 'ionic-angular';
-import { KnowledgeModel, EquipmentModel, AssociationModel } from '../../models/interfaces';
+import { KnowledgeInterface, EquipmentModel, AssociationModel } from '../../models/interfaces';
 
 import * as Leaflet from "leaflet";
 import { Geolocation } from '@ionic-native/geolocation';
@@ -31,7 +31,7 @@ const iconUrls = {
   violet: 'assets/leaflet/images/marker-icon-violet.png',
   yellow: 'assets/leaflet/images/marker-icon-yellow.png',
 };
-const colors = ["green", "grey", "orange", "red", "violet", "yellow", "black"];
+//const colors = ["green", "grey", "orange", "red", "violet", "yellow", "black"];
 const newIcon = function (color){
   if (!color) color = 'default';
   return new Leaflet.Icon({
@@ -50,7 +50,7 @@ export class ShowMapModal implements OnInit{
   selectedItem: any;
   userKey: any;
 
-  private categoryColor: any = {};
+  //private categoryColor: any = {};
   private _radius: number = 3000;
   //private _latLng: any;
   //private circle: any;
@@ -58,16 +58,16 @@ export class ShowMapModal implements OnInit{
   private map: any = false;
   private baseLayout: any = {};
 
-  item: KnowledgeModel<EquipmentModel, AssociationModel>;
-  items: Array<KnowledgeModel<EquipmentModel, AssociationModel>> = [];
+  item: KnowledgeInterface<EquipmentModel, AssociationModel>;
+  items: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
   index: string;
   change: boolean;
 
   private type: string = "";
   private category: string = "";
   private mapModel: string = "";
-  private errorMessage: string = "";
-  private status = {};
+  //private errorMessage: string = "";
+  //private status = {};
 
   private loader: any;
 
@@ -164,7 +164,7 @@ export class ShowMapModal implements OnInit{
   }
 
   private drawLayers() {
-    var qtdcolor = 0;
+    //var qtdcolor = 0;
     var overlayMaps = {};
     let equipLayers = {};
     equipLayers[ "green" ] = Leaflet.layerGroup ( [] );

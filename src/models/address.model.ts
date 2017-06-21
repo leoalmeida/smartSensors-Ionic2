@@ -19,6 +19,11 @@ export class AddressModel {
     });
   }
 
+  public updateLocation(coordinates, text){
+    this.formGroup.controls.coordinates.setValue(coordinates);
+    this.formGroup.controls.text.setValue(text);
+  }
+
   public getFormGroup() {
     return this.formGroup;
   }

@@ -9,7 +9,7 @@ import { ShowMapModal }  from '../modals/show-map-modal';
 
 import { DataService } from '../../providers/apiData.service';
 import { User } from '@ionic/cloud-angular';
-import { AssociationModel, EquipmentModel, KnowledgeModel } from '../../models/interfaces';
+import { AssociationModel, EquipmentModel, KnowledgeInterface } from '../../models/interfaces';
 
 @Component({
   selector: 'page-hub',
@@ -68,7 +68,7 @@ export class HubPage implements OnInit {
   getObjects() {
     this.dataService.getData<EquipmentModel>(["board" , "ownedBy", this.userKey], null)
       .subscribe(
-        (data: KnowledgeModel<EquipmentModel, AssociationModel>[]) => this.objects = data,
+        (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.objects = data,
         error =>  this.errorMessage = <any>error);
   }
 
@@ -144,6 +144,7 @@ export class HubPage implements OnInit {
               if (data) {
                 this.navCtrl.push(CreateKnowledgePage, {
                     template: data.itemTemplate,
+                    connectedBoard : data.connectedBoard,
                     item: "",
                     key: this.userKey
                 });

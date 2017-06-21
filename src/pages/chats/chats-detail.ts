@@ -12,7 +12,7 @@ import { SocialSharing } from '@ionic-native/social-sharing';
 import {
   AddressModel,
   KnowledgeMessageModel,
-  RelationModel, SyncObjectModel, AssociationModel, KnowledgeModel, ProfileModel, MessageModel, EquipmentModel,
+  RelationModel, SyncObjectModel, AssociationModel, KnowledgeInterface, ProfileModel, MessageModel, EquipmentModel,
   KnowledgeChannelModel
 } from '../../models/interfaces'
 
@@ -27,9 +27,9 @@ export class ChatsDetailPage implements OnDestroy {
   op: string = "$gt";
   inputMsg: string = "";
 
-  channel: KnowledgeModel<EquipmentModel, AssociationModel>;
+  channel: KnowledgeInterface<EquipmentModel, AssociationModel>;
   channelMsgs: SyncObjectModel<KnowledgeChannelModel> = new SyncObjectModel<KnowledgeChannelModel>();
-  listSubscriptions: SyncObjectModel<KnowledgeModel<ProfileModel, AssociationModel>>;
+  listSubscriptions: SyncObjectModel<KnowledgeInterface<ProfileModel, AssociationModel>>;
 
   notifications: any[] = [];
 
@@ -95,7 +95,7 @@ export class ChatsDetailPage implements OnDestroy {
   }
 
   fillBody(channelId){
-    var item: KnowledgeModel<MessageModel, AssociationModel>;
+    var item: KnowledgeInterface<MessageModel, AssociationModel>;
 
     item.type = 'action';
     item.category = 'message';

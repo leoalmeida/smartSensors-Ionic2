@@ -10,7 +10,7 @@ import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/map';
 
 import {
-  AssociationModel, AttributeModel, EquipmentModel, KnowledgeModel, MessageModel,
+  AssociationModel, AttributeModel, EquipmentModel, KnowledgeInterface, MessageModel,
   RelationModel
 } from '../models/interfaces';
 
@@ -65,7 +65,7 @@ export class DataService {
       .catch(this.handleError);
   };
 
-  getEquipmentSpots(options: any): Observable<KnowledgeModel<EquipmentModel, AssociationModel>[]> {
+  getEquipmentSpots(options: any): Observable<KnowledgeInterface<EquipmentModel, AssociationModel>[]> {
     let parameters = ["loc", options.coordinates[0], options.coordinates[1], options.radius];
     if (options.type) parameters.push(options.type);
     if (options.category) parameters.push(options.category);
@@ -73,47 +73,47 @@ export class DataService {
 
     let url = this.dbUrl + "api/knowledge/" + parameters.join("/");
     return this.http.get(url, this.generateHeader(true))
-      .map(response => response.json() as KnowledgeModel<EquipmentModel, AssociationModel>[]);
+      .map(response => response.json() as KnowledgeInterface<EquipmentModel, AssociationModel>[]);
   };
 
-  getReferenceData(resource: Array<string>): Observable<KnowledgeModel<EquipmentModel, AssociationModel>[]> {
+  getReferenceData(resource: Array<string>): Observable<KnowledgeInterface<EquipmentModel, AssociationModel>[]> {
     return this.http.get(this.dbUrl + "api/reference/" + resource.join("/"), this.generateHeader(true))
       .map(response => response.json() as any);
       //.map(this.processData)
       //.catch(this.handleError);
   }
 
-  getMessengerData(resource: Array<string>, query: any): Observable<KnowledgeModel<MessageModel, AssociationModel>[]> {
+  getMessengerData(resource: Array<string>, query: any): Observable<KnowledgeInterface<MessageModel, AssociationModel>[]> {
     let url = this.dbUrl + "api/messenger/" + resource.join("/");
     if (query!= null) {
       url += '?' + query.join("&");
     }
     return this.http.get(url, this.generateHeader(true))
-      .map(response => response.json() as KnowledgeModel<MessageModel, AssociationModel>[]);
+      .map(response => response.json() as KnowledgeInterface<MessageModel, AssociationModel>[]);
     //.map(this.processData)
     //.catch(this.handleError);
   }
 
-  publishMessage(newObject: any): Observable<KnowledgeModel<MessageModel, AssociationModel>> {
+  publishMessage(newObject: any): Observable<KnowledgeInterface<MessageModel, AssociationModel>> {
     return this.http.put(this.dbUrl + "api/messenger/", newObject, this.generateHeader(true))
       .map(response => response.json())
       .catch(this.handleError);
   }
 
-  getData<T>(resource: Array<string>, query: Array<any>): Observable<KnowledgeModel<T, AssociationModel>[]> {
+  getData<T>(resource: Array<string>, query: Array<any>): Observable<KnowledgeInterface<T, AssociationModel>[]> {
     let url = this.dbUrl + "api/knowledge/" + resource.join("/");
     if (query!= null) {
       url += '?' + query.join("=");
     }
     return this.http.get(url, this.generateHeader(true))
-      .map(response => response.json() as KnowledgeModel<T, AssociationModel>[]);
+      .map(response => response.json() as KnowledgeInterface<T, AssociationModel>[]);
       //.map(this.processData)
       //.catch(this.handleError);
   }
 
-  getOne<T>(resource: Array<string>): Observable<KnowledgeModel<T, AssociationModel>> {
+  getOne<T>(resource: Array<string>): Observable<KnowledgeInterface<T, AssociationModel>> {
     return this.http.get(this.dbUrl + "api/knowledge/" + resource.join("/"), this.generateHeader(true))
-      .map(response => response.json() as KnowledgeModel<T, AssociationModel>)
+      .map(response => response.json() as KnowledgeInterface<T, AssociationModel>)
       .catch(this.handleError);
   }
 
@@ -125,21 +125,21 @@ export class DataService {
         .catch(this.handleStaticError);
   }
 
-  createKnowledge<T>(newObject: any): Observable<KnowledgeModel<T, AssociationModel>> {
+  createKnowledge<T>(newObject: any): Observable<KnowledgeInterface<T, AssociationModel>> {
     //let transactionObj = new KnowledgeModel(newObject);
     //console.log(transactionObj);
     return this.http.put(this.dbUrl + "api/knowledge", newObject, this.generateHeader(true))
-          .map(response => response.json() as KnowledgeModel<T, AssociationModel>)
+          .map(response => response.json() as KnowledgeInterface<T, AssociationModel>)
           .catch(this.handleError);
 
 
   }
 
-  updateKnowledge<T>(resource: string, newData: {}): Observable<KnowledgeModel<T, AssociationModel>> {
+  updateKnowledge<T>(resource: string, newData: {}): Observable<KnowledgeInterface<T, AssociationModel>> {
     //let transactionObj = new KnowledgeModel(changes);
     let url = this.dbUrl + "api/knowledge/" + resource;
     return this.http.post(url, newData, this.generateHeader(true))
-          .map(response => response.json() as KnowledgeModel<T, AssociationModel>)
+          .map(response => response.json() as KnowledgeInterface<T, AssociationModel>)
           .catch(this.handleError);
   }
 

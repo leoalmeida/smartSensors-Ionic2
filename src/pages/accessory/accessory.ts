@@ -12,7 +12,7 @@ import { CreateKnowledgePage } from '../create-knowledge/create-knowledge';
 import { DataService } from '../../providers/apiData.service';
 import { User } from '@ionic/cloud-angular';
 
-import { AssociationModel, EquipmentModel, KnowledgeModel } from '../../models/interfaces';
+import { AssociationModel, EquipmentModel, KnowledgeInterface } from '../../models/interfaces';
 
 @Component({
   selector: 'page-accessory',
@@ -25,10 +25,10 @@ export class AccessoryPage implements OnInit {
   listed:boolean = false;
 
   errorMessage: string;
-  selectedItem: KnowledgeModel<EquipmentModel, AssociationModel>;
+  selectedItem: KnowledgeInterface<EquipmentModel, AssociationModel>;
   userKey: any;
-  objects: Array<KnowledgeModel<EquipmentModel, AssociationModel>> = [];
-  filteredItems: Array<KnowledgeModel<EquipmentModel, AssociationModel>> = [];
+  objects: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
+  filteredItems: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
 
   newItemWindow: Object = {
     title: "Novo Objeto",
@@ -89,7 +89,7 @@ export class AccessoryPage implements OnInit {
         });*/
     this.dataService.getData<EquipmentModel>(["actuator" , "ownedBy", this.userKey], null)
                      .subscribe(
-                       (data: KnowledgeModel<EquipmentModel, AssociationModel>[]) => this.objects = data,
+                       (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.objects = data,
                        error =>  this.errorMessage = <any>error);
   }
 
@@ -97,7 +97,7 @@ export class AccessoryPage implements OnInit {
     if (!item) { return; }
     this.dataService.createKnowledge(item)
                 .subscribe(
-                (data: KnowledgeModel<EquipmentModel, AssociationModel>)  => this.objects.push(data),
+                (data: KnowledgeInterface<EquipmentModel, AssociationModel>)  => this.objects.push(data),
                   error =>  this.errorMessage = <any>error);
   }
 
@@ -128,6 +128,26 @@ export class AccessoryPage implements OnInit {
     });
   }
 
+  openModal(type){
+    let modal = this.modalCtrl.create(ChooseItemModal, {key: this.userKey, listType: 'equipment', itemType: type, title: 'Novo Acessório'});
+    modal.present();
+    modal.onWillDismiss((data: any) => {
+      if (data) {
+        if (data.type)
+          this.openModal(data.type);
+        else{
+          this.navCtrl.push(CreateKnowledgePage, {
+              template: data.itemTemplate,
+              connectedBoard : data.connectedBoard,
+              item: "",
+              key: this.userKey
+          });
+          console.log('MODAL DATA', data);
+        }
+      }
+    });
+  }
+
   openMenu() {
     let actionSheet = this.actionsheetCtrl.create({
       title: 'Acessórios',
@@ -137,18 +157,7 @@ export class AccessoryPage implements OnInit {
           text: 'Novo',
           icon: !this.platform.is('ios') ? 'add' : null,
           handler: () => {
-            let modal = this.modalCtrl.create(ChooseItemModal, {key: this.userKey, listType: 'equipment', itemType: 'actuator', title: 'Novo Acessório'});
-            modal.present();
-            modal.onWillDismiss((data: any) => {
-              if (data) {
-                this.navCtrl.push(CreateKnowledgePage, {
-                    template: data.itemTemplate,
-                    item: "",
-                    key: this.userKey
-                });
-                console.log('MODAL DATA', data);
-              }
-            });
+            this.openModal('actuator');
           }
         },
         {

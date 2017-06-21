@@ -155,11 +155,11 @@
                         </button>
                       </ion-item-options>
                     </ion-item-sliding>
-                    <ion-item *ngIf="!selectedItem">
+                    <ion-item >
                       <ion-label stacked >Atributo</ion-label>
                       <ion-input type="text" formControlName="name"></ion-input>
                     </ion-item>
-                    <ion-item *ngIf="!selectedItem">
+                    <ion-item >
                       <ion-label stacked >Tipo</ion-label>
                       <ion-input type="text" formControlName="type"></ion-input>
                     </ion-item>
@@ -180,59 +180,248 @@
         <ion-list  *ngSwitchCase="'relations'">
           <span formGroupName="relations">
             <ion-item-divider icon-right color="light"> Associações</ion-item-divider>
-            <ion-slides pager="true" parallax="true" >
-              <ion-slide [formArrayName]="arrayItem.name" *ngFor="let arrayItem of templateData.relations; let i = index">
-                <ion-list>
-                  <ion-item-divider icon-right color="light">{{arrayItem.name}}</ion-item-divider>
-                  <span class="form-group" [formGroupName]="i" *ngFor="let item of knowledgeForm.controls.relations.controls[arrayItem.name].controls; let i = index">
-                    <ion-item-group>
-                      <ion-item-sliding>
-                        <ion-item icon-right color="light">
-                          Item {{item.value.id}}
-                        </ion-item>
-                        <ion-item-options side="left">
-                          <button ion-button color="danger" (click)="removeAssociation('ownedBy',i)">
-                            <ion-icon name="trash" large></ion-icon>
-                          </button>
-                        </ion-item-options>
-                      </ion-item-sliding>
-                      <ion-item *ngIf="!selectedItem">
-                        <ion-label color="primary">ID</ion-label>
-                        <ion-input type="text" formControlName="id"></ion-input>
-                      </ion-item>
-                      <ion-item>
-                        <ion-label>Leitura</ion-label>
-                        <ion-checkbox formControlName="view"></ion-checkbox>
-                      </ion-item>
-                      <ion-item>
-                        <ion-label>Publicação</ion-label>
-                        <ion-checkbox  formControlName="publish"></ion-checkbox>
-                      </ion-item>
-                      <ion-list class="radio-group-margin-fix" radio-group formControlName="access">
-                        <ion-item-divider icon-right color="light">Tipo de acesso</ion-item-divider>
-                        <ion-item>
-                          <ion-label>Publico</ion-label>
-                          <ion-radio value="public"></ion-radio>
-                        </ion-item>
-                        <ion-item>
-                          <ion-label>Privado</ion-label>
-                          <ion-radio value="private"></ion-radio>
-                        </ion-item>
-                      </ion-list>
-                    </ion-item-group>
-                  </span>
-                </ion-list>
-                <button ion-item color="primary" (click)="addAssociation('ownedBy')">Incluir</button>
-              </ion-slide>
-            </ion-slides>
-            <!--<ion-item>
-              <ion-label>Camada Superior</ion-label>
-              <ion-input type="text" formControlName="parent"></ion-input>
-            </ion-item>
+            <ion-list>
+              <ion-item-divider icon-right color="light">Administradores</ion-item-divider>
+              <span class="form-group" [formGroupName]="i" *ngFor="let item of knowledge.getRelations('formOwnedByArray'); let i = index">
+                <ion-item-group>
+                  <ion-item-sliding>
+                    <ion-item icon-right color="light">
+                      Item {{item.value.id}}
+                    </ion-item>
+                    <ion-item-options side="left">
+                      <button ion-button color="danger" (click)="removeAssociation('formOwnedByArray',i)">
+                        <ion-icon name="trash" large></ion-icon>
+                      </button>
+                    </ion-item-options>
+                  </ion-item-sliding>
+                  <ion-item >
+                    <ion-label color="primary">ID</ion-label>
+                    <ion-input type="text" formControlName="id"></ion-input>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Leitura</ion-label>
+                    <ion-checkbox formControlName="view"></ion-checkbox>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Publicação</ion-label>
+                    <ion-checkbox  formControlName="publish"></ion-checkbox>
+                  </ion-item>
+                  <ion-list class="radio-group-margin-fix" radio-group formControlName="access">
+                    <ion-item-divider icon-right color="light">Tipo de acesso</ion-item-divider>
+                    <ion-item>
+                      <ion-label>Publico</ion-label>
+                      <ion-radio value="public"></ion-radio>
+                    </ion-item>
+                    <ion-item>
+                      <ion-label>Privado</ion-label>
+                      <ion-radio value="private"></ion-radio>
+                    </ion-item>
+                  </ion-list>
+                </ion-item-group>
+              </span>
+            </ion-list>
+            <button ion-item color="primary" (click)="addRelation('formOwnedByArray')">Incluir</button>
+            <ion-list>
+              <ion-item-divider icon-right color="light">Conexões</ion-item-divider>
+              <span class="form-group" [formGroupName]="i" *ngFor="let item of knowledge.getRelations('formConnectArray'); let i = index">
+                <ion-item-group>
+                  <ion-item-sliding>
+                    <ion-item icon-right color="light">
+                      Item {{item.value.id}}
+                    </ion-item>
+                    <ion-item-options side="left">
+                      <button ion-button color="danger" (click)="removeAssociation('formConnectArray',i)">
+                        <ion-icon name="trash" large></ion-icon>
+                      </button>
+                    </ion-item-options>
+                  </ion-item-sliding>
+                  <ion-item >
+                    <ion-label color="primary">ID</ion-label>
+                    <ion-input type="text" formControlName="id"></ion-input>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Leitura</ion-label>
+                    <ion-checkbox formControlName="view"></ion-checkbox>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Publicação</ion-label>
+                    <ion-checkbox  formControlName="publish"></ion-checkbox>
+                  </ion-item>
+                  <ion-list class="radio-group-margin-fix" radio-group formControlName="access">
+                    <ion-item-divider icon-right color="light">Tipo de acesso</ion-item-divider>
+                    <ion-item>
+                      <ion-label>Publico</ion-label>
+                      <ion-radio value="public"></ion-radio>
+                    </ion-item>
+                    <ion-item>
+                      <ion-label>Privado</ion-label>
+                      <ion-radio value="private"></ion-radio>
+                    </ion-item>
+                  </ion-list>
+                </ion-item-group>
+              </span>
+            </ion-list>
+            <button ion-item color="primary" (click)="addRelation('formConnectArray')">Incluir</button>
+            <ion-list>
+              <ion-item-divider icon-right color="light">Assinantes</ion-item-divider>
+              <span class="form-group" [formGroupName]="i" *ngFor="let item of knowledge.getRelations('formSubscriberAtArray'); let i = index">
+                <ion-item-group>
+                  <ion-item-sliding>
+                    <ion-item icon-right color="light">
+                      Item {{item.value.id}}
+                    </ion-item>
+                    <ion-item-options side="left">
+                      <button ion-button color="danger" (click)="removeAssociation('formSubscriberAtArray',i)">
+                        <ion-icon name="trash" large></ion-icon>
+                      </button>
+                    </ion-item-options>
+                  </ion-item-sliding>
+                  <ion-item >
+                    <ion-label color="primary">ID</ion-label>
+                    <ion-input type="text" formControlName="id"></ion-input>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Leitura</ion-label>
+                    <ion-checkbox formControlName="view"></ion-checkbox>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Publicação</ion-label>
+                    <ion-checkbox  formControlName="publish"></ion-checkbox>
+                  </ion-item>
+                  <ion-list class="radio-group-margin-fix" radio-group formControlName="access">
+                    <ion-item-divider icon-right color="light">Tipo de acesso</ion-item-divider>
+                    <ion-item>
+                      <ion-label>Publico</ion-label>
+                      <ion-radio value="public"></ion-radio>
+                    </ion-item>
+                    <ion-item>
+                      <ion-label>Privado</ion-label>
+                      <ion-radio value="private"></ion-radio>
+                    </ion-item>
+                  </ion-list>
+                </ion-item-group>
+              </span>
+            </ion-list>
+            <button ion-item color="primary" (click)="addRelation('formSubscriberAtArray')">Incluir</button>
+            <ion-list>
+              <ion-item-divider icon-right color="light">Assinaturas</ion-item-divider>
+              <span class="form-group" [formGroupName]="i" *ngFor="let item of knowledge.getRelations('formSubscribedByArray'); let i = index">
+                <ion-item-group>
+                  <ion-item-sliding>
+                    <ion-item icon-right color="light">
+                      Item {{item.value.id}}
+                    </ion-item>
+                    <ion-item-options side="left">
+                      <button ion-button color="danger" (click)="removeAssociation('formSubscribedByArray',i)">
+                        <ion-icon name="trash" large></ion-icon>
+                      </button>
+                    </ion-item-options>
+                  </ion-item-sliding>
+                  <ion-item >
+                    <ion-label color="primary">ID</ion-label>
+                    <ion-input type="text" formControlName="id"></ion-input>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Leitura</ion-label>
+                    <ion-checkbox formControlName="view"></ion-checkbox>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Publicação</ion-label>
+                    <ion-checkbox  formControlName="publish"></ion-checkbox>
+                  </ion-item>
+                  <ion-list class="radio-group-margin-fix" radio-group formControlName="access">
+                    <ion-item-divider icon-right color="light">Tipo de acesso</ion-item-divider>
+                    <ion-item>
+                      <ion-label>Publico</ion-label>
+                      <ion-radio value="public"></ion-radio>
+                    </ion-item>
+                    <ion-item>
+                      <ion-label>Privado</ion-label>
+                      <ion-radio value="private"></ion-radio>
+                    </ion-item>
+                  </ion-list>
+                </ion-item-group>
+              </span>
+            </ion-list>
+            <button ion-item color="primary" (click)="addRelation('formSubscribedByArray')">Incluir</button>
+
+            <ion-list>
+              <ion-item-divider icon-right color="light">Comentários</ion-item-divider>
+              <span class="form-group" [formGroupName]="i" *ngFor="let item of knowledge.getRelations('formCommentedAtArray'); let i = index">
+                <ion-item-group>
+                  <ion-item-sliding>
+                    <ion-item icon-right color="light">
+                      Item {{item.value.id}}
+                    </ion-item>
+                    <ion-item-options side="left">
+                      <button ion-button color="danger" (click)="removeAssociation('formCommentedAtArray',i)">
+                        <ion-icon name="trash" large></ion-icon>
+                      </button>
+                    </ion-item-options>
+                  </ion-item-sliding>
+                  <ion-item >
+                    <ion-label color="primary">ID</ion-label>
+                    <ion-input disabled type="text" formControlName="id"></ion-input>
+                  </ion-item>
+                  <ion-list class="radio-group-margin-fix" radio-group formControlName="access">
+                    <ion-item-divider icon-right color="light">Tipo de acesso</ion-item-divider>
+                    <ion-item>
+                      <ion-label>Publico</ion-label>
+                      <ion-radio value="public"></ion-radio>
+                    </ion-item>
+                    <ion-item>
+                      <ion-label>Privado</ion-label>
+                      <ion-radio value="private"></ion-radio>
+                    </ion-item>
+                  </ion-list>
+                </ion-item-group>
+              </span>
+            </ion-list>
+
+            <ion-list>
+              <ion-item-divider icon-right color="light">Likes</ion-item-divider>
+              <span class="form-group" [formGroupName]="i" *ngFor="let item of  knowledge.getRelations('formLikedToArray'); let i = index">
+                <ion-item-group>
+                  <ion-item-sliding>
+                    <ion-item icon-right color="light">
+                      Item {{item.value.id}}
+                    </ion-item>
+                    <ion-item-options side="left">
+                      <button ion-button color="danger" (click)="removeAssociation('formLikedToArray',i)">
+                        <ion-icon name="trash" large></ion-icon>
+                      </button>
+                    </ion-item-options>
+                  </ion-item-sliding>
+                  <ion-item >
+                    <ion-label color="primary">ID</ion-label>
+                    <ion-input type="text" disabled formControlName="id"></ion-input>
+                  </ion-item>
+                  <ion-list class="radio-group-margin-fix" radio-group formControlName="access">
+                    <ion-item-divider icon-right color="light">Tipo de acesso</ion-item-divider>
+                    <ion-item>
+                      <ion-label>Publico</ion-label>
+                      <ion-radio value="public"></ion-radio>
+                    </ion-item>
+                    <ion-item>
+                      <ion-label>Privado</ion-label>
+                      <ion-radio value="private"></ion-radio>
+                    </ion-item>
+                  </ion-list>
+                </ion-item-group>
+              </span>
+            </ion-list>
+            <ion-list>
+              <ion-item>
+                <ion-label>Componente Master</ion-label>
+                <!--<ion-input type="text" disabled formControlName="parent"></ion-input>-->
+                {{JSON.stringfy(connectedParent)}}
+              </ion-item>
+              <button ion-item color="primary" (click)="selectParent()">Selecionar Componente Master</button>
+            </ion-list>
             <ion-item>
               <ion-label>Possui abstração?</ion-label>
               <ion-toggle formControlName="abstraction"></ion-toggle>
-            </ion-item>-->
+            </ion-item>
           </span>
         </ion-list>
       </div>

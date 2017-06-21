@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Platform, AlertController, ModalController, NavController, NavParams, LoadingController, ToastController   } from 'ionic-angular';
-import {FormBuilder, FormGroup, FormArray } from '@angular/forms';
+import {FormBuilder, FormGroup } from '@angular/forms';
 // Observable operators
 import 'rxjs/add/operator/catch';
 
@@ -10,8 +10,11 @@ import { User } from '@ionic/cloud-angular';
 import { ModalContentPage }  from '../modals/attribute-item';
 
 import { KnowledgeModel } from '../../models/knowledge.model';
-import { RelationModel } from '../../models/relation.model';
-import { AttributeModel } from '../../models/attribute.model';
+//import { RelationModel } from '../../models/relation.model';
+//import { AttributeModel } from '../../models/attribute.model';
+
+import { EquipmentModel, KnowledgeInterface, AssociationModel } from '../../models/interfaces';
+
 
 import { Geolocation, Geoposition } from '@ionic-native/geolocation';
 import { NativeGeocoder, NativeGeocoderReverseResult } from '@ionic-native/native-geocoder';
@@ -61,6 +64,12 @@ export class CreateKnowledgePage implements OnInit{
   };
 
   submitted = false;
+  connectedBoard: any;
+
+  selectParentOpen: boolean;
+  connectedParent: any;
+  componentList: KnowledgeInterface<EquipmentModel, AssociationModel>[];
+
 
   constructor(public user:User,
               public platform: Platform,
@@ -80,12 +89,14 @@ export class CreateKnowledgePage implements OnInit{
               public loadingCtrl:LoadingController) {
     // If we navigated to this page, we will have an item available as a nav param
     this.templateData = this.navParams.get('template');
-    if (this.templateData) this.templateType = this.templateData.type;
-    else this.templateType = this.navParams.get('type');
+    if (this.templateData) {
+      this.templateType = this.templateData.type;
+      this.connectedBoard = this.navParams.get('connectedBoard');
+    }else this.templateType = this.navParams.get('type');
     if (this.templateData) this.pageTitle = this.templateData.name;
     this.selectedItem = this.navParams.get('item');
     this.userKey = this.navParams.get('key');
-
+    this.getObjectList();
   }
 
   ngOnInit() {
@@ -96,7 +107,6 @@ export class CreateKnowledgePage implements OnInit{
       this.knowledge = new KnowledgeModel({template: this.templateData},this.fb);
       //this.knowledgeForm = this.knowledge.fillTemplate();
       this.knowledgeForm = this.knowledge.getFormGroup();
-      this.addAssociation("ownedBy", {"id": this.userKey})
     }
   }
 
@@ -105,6 +115,13 @@ export class CreateKnowledgePage implements OnInit{
          .subscribe(
            data => this.referenceData = data,
            error =>  this.errorMessage = <any>error);
+  }
+
+  private getObjectList(){
+    this.dataService.getData<EquipmentModel>(["complex" , "ownedBy", this.userKey], null)
+      .subscribe(
+        (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.componentList = data,
+        error =>  this.errorMessage = <any>error);
   }
 
   private setKnowledgeForm() {
@@ -161,7 +178,11 @@ export class CreateKnowledgePage implements OnInit{
         if ( res ) {
           this.locac.request ( this.locac.REQUEST_PRIORITY_HIGH_ACCURACY ).then ( () => {
             this.geolocation.getCurrentPosition ( options ).then ( ( position: Geoposition ) => {
-              this.updateGeoLocation ( position );
+                this.geocoder.reverseGeocode ( position.coords.latitude, position.coords.longitude )
+                              .then (( res: NativeGeocoderReverseResult ) => {
+                                this.knowledge.updateGeoLocation ( position, res.countryName );
+                                console.log(res);
+                              });
             } ).catch ( ( error ) => {
               console.error ( "Accuracy request failed: error code=" + error.code + "; error message=" + error.message );
 
@@ -204,7 +225,7 @@ export class CreateKnowledgePage implements OnInit{
     }else{
       this.geolocation.getCurrentPosition ( options )
         .then ((position: Geoposition ) => {
-            this.updateGeoLocation ( position );
+            this.knowledge.updateGeoLocation ( position, "" );
           }).catch (( error ) => {
             console.error ( "Accuracy request failed: error code=" + error.code + "; error message=" + error.message );
           });
@@ -212,49 +233,34 @@ export class CreateKnowledgePage implements OnInit{
 
   }
 
-  updateGeoLocation(pos){
-    this.knowledgeForm.controls["location"]["controls"]["coordinates"].setValue = [pos.coords.latitude, pos.coords.longitude];
+  selectParent() {
+    let alert = this.alertCtrl.create();
+    alert.setTitle('Selecione o Componente');
 
-    if (this.platform.is('cordova')) {
-      this.geocoder.reverseGeocode ( pos.coords.latitude, pos.coords.longitude ).then ( ( res: NativeGeocoderReverseResult ) => {
-        this.knowledgeForm.controls[ 'location' ][ "controls" ].text.setValue ( res.countryName );
-        let toaster = this.toaster.create ( {
-          message:  "Endereço atualizado",
-          duration: 2000
-        } );
-        toaster.present ();
-      } );
-    }else{
-      this.knowledgeForm.controls[ 'location' ][ "controls" ].text.setValue ("");
-    };
-  }
+    let i = 0;
+    for (let object of this.componentList)
+      alert.addInput({
+        type: 'radio',
+        label: object.data.name,
+        value: object._id,
+        checked: (i++)?false:true
+      });
 
-  removeItem(type: string, arrayIndex: number){
-    const dataControl = <FormArray>this.knowledgeForm.controls['data'];
-    const control = <FormArray>dataControl.controls[type];
-    //this.listConfigurations.removeAt(arrayIndex);
-    control.removeAt(arrayIndex);
-  }
-
-  addItem(type: string){
-    var newAttribute = new AttributeModel(null,this.fb);
-    const dataControl = <FormArray>this.knowledgeForm.controls['data'];
-    const control = <FormArray>dataControl.controls[type];
-    control.push(newAttribute.getFormGroup());
-    this.listConfigurations.push(true);
-  }
-
-  removeAssociation(type: string, arrayIndex: number){
-    const relControl = <FormArray>this.knowledgeForm.controls['relations'];
-    const control = <FormArray>relControl.controls[type];
-    control.removeAt(arrayIndex);
-  }
-
-  addAssociation(type: string, input){
-    var newRelation = new RelationModel(input,this.fb);
-    const relControl = <FormArray>this.knowledgeForm.controls['relations'];
-    const control = <FormArray>relControl.controls[type];
-    control.push(newRelation.getFormGroup());
+    alert.addButton('Cancelar');
+    alert.addButton({
+      text: 'Continuar',
+      handler: data => {
+        if (data)
+          console.log('Radio data:', data);
+          this.selectParentOpen = false;
+          this.connectedParent = {
+            id: data
+          };
+        }
+    });
+    alert.present().then(() => {
+      this.selectParentOpen = true;
+    });
   }
 
   openModal(type, ref) {
@@ -277,6 +283,9 @@ export class CreateKnowledgePage implements OnInit{
         content: "Salvando..."
       });
       loader.present();
+
+      this.knowledge.pushRelation("ownedBy", {"id": this.userKey});
+      this.knowledge.pushRelation("connectedTo", this.connectedBoard);
 
       this.dataService.createKnowledge(this.knowledgeForm.value)
                       .subscribe(

@@ -4,7 +4,7 @@ import * as Leaflet from "leaflet";
 import { DataService } from "../../providers/apiData.service";
 
 import { GeofencePluginMock, TransitionType } from "../../providers/geofence-plugin-mock";
-import { AssociationModel, EquipmentModel, KnowledgeModel } from '../../models/interfaces';
+import { AssociationModel, EquipmentModel, KnowledgeInterface } from '../../models/interfaces';
 
 import { LocationTracker } from '../../providers/location-tracker';
 
@@ -49,7 +49,7 @@ export class GeofenceDetailsPage implements OnInit {
   private layerControl: any = false;
   private map: any = false;
 
-  private equipments: KnowledgeModel<EquipmentModel, AssociationModel>[];
+  private equipments: KnowledgeInterface<EquipmentModel, AssociationModel>[];
 
   private userKey: any;
   private loader: any;
@@ -159,7 +159,7 @@ export class GeofenceDetailsPage implements OnInit {
     }
 
     this.dataService.getData<EquipmentModel>(["loc", this.locationTracker.latLng.lat, this.locationTracker.latLng.lng, this.locationTracker.radius],null)
-      .subscribe((equipments: KnowledgeModel<EquipmentModel, AssociationModel>[]) => {
+      .subscribe((equipments: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => {
         this.equipments = equipments;
         this.equipLayer.clearLayers();
         let connected = "red";

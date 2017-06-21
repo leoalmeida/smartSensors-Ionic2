@@ -75,6 +75,16 @@ export class EquipmentModel implements DataInterface{
       });
   }
 
+  public newItem(type, newItem){
+    if (this.fb)
+      this[type].push(newItem);
+  }
+
+  public removeAt(type, removedIndex){
+    if (this[type])
+      this[type].removeAt(removedIndex);
+  }
+
   public fillTemplate(input, fb){
 
     this.connected    = false;

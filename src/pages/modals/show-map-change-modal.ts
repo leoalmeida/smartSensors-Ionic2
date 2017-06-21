@@ -1,6 +1,6 @@
 import { Component, ViewChild, ElementRef, OnInit  } from '@angular/core';
 import { NavParams, ViewController, Platform, LoadingController } from 'ionic-angular';
-import { KnowledgeModel, EquipmentModel, AssociationModel } from '../../models/interfaces';
+import { KnowledgeInterface, EquipmentModel, AssociationModel } from '../../models/interfaces';
 
 import * as Leaflet from "leaflet";
 import { Geolocation } from '@ionic-native/geolocation';
@@ -58,8 +58,8 @@ export class ShowMapModal implements OnInit{
   private map: any = false;
   private baseLayout: any = {};
 
-  item: KnowledgeModel<EquipmentModel, AssociationModel>;
-  items: Array<KnowledgeModel<EquipmentModel, AssociationModel>> = [];
+  item: KnowledgeInterface<EquipmentModel, AssociationModel>;
+  items: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
   index: string;
   change: boolean;
 

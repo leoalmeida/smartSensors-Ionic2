@@ -6,7 +6,7 @@ import { DataService } from '../../providers/apiData.service';
 
 import { LoginPage } from '../login/login';
 
-import { AssociationModel, KnowledgeModel, ProfileModel } from '../../models/interfaces';
+import { AssociationModel, KnowledgeInterface, ProfileModel } from '../../models/interfaces';
 
 @Component({
   selector: 'page-profile',
@@ -16,8 +16,8 @@ export class ProfilePage {
   userReady: boolean = false;
   selectedItem: any;
   userKey: any;
-  public followings: Array<KnowledgeModel<ProfileModel, AssociationModel>> = [];
-  public profile: KnowledgeModel<ProfileModel, AssociationModel>;
+  public followings: Array<KnowledgeInterface<ProfileModel, AssociationModel>> = [];
+  public profile: KnowledgeInterface<ProfileModel, AssociationModel>;
 
   host: string = "";
 
@@ -32,10 +32,10 @@ export class ProfilePage {
   }
 
   ngOnInit() {
-    this.dataService.getOne<ProfileModel>([ this.userKey]).subscribe((data: KnowledgeModel<ProfileModel, AssociationModel>) => {
+    this.dataService.getOne<ProfileModel>([ this.userKey]).subscribe((data: KnowledgeInterface<ProfileModel, AssociationModel>) => {
       this.profile = data;
     });
-    this.dataService.getData<ProfileModel>(["subscribedBy", this.userKey],null).subscribe((data: KnowledgeModel<ProfileModel, AssociationModel>[]) => {
+    this.dataService.getData<ProfileModel>(["subscribedBy", this.userKey],null).subscribe((data: KnowledgeInterface<ProfileModel, AssociationModel>[]) => {
       for (let follow of data){
         this.followings.push(follow);
       }

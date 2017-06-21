@@ -6,7 +6,7 @@ import { DataService } from '../../providers/apiData.service';
 
 import { ReferenceService } from '../../providers/reference.service';
 import { ActionModel, RuleModel } from '../../models/interfaces';
-import { KnowledgeModel, EquipmentModel, AssociationModel } from '../../models/interfaces';
+import { KnowledgeInterface, EquipmentModel, AssociationModel } from '../../models/interfaces';
 
 
 @Component({
@@ -28,7 +28,7 @@ export class RuleModalPage {
   categories: any;
   knowledge: string = "";
 
-  knowledges: Array<KnowledgeModel<EquipmentModel, AssociationModel>> = [];
+  knowledges: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
 
   evaluatedAttributes: any;
 

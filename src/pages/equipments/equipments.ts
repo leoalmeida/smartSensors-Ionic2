@@ -14,7 +14,7 @@ import { HubDetailsPage } from '../hub-details/hub-details';
 
 import { DataService } from '../../providers/apiData.service';
 
-import { AssociationModel, EquipmentModel, KnowledgeModel } from '../../models/interfaces';
+import { AssociationModel, EquipmentModel, KnowledgeInterface } from '../../models/interfaces';
 
 
 @Component({
@@ -24,9 +24,9 @@ import { AssociationModel, EquipmentModel, KnowledgeModel } from '../../models/i
 export class EquipmentsPage  implements OnInit {
   errorMessage: string;
   selectedItem: string;
-  objects: Array<KnowledgeModel<EquipmentModel, AssociationModel>> = [];
+  objects: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
 
-  filteredItems: Array<KnowledgeModel<EquipmentModel, AssociationModel>> = [];
+  filteredItems: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
   imgdef:string = "assets/icons/img/ionic.png";
 
   equipTitle: string = "equipamentos";
@@ -65,7 +65,7 @@ export class EquipmentsPage  implements OnInit {
                        error =>  this.errorMessage = <any>error);
   }
 
-  connectItem(event: any, item: KnowledgeModel<EquipmentModel, AssociationModel>){
+  connectItem(event: any, item: KnowledgeInterface<EquipmentModel, AssociationModel>){
     let modal = this.modalCtrl.create(ConnectionConfModal, {parameter: item.data});
     modal.present();
 
@@ -173,6 +173,26 @@ export class EquipmentsPage  implements OnInit {
     });
   }
 
+  openModal(type){
+    let modal = this.modalCtrl.create(ChooseItemModal, {key: this.userKey, listType: 'equipment', title: 'Novo Equipamento'});
+    modal.present();
+    modal.onWillDismiss((data: any) => {
+      if (data) {
+        if (data.type)
+          this.openModal(data.type);
+        else{
+          this.navCtrl.push(CreateKnowledgePage, {
+              template: data.itemTemplate,
+              connectedBoard : data.connectedBoard,
+              item: "",
+              key: this.userKey
+          });
+          console.log('MODAL DATA', data);
+        };
+      }
+    });
+  }
+
   openMenu() {
     let actionSheet = this.actionsheetCtrl.create({
       title: 'Equipamentos',
@@ -182,18 +202,7 @@ export class EquipmentsPage  implements OnInit {
           text: 'Novo',
           icon: !this.platform.is('ios') ? 'add' : null,
           handler: () => {
-            let modal = this.modalCtrl.create(ChooseItemModal, {key: this.userKey, listType: 'equipment', title: 'Novo Equipamento'});
-            modal.present();
-            modal.onWillDismiss((data: any) => {
-              if (data) {
-                this.navCtrl.push(CreateKnowledgePage, {
-                    template: data.itemTemplate,
-                    item: "",
-                    key: this.userKey
-                });
-                console.log('MODAL DATA', data);
-              }
-            });
+            this.openModal('equipment');
           }
         },
         {

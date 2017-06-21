@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 import { NavParams, ViewController } from 'ionic-angular';
 
-import { AssociationModel, EquipmentModel, KnowledgeModel, RelationModel } from '../../models/interfaces';
+import { AssociationModel, EquipmentModel, KnowledgeInterface, RelationModel } from '../../models/interfaces';
 import { DataService } from '../../providers/apiData.service';
 import { ReferenceService } from '../../providers/reference.service';
 
@@ -12,7 +12,7 @@ import { ReferenceService } from '../../providers/reference.service';
 export class RelationModalPage {
   item: RelationModel = {id: ""};
   relationType: string;
-  relations: Array<KnowledgeModel<EquipmentModel,AssociationModel>>;
+  relations: Array<KnowledgeInterface<EquipmentModel,AssociationModel>>;
 
   refData = {};
 

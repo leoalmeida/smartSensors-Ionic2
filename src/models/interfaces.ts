@@ -145,7 +145,7 @@ export interface AssociationModel {
   commentedAt: Array<RelationModel>;
   subscribedBy: Array<RelationModel>;
 }
-export interface KnowledgeModel<DT, RL>{
+export interface KnowledgeInterface<DT, RL>{
   _id: string,
   root: string,
   access: string,
@@ -159,23 +159,24 @@ export interface KnowledgeModel<DT, RL>{
   connection: ConnectionModel
 };
 export interface KnowledgeConstructor<DT, RL>{
-  new (input: KnowledgeModel<DT, RL>): KnowledgeModel<DT, RL>;
+  new (input: KnowledgeInterface<DT, RL>): KnowledgeInterface<DT, RL>;
 }
-interface KnowledgeInterface {
+export interface KnowledgeMod{
+  
 }
 
-export function createKnowledge<DT, RL>(ctor: KnowledgeConstructor<DT, RL>, input: KnowledgeModel<DT, RL>): KnowledgeModel<DT, RL> {
+export function createKnowledge<DT, RL>(ctor: KnowledgeConstructor<DT, RL>, input: KnowledgeInterface<DT, RL>): KnowledgeInterface<DT, RL> {
   return new ctor(input);
 }
-export class KnowledgeChannelModel implements KnowledgeInterface{
-  constructor(input: KnowledgeModel<ChannelModel, AssociationModel>) { }
+export class KnowledgeChannelModel implements KnowledgeMod{
+  constructor(input: KnowledgeInterface<ChannelModel, AssociationModel>) { }
 }
-export class KnowledgeMessageModel implements KnowledgeInterface {
-  constructor(input: KnowledgeModel<MessageModel, AssociationModel>) { }
+export class KnowledgeMessageModel implements KnowledgeMod {
+  constructor(input: KnowledgeInterface<MessageModel, AssociationModel>) { }
 }
-export class KnowledgeProfileModel implements KnowledgeInterface {
-  constructor(input: KnowledgeModel<ProfileModel, AssociationModel>) { }
+export class KnowledgeProfileModel implements KnowledgeMod {
+  constructor(input: KnowledgeInterface<ProfileModel, AssociationModel>) { }
 }
-export class KnowledgeEquipmentModel implements KnowledgeInterface {
-  constructor(input: KnowledgeModel<EquipmentModel, AssociationModel>) { }
+export class KnowledgeEquipmentModel implements KnowledgeMod {
+  constructor(input: KnowledgeInterface<EquipmentModel, AssociationModel>) { }
 }
