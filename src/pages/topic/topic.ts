@@ -18,7 +18,7 @@ import { ShowMapModal } from '../modals/show-map-modal';
   templateUrl: '../templates/list-page.html'
 })
 export class TopicPage {
-  pageTitle: string = "Automação";
+  pageTitle: string = "Minhas Regras";
   imgdef:string = "assets/icons/img/ionic.png";
   shouldShowDelete:boolean = false;
   listed:boolean = false;

@@ -1,15 +1,22 @@
-ion-card .item.advanced-top.item {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  background: transparent;
+ion-card.adv-map img {
+  max-height: 50px;
+}
 
-  p {
-    font-size: 12px;
-    letter-spacing: 1.7px;
-    font-weight: 500;
-    opacity: 0.7;
-  }
+ion-card.adv-map p {
+  font-size: 0.7em !important;
+}
+
+button[fab].fab-map {
+  top: calc(100% - 35px);
+  z-index: 50;
+}
+
+.item-bold {
+  font-weight: bold;
+}
+
+ion-content.cards-bg {
+  background-color: #f4f4f7;
 }
 
 ion-card .advanced-bottom.grid {
@@ -23,7 +30,6 @@ ion-card .advanced-bottom.grid {
     font-size: 12px;
     align-self: flex-start;
     margin-top: 14px;
-
     font-weight: 500;
     opacity: 0.7;
   }
@@ -98,4 +104,3 @@ ion-card .advanced-bottom.grid {
 .no-margin{
   margin:0;
 }
-

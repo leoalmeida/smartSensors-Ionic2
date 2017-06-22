@@ -29,7 +29,6 @@ export class EquipmentsPage  implements OnInit {
   filteredItems: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
   imgdef:string = "assets/icons/img/ionic.png";
 
-  equipTitle: string = "equipamentos";
   isAndroid: boolean = false;
   userKey: any;
 

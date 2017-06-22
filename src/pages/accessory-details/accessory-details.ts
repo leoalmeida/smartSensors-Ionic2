@@ -131,11 +131,17 @@ export class AccessoryDetailsPage {
   }
 
   addAssociation(itemId: string, associationType: string, relation: RelationModel){
-    this.dataService.addAssociation(itemId, associationType, relation);
+    this.dataService.addAssociation(itemId, associationType, relation)
+              .subscribe((data: any) => {
+                console.log(data);
+              });
   }
 
   removeAssociation(itemId: string, associationType: string, relid: string){
-    this.dataService.removeAssociation(itemId, associationType , relid);
+    this.dataService.removeAssociation(itemId, associationType , relid)
+              .subscribe((data: any) => {
+                console.log(data);
+              });
   }
 
   openModal(type, ref) {

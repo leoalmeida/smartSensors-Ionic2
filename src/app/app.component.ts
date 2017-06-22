@@ -51,19 +51,19 @@ export class MyApp {
 
     // used for an example of ngFor and navigation
     this.pages = [
-      { title: 'Novidades', component: HomePage },
+      { title: 'Timeline', component: HomePage },
       { title: 'Meus Canais', component: ChatsPage },
-      { title: 'Tópicos', component: TopicPage },
-      { title: 'Acessórios', component: AccessoryPage },
-      { title: 'Sensores', component: SourcePage },
-      { title: 'Hubs', component: HubPage },
-      { title: 'Equipamentos', component: EquipmentsPage },
+      { title: 'Minhas Regras', component: TopicPage },
+      { title: 'Meus Recursos', component: EquipmentsPage },
+      //{ title: 'Acessórios', component: AccessoryPage },
+      //{ title: 'Sensores', component: SourcePage },
+      //{ title: 'Hubs', component: HubPage },
       //{ title: 'Graph', component: GraphPage },
-      { title: 'Mapas', component: MapsPage },
+      { title: 'Mapa', component: MapsPage },
       //{ title: 'Geofence', component: GeofencePage },
       //{ title: 'Barcodes', component: BarcodePage },
       { title: 'Perfil', component: ProfilePage },
-      { title: 'Configurations', component: ConfigurationsPage }
+      { title: 'Configurações', component: ConfigurationsPage }
     ];
 
   }

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavParams, NavController, Platform, AlertController  } from 'ionic-angular';
+import { NavParams, NavController, Platform, AlertController,LoadingController  } from 'ionic-angular';
 import { Auth, User } from '@ionic/cloud-angular';
 
 import { Storage } from '@ionic/storage';
@@ -13,9 +13,10 @@ import { Packet } from 'mqtt';
 import { MQTTService } from '../../providers/mqtt/mqtt.service';
 import { DataService } from '../../providers/apiData.service';
 
+import { RelationModel } from '../../models/relation.model';
 import {
   KnowledgeChannelModel, KnowledgeMessageModel,
-  SyncObjectModel
+  SyncObjectModel, EquipmentModel, ChannelModel
 } from '../../models/interfaces';
 import { Observable } from 'rxjs/Observable';
 
@@ -56,8 +57,10 @@ export class ChatsPage {
   lastSync: number = 0;
   op: string = "$gt";
 
+  channels: string;
   public objectLastMsgs: {} = {};
-  public objectChannels: SyncObjectModel<KnowledgeChannelModel> = new SyncObjectModel<KnowledgeChannelModel>(); // Array of historic channels
+  public myChannels: SyncObjectModel<KnowledgeChannelModel> = new SyncObjectModel<KnowledgeChannelModel>();
+  public storeChannels: SyncObjectModel<KnowledgeChannelModel> = new SyncObjectModel<KnowledgeChannelModel>();
   public arrayChannels: KnowledgeChannelModel[];
 
   pushTopic: string = "";
@@ -70,58 +73,57 @@ export class ChatsPage {
               public auth:Auth,
               public alertCtrl: AlertController,
               public dataService:DataService,
+              public loadingCtrl:LoadingController,
               private _mqService: MQTTService,
               private localNotifications: LocalNotifications,
               private socialSharing: SocialSharing,
               public storage: Storage) {
     this.userKey = navParams.get("key");
+    this.channels = "myChannels";
     this.config.clientId = this.userKey;
     console.log(user);
-
     this.config.user      = this.user.id;
     this.config.pass      = this.user.id;
     this.config.subscribe = [];
+    this.getItems();
+  }
 
-    storage.ready().then(() => {
-      this.storage.get("channels" + this.userKey).then((channels) => {
-        console.log(channels);
-        if (channels) {
-          this.objectChannels = channels;
-          for ( let chan of this.objectChannels.objects ) {
+  getItems(){
+    /*let loader = this.loadingCtrl.create({
+      content: "Atualizando..."
+    });
+    loader.present();*/
+    this.dataService.getData<ChannelModel>( [ "channels", "connected" ],null)
+      .subscribe ( newChannels => {
+        this.myChannels.objects = newChannels;
+        this.storage.ready().then(() => {
+          for ( let chan of this.myChannels.objects ) {
             if (!this.objectLastMsgs[chan["_id"]]) this.objectLastMsgs[chan["_id"]] = new SyncObjectModel<KnowledgeMessageModel>();
             this.storage.get("channelLastMsgs" + chan["_id"] + this.userKey).then((newMsgs) => {
-              if (newMsgs) this.objectLastMsgs[chan["_id"]] = newMsgs;
+              if (newMsgs) {
+                this.objectLastMsgs[chan["_id"]] = newMsgs;
+                this.lastSync = newMsgs[newMsgs.length-1];
+              }
+              this.getLastMsgs(chan["_id"], this.lastSync);
+              //loader.dismissAll();
             });
-            this.config.subscribe.push(chan["_id"]);
           }
-        }
-
-        let query = null;
-
-        if ( this.objectChannels.sync ) query = [ this.op, this.objectChannels.sync ];
-
-        this.dataService.getData( [ "subscribedBy", this.userKey ], query )
-          .subscribe ( newChannels => {
-            for ( let chan of newChannels ) {
-              let id = this.objectChannels.objects.push ( chan );
-              if ( this.lastSync < chan.sync ) this.objectChannels.sync = chan.sync;
-              this.objectChannels.items[ chan._id ] = this.objectChannels.objects[ -- id ];
-              if (!this.objectLastMsgs[chan._id]) this.objectLastMsgs[chan._id] = new SyncObjectModel<KnowledgeMessageModel>();
-              this.config.subscribe.push(chan["_id"]);
-              this.getLastMsgs(chan._id, 0);
-            }
-
-            this.storage.set("channels" + this.userKey, this.objectChannels);
-
-            // ... then pass it to (and connect) the message queue:
-            /*this._mqService.configure(this.config);
-             this._mqService.try_connect()
-             .then(this.on_connect)
-             .catch(this.on_error);*/
-          });
+        });
       });
-    });
+
+    this.dataService.getData<ChannelModel>( [ "channels", "disconnected"],null)
+      .subscribe ( storeChannels => {
+        this.storeChannels.objects = storeChannels;
+      });
   }
+
+  // Push a search term into the observable stream.
+  /*getItems(selectedItem: string) {
+    this.filteredItems = this.objects.filter((v) => {
+      if (v.type.toLowerCase().indexOf(this.selectedItem.toLowerCase()) > -1) return true;
+        return false;
+    })
+  }*/
 
   getLastMsgs(channelId, sync){
     var msgLimit = 5;
@@ -144,6 +146,42 @@ export class ChatsPage {
       });
   }
 
+  unsubscribe(itemid){
+    let loader = this.loadingCtrl.create({
+      content: "Cancelando assinatura..."
+    });
+    loader.present();
+    this.dataService.removeAssociation(itemid, "subscribedBy", this.userKey)
+              .subscribe((data: any) => {
+                console.log(data);
+                this.dataService.removeAssociation(this.userKey, "subscriberAt", itemid)
+                          .subscribe((data: any) => {
+                            loader.dismissAll();
+                            console.log(data);
+                            this.getItems();
+                          });
+              });
+  }
+
+  subscribe(itemid){
+    let loader = this.loadingCtrl.create({
+      content: "Ativando assinatura..."
+    });
+    loader.present();
+    let chanRelation = new RelationModel({ id: this.userKey });
+    this.dataService.addAssociation(itemid, "subscribedBy", chanRelation)
+              .subscribe((data: any) => {
+                console.log(data);
+                let userRelation = new RelationModel({ id: itemid });
+                this.dataService.addAssociation(this.userKey, "subscriberAt", userRelation)
+                          .subscribe((data: any) => {
+                            loader.dismissAll();
+                            console.log(data);
+                            this.getItems();
+                          });
+              });
+  }
+
   openChats($event, channel){
     this.storage.ready().then(() => {
       this.storage.set( "channelOpen" + this.userKey, channel);
@@ -154,7 +192,7 @@ export class ChatsPage {
       });
     });
   }
-  
+
   share(info) {
 
     let alert = this.alertCtrl.create();
