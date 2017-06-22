@@ -32,7 +32,7 @@ export class SourcePage implements OnInit {
     create: "Criar Objeto"
   };
 
-   shouldAnimate: boolean = false;
+  shouldAnimate: boolean = false;
 
   constructor(public user:User,
               public navCtrl: NavController,

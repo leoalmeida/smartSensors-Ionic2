@@ -36,7 +36,7 @@ export class AccessoryPage implements OnInit {
     create: "Criar Objeto"
   };
 
-   shouldAnimate: boolean = false;
+  shouldAnimate: boolean = false;
 
   constructor(public user:User,
               public navCtrl: NavController,
@@ -119,7 +119,6 @@ export class AccessoryPage implements OnInit {
   removeItem(event: any, itemId: string){
     this.dataService.removeKnowledge(itemId)
   }
-
 
   itemTapped(event: any, itemId: string) {
     this.navCtrl.push(AccessoryDetailsPage, {

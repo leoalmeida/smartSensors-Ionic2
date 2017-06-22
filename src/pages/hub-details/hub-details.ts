@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { LoadingController, ModalController, NavController, NavParams,
+import { AlertController, LoadingController, ModalController, NavController, NavParams,
   Platform
 } from 'ionic-angular';
 import { ModalContentPage }  from '../modals/attribute-item';
@@ -13,10 +13,8 @@ import { SourceDetailsPage } from '../source-details/source-details';
 import { ProfilePage } from '../profile/profile';
 import { CreateKnowledgePage } from '../create-knowledge/create-knowledge';
 
-import {
-  EquipmentModel, KnowledgeInterface, AssociationModel, AttributeModel,
-  RelationModel
-} from '../../models/interfaces';
+import { RelationModel } from '../../models/relation.model';
+import { EquipmentModel, KnowledgeInterface, AssociationModel, AttributeModel} from '../../models/interfaces';
 import { ChooseItemModal } from '../modals/choose-item-modal';
 import { TopicDesignerPage } from '../topic-designer/topic-designer';
 import { ReferenceService } from '../../providers/reference.service';
@@ -55,13 +53,19 @@ export class HubDetailsPage {
     update: "Salvar"
   };
 
-   shouldAnimate: boolean = false;
+  shouldAnimate: boolean = false;
+
+  selectComponentOpen: boolean;
+  connectedParent: any = {};
+  componentList: KnowledgeInterface<EquipmentModel, AssociationModel>[] = [];
+  complexCompList: KnowledgeInterface<EquipmentModel, AssociationModel>[] = [];
 
   constructor(public user:User,
               public navCtrl: NavController,
               public navParams: NavParams,
               public platform: Platform,
               public modalCtrl: ModalController,
+              public alertCtrl: AlertController,
               public loadingCtrl: LoadingController,
               private dataService:DataService,
               private refService: ReferenceService) {
@@ -70,6 +74,8 @@ export class HubDetailsPage {
     this.userKey = navParams.get('key');
     this.changed = [];
     this.getRefData();
+    this.getComplexList();
+    this.getEquipmentList();
   }
 
   ngOnInit() {
@@ -190,6 +196,76 @@ export class HubDetailsPage {
 
   removeItem(){
     this.dataService.removeKnowledge(this.selectedItem);
+  }
+
+  private getEquipmentList(){
+    this.dataService.getData<EquipmentModel>(["ownedBy", this.userKey], null)
+      .subscribe(
+        (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.componentList = data,
+        error =>  this.errorMessage = <any>error);
+  }
+  private getComplexList(){
+    this.dataService.getData<EquipmentModel>(["complex" , "ownedBy", this.userKey], null)
+      .subscribe(
+        (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.complexCompList = data,
+        error =>  this.errorMessage = <any>error);
+  }
+
+  private selectComponent(ref) {
+    let alert = this.alertCtrl.create();
+    alert.setTitle('Selecione componente');
+
+    let i = 0;
+    for (let comp of this.componentList)
+      alert.addInput({
+        type: 'radio',
+        label: comp.data.name,
+        value: comp._id,
+        checked: (i++)?false:true
+      });
+    alert.addButton('Cancelar');
+    alert.addButton({
+      text: 'Continuar',
+      handler: data => {
+        if (data)
+          console.log('Radio data:', data);
+          this.selectComponentOpen = false;
+          let newRelation = new RelationModel({ id: data });
+          ref.push(newRelation.getFormGroup());
+        }
+    });
+    alert.present().then(() => {
+      this.selectComponentOpen = true;
+    });
+  }
+
+  selectParent(ref) {
+    let alert = this.alertCtrl.create();
+    alert.setTitle('Selecione o Componente');
+
+    let i = 0;
+    for (let object of this.componentList)
+      alert.addInput({
+        type: 'radio',
+        label: object.data.name,
+        value: object._id,
+        checked: (i++)?false:true
+      });
+
+    alert.addButton('Cancelar');
+    alert.addButton({
+      text: 'Continuar',
+      handler: data => {
+        if (data)
+          console.log('Radio data:', data);
+          this.selectComponentOpen = false;
+          let newRelation = new RelationModel({ id: data });
+          ref = newRelation.getFormGroup();
+        }
+    });
+    alert.present().then(() => {
+      this.selectComponentOpen = true;
+    });
   }
 
   createItem(){

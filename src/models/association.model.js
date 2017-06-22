@@ -10,7 +10,7 @@ var AssociationModel = (function () {
         this.fb = fb;
         if (fb) {
             this.formOwnedByArray = fb.array([]);
-            this.formConnectArray = fb.array([]);
+            this.formConnectedToArray = fb.array([]);
             this.formSubscriberAtArray = fb.array([]);
             this.formLikedToArray = fb.array([]);
             this.formCommentedAtArray = fb.array([]);
@@ -38,7 +38,7 @@ var AssociationModel = (function () {
                     var relation = new RelationModel(item, fb);
                     this.connectedTo.push(relation);
                     if (fb)
-                        this.formConnectArray.push(relation.getFormGroup());
+                        this.formConnectedToArray.push(relation.getFormGroup());
                 }
             }
             if (input["subscriberAt"]) {
@@ -83,7 +83,7 @@ var AssociationModel = (function () {
                 abstraction: [this.abstraction],
                 parent: [this.parent],
                 ownedBy: this.formOwnedByArray,
-                connectedTo: this.formConnectArray,
+                connectedTo: this.formConnectedToArray,
                 subscriberAt: this.formSubscriberAtArray,
                 likedTo: this.formLikedToArray,
                 commentedAt: this.formCommentedAtArray,
@@ -108,7 +108,7 @@ var AssociationModel = (function () {
                         if (rel.name === "ownedBy")
                             this.formOwnedByArray.push(relation.getFormGroup());
                         if (rel.name === "connectedTo")
-                            this.formConnectArray.push(relation.getFormGroup());
+                            this.formConnectedToArray.push(relation.getFormGroup());
                         if (rel.name === "subscriberAt")
                             this.formSubscriberAtArray.push(relation.getFormGroup());
                         if (rel.name === "likedTo")

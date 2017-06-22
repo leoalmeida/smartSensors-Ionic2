@@ -77,11 +77,6 @@ export class KnowledgeModel {
     this.relations.push(type, input);
   }
 
-  public getRelations(type:string){
-    console.log(this.relations.getFormFromType(type));
-    return this.relations.getFormFromType(type);
-  }
-
   public fillTemplate(input, fb){
 
     this.root = input.template.root;

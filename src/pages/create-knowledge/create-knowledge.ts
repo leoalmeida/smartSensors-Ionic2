@@ -10,7 +10,7 @@ import { User } from '@ionic/cloud-angular';
 import { ModalContentPage }  from '../modals/attribute-item';
 
 import { KnowledgeModel } from '../../models/knowledge.model';
-//import { RelationModel } from '../../models/relation.model';
+import { RelationModel } from '../../models/relation.model';
 //import { AttributeModel } from '../../models/attribute.model';
 
 import { EquipmentModel, KnowledgeInterface, AssociationModel } from '../../models/interfaces';
@@ -64,11 +64,12 @@ export class CreateKnowledgePage implements OnInit{
   };
 
   submitted = false;
-  connectedBoard: any;
+  connectedBoard: any = {};
 
-  selectParentOpen: boolean;
-  connectedParent: any;
-  componentList: KnowledgeInterface<EquipmentModel, AssociationModel>[];
+  selectComponentOpen: boolean;
+  connectedParent: any = {};
+  componentList: KnowledgeInterface<EquipmentModel, AssociationModel>[] = [];
+  complexCompList: KnowledgeInterface<EquipmentModel, AssociationModel>[] = [];
 
 
   constructor(public user:User,
@@ -96,7 +97,8 @@ export class CreateKnowledgePage implements OnInit{
     if (this.templateData) this.pageTitle = this.templateData.name;
     this.selectedItem = this.navParams.get('item');
     this.userKey = this.navParams.get('key');
-    this.getObjectList();
+    this.getComplexList();
+    this.getEquipmentList();
   }
 
   ngOnInit() {
@@ -105,6 +107,9 @@ export class CreateKnowledgePage implements OnInit{
     else {
       this.templateData.root = this.userKey;
       this.knowledge = new KnowledgeModel({template: this.templateData},this.fb);
+      this.knowledge.pushRelation("formOwnedByArray", {"id": this.userKey});
+      this.knowledge.pushRelation("formConnectedToArray", this.connectedBoard);
+
       //this.knowledgeForm = this.knowledge.fillTemplate();
       this.knowledgeForm = this.knowledge.getFormGroup();
     }
@@ -117,10 +122,10 @@ export class CreateKnowledgePage implements OnInit{
            error =>  this.errorMessage = <any>error);
   }
 
-  private getObjectList(){
+  private getComplexList(){
     this.dataService.getData<EquipmentModel>(["complex" , "ownedBy", this.userKey], null)
       .subscribe(
-        (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.componentList = data,
+        (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.complexCompList = data,
         error =>  this.errorMessage = <any>error);
   }
 
@@ -233,7 +238,42 @@ export class CreateKnowledgePage implements OnInit{
 
   }
 
-  selectParent() {
+  private selectComponent(ref) {
+    let alert = this.alertCtrl.create();
+    alert.setTitle('Selecione componente');
+
+    let i = 0;
+    for (let comp of this.componentList)
+      alert.addInput({
+        type: 'radio',
+        label: comp.data.name,
+        value: comp._id,
+        checked: (i++)?false:true
+      });
+    alert.addButton('Cancelar');
+    alert.addButton({
+      text: 'Continuar',
+      handler: data => {
+        if (data)
+          console.log('Radio data:', data);
+          this.selectComponentOpen = false;
+          let newRelation = new RelationModel({ id: data },this.fb);
+          ref.push(newRelation.getFormGroup());
+        }
+    });
+    alert.present().then(() => {
+      this.selectComponentOpen = true;
+    });
+  }
+
+  private getEquipmentList(){
+    this.dataService.getData<EquipmentModel>(["ownedBy", this.userKey], null)
+      .subscribe(
+        (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.componentList = data,
+        error =>  this.errorMessage = <any>error);
+  }
+
+  selectParent(ref) {
     let alert = this.alertCtrl.create();
     alert.setTitle('Selecione o Componente');
 
@@ -252,14 +292,13 @@ export class CreateKnowledgePage implements OnInit{
       handler: data => {
         if (data)
           console.log('Radio data:', data);
-          this.selectParentOpen = false;
-          this.connectedParent = {
-            id: data
-          };
+          this.selectComponentOpen = false;
+          let newRelation = new RelationModel({ id: data },this.fb);
+          ref = newRelation.getFormGroup();
         }
     });
     alert.present().then(() => {
-      this.selectParentOpen = true;
+      this.selectComponentOpen = true;
     });
   }
 
@@ -284,12 +323,15 @@ export class CreateKnowledgePage implements OnInit{
       });
       loader.present();
 
-      this.knowledge.pushRelation("ownedBy", {"id": this.userKey});
-      this.knowledge.pushRelation("connectedTo", this.connectedBoard);
-
       this.dataService.createKnowledge(this.knowledgeForm.value)
                       .subscribe(
                         data => {
+                          let newRelation = new RelationModel({ id: data._id },this.fb);
+                          if (this.knowledgeForm.value.relations.connectedTo){
+                            for (let rel of this.knowledgeForm.value.relations.connectedTo)
+                              this.dataService.addAssociation(rel.id, "connectedTo", newRelation);
+                          }
+
                           console.log ( data );
                           loader.dismissAll();
                           this.navCtrl.pop();

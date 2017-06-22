@@ -2,7 +2,7 @@ import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { RelationModel } from "./relation.model"
 export class AssociationModel {
   public abstraction: boolean;
-  public parent: string;
+  public parent: Array<RelationModel> = [];
   public ownedBy: Array<RelationModel> = [];
   public connectedTo: Array<RelationModel> = [];
   public subscriberAt: Array<RelationModel> = [];
@@ -10,8 +10,9 @@ export class AssociationModel {
   public commentedAt: Array<RelationModel> = [];
   public subscribedBy: Array<RelationModel> = [];
 
+  private formParentArray: FormArray;
   private formOwnedByArray: FormArray;
-  private formConnectArray: FormArray;
+  private formConnectedToArray: FormArray;
   private formSubscriberAtArray: FormArray;
   private formLikedToArray: FormArray;
   private formCommentedAtArray: FormArray;
@@ -24,8 +25,9 @@ export class AssociationModel {
     this.fb = fb;
 
     if (fb) {
+      this.formParentArray  = fb.array([]);
       this.formOwnedByArray  = fb.array([]);
-      this.formConnectArray  = fb.array([]);
+      this.formConnectedToArray  = fb.array([]);
       this.formSubscriberAtArray  = fb.array([]);
       this.formLikedToArray  = fb.array([]);
       this.formCommentedAtArray  = fb.array([]);
@@ -37,7 +39,14 @@ export class AssociationModel {
       if ( ! input ) input = {};
 
       this.abstraction = input[ "abstraction" ] || false;
-      this.parent      = input[ "parent" ] || "";
+
+      if ( input[ "parent" ] ) {
+        for ( let item of input[ "parent" ] ) {
+          let relation = new RelationModel ( item, fb );
+          this.parent.push ( relation );
+          if ( fb ) this.formParentArray.push ( relation.getFormGroup () );
+        }
+      }
 
       if ( input[ "ownedBy" ] ) {
         for ( let item of input[ "ownedBy" ] ) {
@@ -50,7 +59,7 @@ export class AssociationModel {
         for ( let item of input[ "connectedTo" ] ) {
           let relation = new RelationModel ( item, fb );
           this.connectedTo.push ( relation );
-          if ( fb ) this.formConnectArray.push ( relation.getFormGroup () );
+          if ( fb ) this.formConnectedToArray.push ( relation.getFormGroup () );
         }
       }
       if ( input[ "subscriberAt" ] ) {
@@ -85,9 +94,9 @@ export class AssociationModel {
 
     if (fb) this.formGroup = fb.group({
         abstraction: [this.abstraction],
-        parent: [this.parent],
+        parent: this.formParentArray,
         ownedBy : this.formOwnedByArray,
-        connectedTo: this.formConnectArray,
+        connectedTo: this.formConnectedToArray,
         subscriberAt: this.formSubscriberAtArray,
         likedTo: this.formLikedToArray,
         commentedAt: this.formCommentedAtArray,
@@ -111,22 +120,19 @@ export class AssociationModel {
   }
 
   public fillTemplate(input, fb){
-
-    this.parent = "";
     this.abstraction = false;
 
     if (input.template.relations)
       for (let item of input.template.relations){
-        if (item.name === "parent")
-          this.parent = item.value;
-        else if (item.name === "abstraction")
+        if (item.name === "abstraction")
           this.abstraction = item.value;
         else if (item.values){
           for (let rel of item.values) {
             let relation = new RelationModel ( rel.attributes, fb);
             this[ rel.name ].push ( relation );
+            if (rel.name === "parent" ) this.formParentArray.push ( relation.getFormGroup () );
             if (rel.name === "ownedBy" ) this.formOwnedByArray.push ( relation.getFormGroup () );
-            if (rel.name === "connectedTo" ) this.formConnectArray.push ( relation.getFormGroup () );
+            if (rel.name === "connectedTo" ) this.formConnectedToArray.push ( relation.getFormGroup () );
             if (rel.name === "subscriberAt" ) this.formSubscriberAtArray.push ( relation.getFormGroup () );
             if (rel.name === "likedTo" ) this.formLikedToArray.push ( relation.getFormGroup () );
             if (rel.name === "commentedAt" ) this.formCommentedAtArray.push ( relation.getFormGroup () );
