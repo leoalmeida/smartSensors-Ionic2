@@ -329,7 +329,10 @@ export class CreateKnowledgePage implements OnInit{
                           let newRelation = new RelationModel({ id: data._id },this.fb);
                           if (this.knowledgeForm.value.relations.connectedTo){
                             for (let rel of this.knowledgeForm.value.relations.connectedTo)
-                              this.dataService.addAssociation(rel.id, "connectedTo", newRelation);
+                              this.dataService.addAssociation(rel.id, "connectedTo", newRelation)
+                                      .subscribe((res) => {
+                                        console.log("connectedTo inserido com sucesso")
+                                      });
                           }
 
                           console.log ( data );

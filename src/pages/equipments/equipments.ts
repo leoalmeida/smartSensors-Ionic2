@@ -148,6 +148,10 @@ export class EquipmentsPage  implements OnInit {
 
   removeItem(event: any, itemId){
     this.dataService.removeKnowledge(itemId)
+            .subscribe((res) => {
+              console.log("item removido com sucesso: ", res)
+              this.ngOnInit();
+            });
   }
 
   editItem(event, item){

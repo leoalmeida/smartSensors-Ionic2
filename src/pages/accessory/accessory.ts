@@ -118,6 +118,10 @@ export class AccessoryPage implements OnInit {
 
   removeItem(event: any, itemId: string){
     this.dataService.removeKnowledge(itemId)
+        .subscribe((res) => {
+          console.log("item removido com sucesso: ", res)
+          this.ngOnInit();
+        });
   }
 
   itemTapped(event: any, itemId: string) {
