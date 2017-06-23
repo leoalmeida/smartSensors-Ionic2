@@ -15,8 +15,8 @@ import { DataService } from '../../providers/apiData.service';
 
 import { RelationModel } from '../../models/relation.model';
 import {
-  KnowledgeChannelModel, KnowledgeMessageModel,
-  SyncObjectModel, EquipmentModel, ChannelModel
+  KnowledgeChannelModel, KnowledgeMessageModel, ProfileModel, AssociationModel,
+  SyncObjectModel, EquipmentModel, ChannelModel, KnowledgeInterface
 } from '../../models/interfaces';
 import { Observable } from 'rxjs/Observable';
 
@@ -60,6 +60,7 @@ export class ChatsPage {
   channels: string;
   public objectLastMsgs: {} = {};
   public myChannels: SyncObjectModel<KnowledgeChannelModel> = new SyncObjectModel<KnowledgeChannelModel>();
+  public listSubscriptions: SyncObjectModel<KnowledgeInterface<ProfileModel, AssociationModel>>[]  = []
   public storeChannels: SyncObjectModel<KnowledgeChannelModel> = new SyncObjectModel<KnowledgeChannelModel>();
   public arrayChannels: KnowledgeChannelModel[];
 
@@ -93,22 +94,32 @@ export class ChatsPage {
       content: "Atualizando..."
     });
     loader.present();*/
-    this.dataService.getData<ChannelModel>( [ "channels", "connected" ],null)
+    this.dataService.getData<KnowledgeInterface<ChannelModel, AssociationModel>>( [ "channels", "connected" ],null)
       .subscribe ( newChannels => {
-        this.myChannels.objects = newChannels;
-        this.storage.ready().then(() => {
-          for ( let chan of this.myChannels.objects ) {
-            if (!this.objectLastMsgs[chan["_id"]]) this.objectLastMsgs[chan["_id"]] = new SyncObjectModel<KnowledgeMessageModel>();
-            this.storage.get("channelLastMsgs" + chan["_id"] + this.userKey).then((newMsgs) => {
-              if (newMsgs) {
-                this.objectLastMsgs[chan["_id"]] = newMsgs;
-                this.lastSync = newMsgs[newMsgs.length-1];
+        for (let chan of newChannels){
+          this.myChannels.objects.push(chan);
+          this.dataService.getData<ProfileModel>( [ "subscriberAt", chan._id ],null)
+            .subscribe ( subscribers => {
+              let index = this.listSubscriptions.push(new SyncObjectModel<KnowledgeInterface<ProfileModel, AssociationModel>>());
+              this.listSubscriptions[index-1].objects = subscribers;
+              for (let sub of subscribers){
+                this.listSubscriptions[index-1].items[sub._id] = sub;
               }
-              this.getLastMsgs(chan["_id"], this.lastSync);
-              //loader.dismissAll();
+              this.storage.ready().then(() => {
+                for ( let chan of this.myChannels.objects ) {
+                  if (!this.objectLastMsgs[chan["_id"]]) this.objectLastMsgs[chan["_id"]] = new SyncObjectModel<KnowledgeMessageModel>();
+                  this.storage.get("channelLastMsgs" + chan["_id"] + this.userKey).then((newMsgs) => {
+                    if (newMsgs) {
+                      this.objectLastMsgs[chan["_id"]] = newMsgs;
+                      this.lastSync = newMsgs[newMsgs.length-1];
+                    }
+                    this.getLastMsgs(chan["_id"], this.lastSync);
+                    //loader.dismissAll();
+                  });
+                }
+              });
             });
-          }
-        });
+        }
       });
 
     this.dataService.getData<ChannelModel>( [ "channels", "disconnected"],null)
@@ -179,6 +190,14 @@ export class ChatsPage {
                             console.log(data);
                             this.getItems();
                           });
+              });
+  }
+
+  likeit(itemid){
+    let chanRelation = new RelationModel({ id: this.userKey });
+    this.dataService.addAssociation(itemid, "likedBy", chanRelation)
+              .subscribe((data: any) => {
+                console.log(data);
               });
   }
 
@@ -322,12 +341,18 @@ export class ChatsPage {
     return item._id;
   }
   changed(item){
-    var now = Date.now();
-    var diffMs = (now - item);
-    var diffTime = Math.floor(diffMs / 86400000); // days
-    if (diffTime>0) return diffTime;
-    diffTime = Math.floor((diffMs % 86400000) / 3600000); // hours
-    if (diffTime>0) return diffTime;
-    return Math.round(((diffMs % 86400000) % 3600000) / 60000); // minutes
+    let now = Date.now();
+    let diffMs = (now - item);
+    let diffTime = Math.floor(diffMs / 86400000); // days
+    if (diffTime==0){
+      diffTime = Math.floor((diffMs % 86400000) / 3600000); // hours
+      if (diffTime==0) {
+        Math.round(((diffMs % 86400000) % 3600000) / 60000); // minutes
+        if (diffTime<=1) return "1 minuto";
+        else if (diffTime>1) return diffTime + " minutos";
+      }else if (diffTime==1) return "1 hora";
+       else if (diffTime>1) return diffTime + " horas";
+    }else if (diffTime==1) return "1 dia";
+     else return diffTime + " dias";
   }
 }

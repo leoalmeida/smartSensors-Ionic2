@@ -23,13 +23,14 @@ import {
 export class ChatsDetailPage implements OnDestroy {
 
   pageTitle: string = "";
+  subTitle: string  = "";
   userKey: string;
   op: string = "$gt";
   inputMsg: string = "";
 
   channel: KnowledgeInterface<EquipmentModel, AssociationModel>;
   channelMsgs: SyncObjectModel<KnowledgeChannelModel> = new SyncObjectModel<KnowledgeChannelModel>();
-  listSubscriptions: SyncObjectModel<KnowledgeInterface<ProfileModel, AssociationModel>>;
+  listSubscriptions: SyncObjectModel<KnowledgeInterface<ProfileModel, AssociationModel>>  = new SyncObjectModel<KnowledgeInterface<ProfileModel, AssociationModel>>();;
 
   notifications: any[] = [];
 
@@ -46,7 +47,6 @@ export class ChatsDetailPage implements OnDestroy {
 
     this.userKey = navParams.get("key");
     this.channel = navParams.get("channel");
-    this.pageTitle = this.channel.data.name;
 
     this.getData();
   }
@@ -58,17 +58,26 @@ export class ChatsDetailPage implements OnDestroy {
   }
 
   getData(){
-    this.storage.get("channelOpen" + this.userKey).then((channel) => {
-      console.log(channel);
-      this.channel = channel;
-      this.pageTitle = this.channel.data.name;
-      this.storage.get("channelMsgs" + channel._id + this.userKey).then((msgs) => {
-        if (msgs) {
-          this.channelMsgs = msgs;
-          this.getMsgs(channel._id, this.channelMsgs['sync']);
-        }else this.getMsgs(channel._id, 0);
+    this.dataService.getData<ProfileModel>( [ "subscriberAt", this.channel._id ],null)
+      .subscribe ( subscribers => {
+        this.listSubscriptions.objects = subscribers;
+        for (let sub of subscribers){
+          this.listSubscriptions.items[sub._id] = sub;
+        }
+        this.listSubscriptions.objects = subscribers;
+        this.storage.get("channelOpen" + this.userKey).then((channel) => {
+          console.log(channel);
+          this.channel = channel;
+          this.pageTitle = this.channel.data.configurations["label"];
+          this.storage.get("channelMsgs" + channel._id + this.userKey).then((msgs) => {
+            if (msgs) {
+              this.channelMsgs = msgs;
+              this.getMsgs(channel._id, this.channelMsgs['sync']);
+            }else this.getMsgs(channel._id, 0);
+            this.subTitle = this.changed(this.channelMsgs['sync']);
+          });
+        });
       });
-    });
   }
 
   getMsgs(channelId, sync){
@@ -83,6 +92,7 @@ export class ChatsDetailPage implements OnDestroy {
 
         this.channelMsgs['sync'] = this.channelMsgs['objects'][this.channelMsgs['objects'].length-1]["sync"];
         this.storage.set("channelMsgs" + channelId + this.userKey, this.channelMsgs);
+        this.subTitle = this.changed(this.channelMsgs['sync']);
       });
   }
 
@@ -226,13 +236,19 @@ export class ChatsDetailPage implements OnDestroy {
     return item.sync;
   }
   changed(item){
-
-    var now = Date.now();
-    var diffMs = (now - item);
-    var diffTime = Math.floor(diffMs / 86400000); // days
-    if (diffTime>0) return diffTime;
-    diffTime = Math.floor((diffMs % 86400000) / 3600000); // hours
-    if (diffTime>0) return diffTime;
-    return Math.round(((diffMs % 86400000) % 3600000) / 60000); // minutes
+    let now = Date.now();
+    let diffMs = (now - item);
+    let diffTime = Math.floor(diffMs / 86400000); // days
+    if (diffTime==0){
+      diffTime = Math.floor((diffMs % 86400000) / 3600000); // hours
+      if (diffTime==0) {
+        Math.round(((diffMs % 86400000) % 3600000) / 60000); // minutes
+        if (diffTime<=1) return "1 minuto";
+        else if (diffTime>1) return diffTime + " minutos";
+      }else if (diffTime==1) return "1 hora";
+       else if (diffTime>1) return diffTime + " horas";
+    }else if (diffTime==1) return "1 dia";
+     else return diffTime + " dias";
   }
+
 }

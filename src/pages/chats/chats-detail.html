@@ -1,44 +1,50 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>{{pageTitle}}</ion-title>
-    <ion-buttons end>
-      <button ion-button icon-only (click)="logout()">
-        <ion-icon name="log-out"></ion-icon>
-      </button>
-    </ion-buttons>
+    <ion-title>
+      {{pageTitle}} <ion-note>{{subTitle}}</ion-note>
+    </ion-title>
   </ion-navbar>
 </ion-header>
 <ion-content class="padding">
-    <ion-list *ngIf="channelMsgs">
-      <ion-list-header color="light">
-        <h2>{{channel.data?.label}}</h2>
-        <p>{{changed(channelMsgs.sync)}}</p>
-        <button color="light" ion-button icon-right item-right clear small>
-          <span>{{channel.relations.subscribedBy.length}}</span>
-          <ion-icon name="eye" ></ion-icon>
+  <ion-fab  top right edge>
+    <button color="secondary" ion-fab mini >
+      <ion-icon name="eye"></ion-icon>
+    </button>
+    <ion-fab-list side="left">
+        <ion-avatar ion-fab class="fab-map" *ngFor="let item of listSubscriptions.objects">
+          <img [src]="item.data?.photoURL">
+        </ion-avatar>
+        <button ion-fab><ion-icon name="add"></ion-icon></button>
+    </ion-fab-list>
+  </ion-fab>
+
+  <ion-list *ngIf="channelMsgs">
+    <ion-item-divider color="light">Mensagens</ion-item-divider>
+    <ion-item-sliding *ngFor="let message of channelMsgs.objects; let i = index;">
+      <ion-item>
+        <ion-avatar *ngIf="message.data.profile != userKey" item-left>
+          <img [src]="listSubscriptions.items[message.data.profile].data?.photoURL"/>
+        </ion-avatar>
+        <ion-note *ngIf="message.data.profile == userKey" item-left>{{changed(message.sync)}}</ion-note>
+        <h2 [align]="(message.data.profile == userKey)?'right':'left'">{{message.data?.message}}</h2>
+        <p [align]="(message.data.profile == userKey)?'right':'left'" *ngIf="message.data?.likes>0">{{message.data?.likes}} gostaram</p>
+        <ion-note *ngIf="message.data.profile != userKey" item-right>{{changed(message.sync)}}</ion-note>
+        <ion-avatar *ngIf="message.data.profile == userKey" item-right>
+          <img [src]="listSubscriptions.items[message.data.profile].data?.photoURL"/>
+        </ion-avatar>
+      </ion-item>
+      <ion-item-options side="left" *ngIf="message.data.profile === userKey ">
+        <button ion-button  icon-only color="danger">
+          <ion-icon name="trash" large></ion-icon>
         </button>
-      </ion-list-header>
-      <ion-item-sliding *ngFor="let message of channelMsgs.objects; let i = index;">
-        <ion-item>
-          <ion-avatar item-left>
-            <img [src]="message.data?.message"/>
-          </ion-avatar>
-          <h2>{{message.data?.message}}</h2>
-          <p *ngIf="message.data?.likes>0">{{message.data?.likes}} gostaram</p>
-          <ion-note item-right>{{changed(message.sync)}} min</ion-note>
-        </ion-item>
-        <ion-item-options side="left" *ngIf="message.data.profile === userKey ">
-          <button ion-button color="danger">
-            <ion-icon name="trash" large></ion-icon>
-          </button>
-        </ion-item-options>
-        <ion-item-options side="right" *ngIf="message.data.profile === userKey ">
-          <button ion-button color="primary">
-            <ion-icon name="pen" large></ion-icon>
-          </button>
-        </ion-item-options>
-      </ion-item-sliding>
-    </ion-list>
+      </ion-item-options>
+      <ion-item-options side="right" *ngIf="message.data.profile === userKey ">
+        <button ion-button icon-only color="primary">
+          <ion-icon name="create" large></ion-icon>
+        </button>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
 </ion-content>
 
 <ion-footer>
