@@ -7,7 +7,9 @@ export class AssociationModel {
   public connectedTo: Array<RelationModel> = [];
   public subscriberAt: Array<RelationModel> = [];
   public likedTo: Array<RelationModel> = [];
+  public likedBy: Array<RelationModel> = [];
   public commentedAt: Array<RelationModel> = [];
+  public commentedBy: Array<RelationModel> = [];
   public subscribedBy: Array<RelationModel> = [];
 
   private formParentArray: FormArray;
@@ -15,7 +17,9 @@ export class AssociationModel {
   private formConnectedToArray: FormArray;
   private formSubscriberAtArray: FormArray;
   private formLikedToArray: FormArray;
+  private formLikedByArray: FormArray;
   private formCommentedAtArray: FormArray;
+  private formCommentedByArray: FormArray;
   private formSubscribedByArray: FormArray;
 
   private fb: FormBuilder;
@@ -30,7 +34,9 @@ export class AssociationModel {
       this.formConnectedToArray  = fb.array([]);
       this.formSubscriberAtArray  = fb.array([]);
       this.formLikedToArray  = fb.array([]);
+      this.formLikedByArray  = fb.array([]);
       this.formCommentedAtArray  = fb.array([]);
+      this.formCommentedByArray  = fb.array([]);
       this.formSubscribedByArray  = fb.array([]);
     }
 
@@ -76,11 +82,26 @@ export class AssociationModel {
           if ( fb ) this.formLikedToArray.push ( relation.getFormGroup () );
         }
       }
+      if ( input[ "likedBy" ] ) {
+        for ( let item of input[ "likedBy" ] ) {
+          let relation = new RelationModel ( item, fb );
+          this.likedBy.push ( relation );
+          if ( fb ) this.formLikedByArray.push ( relation.getFormGroup () );
+        }
+      }
       if ( input[ "commentedAt" ] ) {
         for ( let item of input[ "commentedAt" ] ) {
           let relation = new RelationModel ( item, fb );
           this.commentedAt.push ( relation );
           if ( fb ) this.formCommentedAtArray.push ( relation.getFormGroup () );
+        }
+      }
+
+      if ( input[ "commentedBy" ] ) {
+        for ( let item of input[ "commentedBy" ] ) {
+          let relation = new RelationModel ( item, fb );
+          this.commentedBy.push ( relation );
+          if ( fb ) this.formCommentedByArray.push ( relation.getFormGroup () );
         }
       }
       if ( input[ "subscribedBy" ] ) {
@@ -99,7 +120,9 @@ export class AssociationModel {
         connectedTo: this.formConnectedToArray,
         subscriberAt: this.formSubscriberAtArray,
         likedTo: this.formLikedToArray,
+        likedBy: this.formLikedByArray,
         commentedAt: this.formCommentedAtArray,
+        commentedBy: this.formCommentedByArray,
         subscribedBy: this.formSubscribedByArray
       })
   }
@@ -135,7 +158,9 @@ export class AssociationModel {
             if (rel.name === "connectedTo" ) this.formConnectedToArray.push ( relation.getFormGroup () );
             if (rel.name === "subscriberAt" ) this.formSubscriberAtArray.push ( relation.getFormGroup () );
             if (rel.name === "likedTo" ) this.formLikedToArray.push ( relation.getFormGroup () );
-            if (rel.name === "commentedAt" ) this.formCommentedAtArray.push ( relation.getFormGroup () );
+            if (rel.name === "likedBy" ) this.formLikedByArray.push ( relation.getFormGroup () );
+            if (rel.name === "commentedAt" ) this.formCommentedByArray.push ( relation.getFormGroup () );
+            if (rel.name === "commentedBy" ) this.formCommentedAtArray.push ( relation.getFormGroup () );
             if (rel.name === "subscribedBy" ) this.formSubscribedByArray.push ( relation.getFormGroup () );
           }
         }

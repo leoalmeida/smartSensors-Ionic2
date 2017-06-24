@@ -21,13 +21,13 @@ export class RuleModalPage {
   type: string = "";
 
   hasConnector: boolean = false;
-
+  userKey: string = "";
 
   pageTitle: string = "";
 
   categories: any;
   knowledge: string = "";
-
+  knowledgeSelection: boolean = false;
   knowledges: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
 
   evaluatedAttributes: any;
@@ -38,6 +38,7 @@ export class RuleModalPage {
     private dataService:DataService,
     private refService:ReferenceService
   ) {
+    this.userKey = navParams.get('userKey');
     this.hasConnector = navParams.get('hasConnector');
     this.category = navParams.get('category');
     this.type = navParams.get('def');
@@ -58,6 +59,11 @@ export class RuleModalPage {
         this.ruleSelection.evaluatedAttributes = this.category.evaluatedAttributes;
       else
         this.ruleSelection.evaluatedAttribute = {};
+
+      if (!navParams.get('dynamic')){
+        this.knowledgeSelection = true;
+        this.getEquipmentList(this.category.type, this.category.category);
+      }
     }else{
       this.pageTitle = "Ação";
       this.actionSelection = {
@@ -71,6 +77,10 @@ export class RuleModalPage {
         changedAttributes:  this.category.changedAttributes,
         configurations: this.category.configurations,
       };
+      if (this.category.category === "relay"){
+        this.knowledgeSelection = true;
+        this.getEquipmentList(this.category.type, this.category.category);
+      }
     }
 
     this.refService.getCategories()
@@ -81,6 +91,14 @@ export class RuleModalPage {
         });
 
   }
+
+  private getEquipmentList(type, category){
+    this.dataService.getData<EquipmentModel>([type.toLowerCase(), category.toLowerCase(), "ownedBy", this.userKey], null)
+      .subscribe(
+        (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.knowledges = data,
+        error =>  console.log(<any>error));
+  }
+
   onSelectAttrs(item){
     console.log(item);
   }

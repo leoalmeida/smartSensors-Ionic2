@@ -27,10 +27,10 @@
       <ion-label color="primary">Nome</ion-label>
       <ion-input type="text" [(ngModel)]="label" ></ion-input>
     </ion-item>
-    <ion-item *ngIf="false">
-      <ion-label color="primary">Conhecimento</ion-label>
+    <ion-item *ngIf="knowledgeSelection">
+      <ion-label color="primary">Recurso utilizado</ion-label>
       <ion-select [(ngModel)]="knowledge">
-        <ion-option *ngFor="let item of knowledges" [value]="item._id">{{item.name}}</ion-option>
+        <ion-option *ngFor="let item of knowledges" [value]="item._id">{{item.data.name}}</ion-option>
       </ion-select>
     </ion-item>
     <span *ngIf="type === 'rule'">

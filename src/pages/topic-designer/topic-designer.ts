@@ -228,7 +228,7 @@ export class TopicDesignerPage implements OnInit{
 
     let hasConnector = !!(this.object.data.ruleContainer.length);
 
-    let modal = this.modalCtrl.create(RuleModalPage,{ def: "rule", category: category, hasConnector: hasConnector });
+    let modal = this.modalCtrl.create(RuleModalPage,{ def: "rule", category: category, hasConnector: hasConnector, userKey: this.userKey, dynamic: (this.object.category === "dynamic") });
     modal.present();
     modal.onWillDismiss((data: any) => {
       if (data) {
@@ -261,7 +261,7 @@ export class TopicDesignerPage implements OnInit{
       category = this.actionCategoryItems[catIndex];
     }else category = catItem;
 
-    let modal = this.modalCtrl.create(RuleModalPage,{ def: "action", category: category});
+    let modal = this.modalCtrl.create(RuleModalPage,{ def: "action", category: category, userKey: this.userKey});
     modal.present();
     modal.onWillDismiss((data: any) => {
       if (data) {

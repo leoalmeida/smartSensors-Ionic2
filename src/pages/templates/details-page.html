@@ -119,8 +119,8 @@
             <ion-icon *ngIf="!configurations[index].value" name="radio-button-off" item-left></ion-icon>
           </ion-item>
           <ion-item-options side="left">
-            <button [disabled]="data?.connected" ion-button color="danger"  (click)="removeAttribute(configurations[index])">
-              <ion-icon name="remove-circle"></ion-icon>
+            <button  icon-only  [disabled]="data?.connected" ion-button color="danger"  (click)="removeAttribute(configurations[index])">
+              <ion-icon name="trash"></ion-icon>
             </button>
           </ion-item-options>
         </ion-item-sliding>
@@ -153,8 +153,8 @@
             <ion-icon *ngIf="!info[index].value" name="radio-button-off" item-left></ion-icon>
           </ion-item>
           <ion-item-options side="left">
-            <button ion-button color="danger"  (click)="removeAttribute(item)">
-              <ion-icon name="remove-circle"></ion-icon>
+            <button ion-button  icon-only color="danger"  (click)="removeAttribute(item)">
+              <ion-icon name="trash"></ion-icon>
             </button>
           </ion-item-options>
         </ion-item-sliding>
@@ -185,8 +185,8 @@
           </button>
         </ion-item-options>-->
         <ion-item-options side="left">
-          <button ion-button color="danger"  (click)="removeItem($event, item)">
-            <ion-icon name="remove-circle"></ion-icon>
+          <button ion-button  icon-only color="danger"  (click)="removeItem($event, item)">
+            <ion-icon name="trash"></ion-icon>
           </button>
         </ion-item-options>
       </ion-item-sliding>
