@@ -9,6 +9,8 @@ import { DataService } from '../../providers/apiData.service';
 
 import { SocialSharing } from '@ionic-native/social-sharing';
 
+import { KnowledgeModel } from '../../models/knowledge.model';
+
 import {
   AddressModel,
   KnowledgeMessageModel,
@@ -30,7 +32,7 @@ export class ChatsDetailPage implements OnDestroy {
 
   channel: KnowledgeInterface<EquipmentModel, AssociationModel>;
   channelMsgs: SyncObjectModel<KnowledgeChannelModel> = new SyncObjectModel<KnowledgeChannelModel>();
-  listSubscriptions: SyncObjectModel<KnowledgeInterface<ProfileModel, AssociationModel>>  = new SyncObjectModel<KnowledgeInterface<ProfileModel, AssociationModel>>();;
+  listSubscriptions: SyncObjectModel<KnowledgeInterface<ProfileModel, AssociationModel>>  = new SyncObjectModel<KnowledgeInterface<ProfileModel, AssociationModel>>();
 
   notifications: any[] = [];
 
@@ -68,13 +70,12 @@ export class ChatsDetailPage implements OnDestroy {
         this.storage.get("channelOpen" + this.userKey).then((channel) => {
           console.log(channel);
           this.channel = channel;
-          this.pageTitle = this.channel.data.configurations["label"];
+          this.pageTitle = this.channel.data["label"];
           this.storage.get("channelMsgs" + channel._id + this.userKey).then((msgs) => {
             if (msgs) {
               this.channelMsgs = msgs;
               this.getMsgs(channel._id, this.channelMsgs['sync']);
             }else this.getMsgs(channel._id, 0);
-            this.subTitle = this.changed(this.channelMsgs['sync']);
           });
         });
       });
@@ -90,9 +91,13 @@ export class ChatsDetailPage implements OnDestroy {
         for ( let msg of msgData )
             this.channelMsgs['objects'].push(msg);
 
-        this.channelMsgs['sync'] = this.channelMsgs['objects'][this.channelMsgs['objects'].length-1]["sync"];
-        this.storage.set("channelMsgs" + channelId + this.userKey, this.channelMsgs);
-        this.subTitle = this.changed(this.channelMsgs['sync']);
+        if (this.channelMsgs['objects'].length){
+          this.channelMsgs['sync'] = this.channelMsgs['objects'][this.channelMsgs['objects'].length-1]["sync"];
+          this.storage.set("channelMsgs" + channelId + this.userKey, this.channelMsgs);
+          this.subTitle = this.changed(this.channelMsgs['sync']);
+        }else{
+          this.subTitle = "";
+        }
       });
   }
 
@@ -101,48 +106,48 @@ export class ChatsDetailPage implements OnDestroy {
 
     body = this.fillBody(channelId);
 
-    this.dataService.publishMessage(body);
+    this.dataService.publishMessage(body)
+            .subscribe((data: any) => {
+              console.log(data);
+              this.getData();
+              this.inputMsg = "";
+            },(err: any) => {console.log(err);});
   }
 
   fillBody(channelId){
-    var item: KnowledgeInterface<MessageModel, AssociationModel>;
-
-    item.type = 'action';
-    item.category = 'message';
-    item.root = channelId;
-    item.location = this.getGeo();
-    item.data.message = this.inputMsg;
-    item.data.enabled = true;
-    item.data.comments = 0;
-    item.data.dislikes = 0;
-    item.data.likes = 0;
-    item.data.profile = this.userKey;
-
-    var userRelation: RelationModel;
-    userRelation.id = this.userKey;
-    userRelation.view = true;
-    userRelation.publish = true;
-    item.relations.ownedBy.push(userRelation);
-
-    var channelRelation: RelationModel;
-    channelRelation.id = channelId;
-    channelRelation.view = true;
-    channelRelation.publish = true;
-    item.relations.connectedTo.push(channelRelation);
-
-    item.relations.subscribedBy = this.channel.relations.subscribedBy;
-
-    return new KnowledgeMessageModel(item);
+    var item = {
+      "type": 'action',
+      "category": 'message',
+      "root": channelId,
+      "location": this.getGeo(),
+      "data": {
+        "message": this.inputMsg,
+        "enabled": true,
+        "profile": this.userKey
+      },
+      "relations": {
+        "connectedTo":[{
+          id: channelId,
+          view: true,
+          publish: true
+        }],
+        "ownedBy": [{
+          id: this.userKey,
+          view: true,
+          publish: true
+        }],
+        "subscribedBy": this.channel.relations.subscribedBy
+      }
+    };
+    return new KnowledgeModel(item);
   }
 
   getGeo(){
-    var geo: AddressModel;
-
-    geo.type = "Point";
-    geo.text = "";
-    geo.coordinates = [0, 0];
-
-    return geo;
+    return {
+      type: "Point",
+      text: "",
+      coordinates: [0, 0]
+    };
   }
 
   share(info) {

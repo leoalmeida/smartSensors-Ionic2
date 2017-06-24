@@ -1,6 +1,7 @@
 import { ConnectionModel } from "./connection.model";
 import { AssociationModel } from "./association.model";
 import { EquipmentModel } from "./equipment.model";
+import { MessengerModel } from "./messenger.model";
 import { ProfileModel } from "./profile.model";
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AddressModel } from './address.model';
@@ -26,17 +27,18 @@ export class KnowledgeModel {
       if ( ! input ) input = {};
       this.type    = input[ "type" ] || "";
       this.category = input[ "category" ] || "";
-      if (!input[ "_id" ]) this._id     = input[ "_id" ];
+      if (input[ "_id" ]) this._id     = input[ "_id" ];
       this.root    = input[ "root" ] || "";
       this.access  = input[ "access" ] || "public";
       this.version = input[ "version" ] || "1.0";
       this.sync    = input[ "sync" ] || Date.now ();
 
-      if ( this.type === "profile" ) this.data = new ProfileModel ( input, fb );
-      else this.data = new EquipmentModel ( input, fb );
+      if ( this.type === "profile" ) this.data = new ProfileModel ( input[ "data" ], fb );
+      else if ( this.type === "action" ) this.data = new MessengerModel ( input[ "data" ], fb );
+      else this.data = new EquipmentModel ( input[ "data" ], fb );
 
-      this.relations = new AssociationModel ( input, fb );
-      this.location = new AddressModel ( input, fb );
+      this.relations = new AssociationModel ( input[ "relations" ], fb );
+      this.location = new AddressModel ( input[ "location" ], fb );
       this.connection   = new ConnectionModel ( input[ "connection" ], fb );
     }
 
@@ -90,7 +92,6 @@ export class KnowledgeModel {
 
     this.relations = new AssociationModel ( input, fb );
     this.location = new AddressModel ( input, fb );
-
     this.connection   = new ConnectionModel ( input.template.connection, fb );
 
     //this.data.fillData(template);

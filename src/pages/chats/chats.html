@@ -26,7 +26,7 @@
       <span *ngIf="myChannels">
         <ion-card class="adv-map" *ngFor="let item of myChannels.objects; let i = index; trackBy: trackBySync" [attr.data-index]="i">
           <div *ngIf="objectLastMsgs[item._id]" style="position: relative">
-            <img [src]='item.data.configurations?.image'>
+            <img [src]='item.data.image'>
             <ion-fab right bottom edge (click)="unsubscribe(item._id)">
               <button ion-fab mini color="danger"  class="fab-map">
                 <ion-icon name="log-out"></ion-icon>
@@ -35,11 +35,11 @@
           </div>
           <ion-list *ngIf="objectLastMsgs[item._id]" (click)="openChats($event, item )">
             <ion-item-divider icon-right>
-              <h2>{{item.data.configurations?.label}}
+              <h2>{{item.data.label}}
                 <ion-note *ngIf="objectLastMsgs[item._id].objects.length">{{objectLastMsgs[item._id].objects.length}} novos comentários</ion-note>
                 <ion-note *ngIf="!objectLastMsgs[item._id].objects.length">Sem comentários novos</ion-note>
               </h2>
-              <h3>{{item.data.configurations?.description}}</h3>
+              <h3>{{item.data.description}}</h3>
               <button color="dark" ion-button icon-right item-right clear small>
                 <span>{{item.relations.subscribedBy.length}}</span>
                 <ion-icon name="eye" ></ion-icon>
@@ -47,14 +47,14 @@
             </ion-item-divider>
             <ion-item *ngFor="let msg of objectLastMsgs[item._id].objects; let m = index; trackBy: trackBySync">
               <ion-avatar *ngIf="msg.data.profile != userKey" item-left>
-                <img [src]="listSubscriptions[i].items[msg.data?.profile]?.data.photoURL"/>
+                <img [src]="listSubscriptions[i].items[msg.data?.profile]?.data.icon"/>
               </ion-avatar>
-              <ion-note *ngIf="msg.data.profile == userKey" item-left>{{changed(item.sync)}}</ion-note>
+              <ion-note *ngIf="msg.data.profile == userKey" item-left>{{changed(msg.sync)}}</ion-note>
               <h2 [align]="(msg.data.profile == userKey)?'right':'left'">{{msg.data.message}}</h2>
               <p [align]="(msg.data.profile == userKey)?'right':'left'">{{listSubscriptions[i].items[msg.data?.profile]?.data.name}}</p>
-              <ion-note *ngIf="msg.data.profile != userKey" item-right>{{changed(item.sync)}}</ion-note>
+              <ion-note *ngIf="msg.data.profile != userKey" item-right>{{changed(msg.sync)}}</ion-note>
               <ion-avatar *ngIf="msg.data.profile == userKey" item-right>
-                <img [src]="listSubscriptions[i].items[msg.data?.profile]?.data.photoURL"/>
+                <img [src]="listSubscriptions[i].items[msg.data?.profile]?.data.icon"/>
               </ion-avatar>
             </ion-item>
           </ion-list>
@@ -87,17 +87,17 @@
       <ion-card class="adv-map" *ngFor="let item of storeChannels.objects; let i = index; trackBy: trackBySync" [attr.data-index]="i">
         <ion-item-divider icon-right>
           <ion-avatar item-left>
-            <img [src]="item.data.configurations?.icon">
+            <img [src]="item.data.icon">
           </ion-avatar>
-          <h2>{{item.data.configurations?.label}}</h2>
-          <p>{{item.data.configurations?.description}}</p>
+          <h2>{{item.data.label}}</h2>
+          <p>{{item.data.description}}</p>
           <button color="dark" ion-button icon-right item-right clear small>
             <span>{{item.relations.subscribedBy.length}}</span>
             <ion-icon name="eye" ></ion-icon>
           </button>
         </ion-item-divider>
         <div style="position: relative">
-          <img [src]='item.data.configurations?.image'>
+          <img [src]='item.data.image'>
           <ion-fab right bottom edge (click)="subscribe(item._id)">
             <button ion-fab mini  color="primary"  class="fab-map">
               <ion-icon name="cart"></ion-icon>

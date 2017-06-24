@@ -94,11 +94,7 @@ export interface ProfileModel {
 export interface MessageModel {
   enabled: boolean;
   message: string;
-
   profile: string;
-  likes: number;
-  dislikes: number;
-  comments: number;
 }
 export interface TopicModel {
   enabled: boolean;
@@ -162,7 +158,7 @@ export interface KnowledgeConstructor<DT, RL>{
   new (input: KnowledgeInterface<DT, RL>): KnowledgeInterface<DT, RL>;
 }
 export interface KnowledgeMod{
-  
+
 }
 
 export function createKnowledge<DT, RL>(ctor: KnowledgeConstructor<DT, RL>, input: KnowledgeInterface<DT, RL>): KnowledgeInterface<DT, RL> {

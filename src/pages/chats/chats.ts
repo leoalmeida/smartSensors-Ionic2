@@ -94,6 +94,10 @@ export class ChatsPage {
       content: "Atualizando..."
     });
     loader.present();*/
+    this.listSubscriptions = [];
+    this.objectLastMsgs = {};
+    this.myChannels.objects = [];
+    this.storeChannels.objects = [];
     this.dataService.getData<KnowledgeInterface<ChannelModel, AssociationModel>>( [ "channels", "connected" ],null)
       .subscribe ( newChannels => {
         for (let chan of newChannels){
@@ -198,7 +202,8 @@ export class ChatsPage {
     this.dataService.addAssociation(itemid, "likedBy", chanRelation)
               .subscribe((data: any) => {
                 console.log(data);
-              });
+                this.getItems();
+              },(err: any) => {console.log(err);});
   }
 
   openChats($event, channel){

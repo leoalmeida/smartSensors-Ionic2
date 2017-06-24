@@ -95,7 +95,7 @@ export class DataService {
   }
 
   publishMessage(newObject: any): Observable<KnowledgeInterface<MessageModel, AssociationModel>> {
-    return this.http.put(this.dbUrl + "api/messenger/", newObject, this.generateHeader(true))
+    return this.http.post(this.dbUrl + "api/messenger/publish", newObject, this.generateHeader(true))
       .map(response => response.json())
       .catch(this.handleError);
   }
@@ -219,7 +219,7 @@ export class DataService {
       errMsg = error.message ? error.message : error.toString();
     }
     console.error(errMsg);
-    return Observable.throw(errMsg);
+    return Observable.throw({code: error.status, msg: errMsg});
   }
 
 }
