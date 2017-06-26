@@ -12,63 +12,80 @@
       </button>
     </ion-buttons>
   </ion-navbar>
+  <ion-toolbar no-border-top>
+    <ion-segment  [(ngModel)]="selectedSegment">
+      <ion-segment-button value="basics">
+        Informações Básicas
+      </ion-segment-button>
+      <ion-segment-button value="configurations">
+        Configurações
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
 </ion-header>
 <ion-content>
-  <ion-fab top right>
+  <!--<ion-fab top right>
     <button ion-fab mini (click)="showMap()"><ion-icon name="compass"></ion-icon></button>
-  </ion-fab>
-  <ion-list *ngIf="data">
-      <ion-item-divider icon-right color="light">
-        Informações Básicas
-      </ion-item-divider>
+  </ion-fab>-->
+  <div [ngSwitch]="selectedSegment" *ngIf="data">
+    <ion-list *ngSwitchCase="'basics'">
       <ion-item>
-        <ion-label color="primary">Conectado</ion-label>
-        <ion-toggle [ngModel]="data?.connected" [disabled]="type!=='board'" (ionChange)="toggleUpdateAttr($event, '',data.connected)"></ion-toggle>
+        <ion-label>
+          {{selectedItem}} <ion-note padding> ID</ion-note>
+        </ion-label>
       </ion-item>
       <ion-item>
-        <ion-label color="primary">Habilitado</ion-label>
+        <ion-label>
+          {{object.type}}/{{object.category}} <ion-note padding> Tipo/Categoria</ion-note>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-icon name="clock" item-left></ion-icon>
+        <ion-label>
+          {{formatDate(data?.sync)}} <ion-note padding> Última atualização</ion-note>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-icon name="attach" item-left></ion-icon>
+        <ion-label>
+           {{data?.updatedValue}} <ion-note padding> Última Leitura</ion-note>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary" *ngIf="!data.connected">Conectar</ion-label>
+        <ion-label padding color="primary" *ngIf="data.connected">Desconectar</ion-label>
+        <ion-toggle [ngModel]="data?.connected" [disabled]="object.type!=='board'" (ionChange)="toggleUpdateAttr($event, '',data.connected)"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary" *ngIf="!data.enabled">Habilitar</ion-label>
+        <ion-label padding color="primary" *ngIf="data.enabled">Desabilitar</ion-label>
         <ion-toggle [ngModel]="data?.enabled" [disabled]="data?.connected" (ionChange)="toggleUpdateAttr($event, '',data.enabled)"></ion-toggle>
       </ion-item>
       <ion-item>
         <ion-label>
-          <ion-note padding>Última Leitura:</ion-note> {{data?.updatedValue}}
-        </ion-label>
-        <ion-icon name="attach" item-right></ion-icon>
-      </ion-item>
-      <ion-item>
-        <ion-label>
-          <ion-note padding>Sincronização:</ion-note>{{data?.sync}}
-        </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-label>
-          <ion-note padding>Nome:</ion-note>
+          <ion-note padding color="primary" >Nome</ion-note>
         </ion-label>
         <ion-input [(ngModel)]="data.name" [disabled]="data?.connected"></ion-input>
-        <ion-icon name="information" item-right></ion-icon>
       </ion-item>
       <ion-item>
         <ion-label>
-          <ion-note padding>Label:</ion-note>
+          <ion-note padding color="primary" >Label</ion-note>
         </ion-label>
         <ion-input [(ngModel)]="data.label" [disabled]="data?.connected"></ion-input>
-        <ion-icon name="information" item-right></ion-icon>
       </ion-item>
-      <ion-item *ngIf="data?.description">
+      <ion-item>
         <ion-label>
-          <ion-note padding>Descrição:</ion-note>
+          <ion-note padding color="primary" >Descrição</ion-note>
         </ion-label>
         <ion-input [(ngModel)]="data.description" [disabled]="data?.connected"></ion-input>
-        <ion-icon name="information" item-right></ion-icon>
       </ion-item>
-      <ion-item *ngIf="data?.unit">
+      <ion-item *ngIf="object.type!=='board'">
         <ion-label>
-          <ion-note padding>Medida:</ion-note>
+          <ion-note padding color="primary">Medida</ion-note>
         </ion-label>
         <ion-select [(ngModel)]="data.unit" [disabled]="data?.connected">
           <ion-option *ngFor="let item of refData.UnitTypes" [value]="item.value">{{item.display}}</ion-option>
         </ion-select>
-        <ion-icon name="information" item-right></ion-icon>
       </ion-item>
       <ion-item *ngIf="data?.image">
         <ion-avatar item-left>
@@ -82,15 +99,43 @@
         </ion-avatar>
         <ion-label>Ícone</ion-label>
       </ion-item>
-      <ion-item *ngIf="location">
-        <ion-avatar item-left>
-          <img src="assets/icons/location-icon.png">
-        </ion-avatar>
-        <ion-label>
-          {{location.text}}
-        </ion-label>
-      </ion-item>
-      <ion-item-divider icon-right color="light" (click)="listConfigurations = !listConfigurations">
+    </ion-list >
+    <ion-list *ngSwitchCase="'configurations'">
+      <!-- geo attribute -->
+      <ion-item-group no-lines>
+        <ion-item-divider (click)="geoLocate()" color="light" class="header-btn">
+          Localização
+          <ion-icon name="locate" item-right></ion-icon>
+        </ion-item-divider>
+        <ion-item>
+          <ion-label>Endereço</ion-label>
+          <ion-input type="text" [(ngModel)]="object.location.text" [disabled]="data?.connected"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label>Coordenadas</ion-label>
+          <ion-input type="text" [(ngModel)]="object.location.coordinates" [disabled]="data?.connected"></ion-input>
+        </ion-item>
+      </ion-item-group>
+
+      <ion-item-group *ngIf="object.type==='board'" no-lines>
+        <ion-item-divider *ngIf="object.type==='board'" icon-right color="light" class="header-btn" (click)="showConnection = !showConnection">
+          Conexão
+          <ion-icon name="arrow-dropright" *ngIf="!showConnection" item-right></ion-icon>
+          <ion-icon name="arrow-dropdown"  *ngIf="showConnection" item-right></ion-icon>
+        <!-- connection attribute -->
+        </ion-item-divider>
+        <!-- name attribute -->
+        <ion-item *ngIf="showConnection">
+          <ion-label>IP</ion-label>
+          <ion-input type="text" [(ngModel)]="object.connection.host" [disabled]="data?.connected"></ion-input>
+        </ion-item>
+        <!-- label attribute -->
+        <ion-item *ngIf="showConnection">
+          <ion-label>Porta</ion-label>
+          <ion-input type="number" min="0" max="9999" [(ngModel)]="object.connection.port" [disabled]="data?.connected"></ion-input>
+        </ion-item>
+      </ion-item-group>
+      <ion-item-divider icon-right color="light" (click)="listConfigurations = !listConfigurations"  class="header-btn">
         Configurações
         <ion-icon name="arrow-dropright" *ngIf="!listConfigurations" item-right></ion-icon>
         <ion-icon name="arrow-dropdown"  *ngIf="listConfigurations" item-right></ion-icon>
@@ -128,7 +173,7 @@
           Incluir Configuração
         </button>
       </span>
-      <ion-item-divider icon-right color="light" (click)="listAttributes = !listAttributes">
+      <ion-item-divider icon-right color="light" (click)="listAttributes = !listAttributes"  class="header-btn">
         Propriedades
         <ion-icon name="arrow-dropright" *ngIf="!listAttributes" item-right></ion-icon>
         <ion-icon name="arrow-dropdown"  *ngIf="listAttributes" item-right></ion-icon>
@@ -162,9 +207,9 @@
           Incluir Atributo
         </button>
       </span>
-      <ion-item-divider icon-right color="light" (click)="addAssociation($event)">
+      <ion-item-divider icon-right color="light" (click)="selectComponent()"  class="header-btn">
         Associações
-        <ion-icon name="add-circle-outline" item-right ></ion-icon>
+        <ion-icon name="add-circle" item-right ></ion-icon>
       </ion-item-divider>
       <ion-item-sliding [animateItemSliding]="shouldAnimate" *ngFor="let item of knowledges" #associationItem>
         <button ion-item (click)="itemTapped($event, item)">
@@ -185,10 +230,11 @@
           </button>
         </ion-item-options>-->
         <ion-item-options side="left">
-          <button ion-button  icon-only color="danger"  (click)="removeItem($event, item)">
+          <button ion-button  icon-only color="danger"  (click)="removeAssociation('connectedTo', item._id)">
             <ion-icon name="trash"></ion-icon>
           </button>
         </ion-item-options>
       </ion-item-sliding>
-  </ion-list>
+    </ion-list>
+  </div>
 </ion-content>

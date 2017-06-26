@@ -6,7 +6,7 @@
   </ion-navbar>
 </ion-header>
 <ion-content class="padding">
-  <ion-fab  top right edge>
+  <ion-fab  top right edge  *ngIf="!syncing">
     <button color="primary" ion-fab mini >
       <ion-icon name="eye"></ion-icon>
     </button>
@@ -16,6 +16,11 @@
         </ion-avatar>
         <button ion-fab color="primary" ><ion-icon name="add"></ion-icon></button>
     </ion-fab-list>
+  </ion-fab>
+  <ion-fab right top edge *ngIf="syncing">
+    <button ion-fab color="light" ion-fab mini class="fab-map spinner-container">
+    <ion-spinner></ion-spinner>
+    </button>
   </ion-fab>
 
   <ion-list *ngIf="channelMsgs">

@@ -20,7 +20,11 @@
   <!--<ion-fab left top>
     <app-mq-status></app-mq-status>
   </ion-fab>-->
-
+  <ion-fab right top edge *ngIf="syncing">
+    <button ion-fab color="light" ion-fab mini class="fab-map spinner-container">
+    <ion-spinner></ion-spinner>
+    </button>
+  </ion-fab>
   <div [ngSwitch]="channels">
     <ion-list *ngSwitchCase="'myChannels'"  class="cards-bg" >
       <span *ngIf="myChannels">

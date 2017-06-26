@@ -22,6 +22,7 @@ import { AssociationModel, EquipmentModel, KnowledgeInterface } from '../../mode
   templateUrl: './equipments.html'
 })
 export class EquipmentsPage  implements OnInit {
+  syncing: any = false;
   errorMessage: string;
   selectedItem: string;
   objects: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
@@ -45,6 +46,8 @@ export class EquipmentsPage  implements OnInit {
     this.isAndroid = platform.is('android');
     this.userKey = navParams.get('key');
     this.selectedItem = "board";
+
+    platform.registerBackButtonAction(()=>this.getEquipments());
   }
 
   // Push a search term into the observable stream.
@@ -58,10 +61,17 @@ export class EquipmentsPage  implements OnInit {
   ngOnInit() { this.getEquipments(); }
 
   getEquipments() {
+    this.syncing = true;
     this.dataService.getData<EquipmentModel>(["ownedBy", this.userKey],null)
                      .subscribe(
-                       data => this.objects = data,
-                       error =>  this.errorMessage = <any>error);
+                       data => {
+                         this.objects = data;
+                         this.syncing = false;
+                       },
+                       error =>  {
+                         this.errorMessage = <any>error
+                         this.syncing = false;
+                       });
   }
 
   connectItem(event: any, item: KnowledgeInterface<EquipmentModel, AssociationModel>){

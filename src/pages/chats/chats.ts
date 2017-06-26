@@ -25,6 +25,7 @@ import { Observable } from 'rxjs/Observable';
   templateUrl: 'chats.html'
 })
 export class ChatsPage {
+  syncing: any = false;
   // Stream of messages
   public messages: Observable<Packet>;
 
@@ -94,6 +95,7 @@ export class ChatsPage {
       content: "Atualizando..."
     });
     loader.present();*/
+    this.syncing = true;
     this.listSubscriptions = [];
     this.objectLastMsgs = {};
     this.myChannels.objects = [];
@@ -121,6 +123,7 @@ export class ChatsPage {
                     //loader.dismissAll();
                   });
                 }
+                this.syncing = false;
               });
             });
         }

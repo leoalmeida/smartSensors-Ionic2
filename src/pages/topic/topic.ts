@@ -18,6 +18,7 @@ import { ShowMapModal } from '../modals/show-map-modal';
   templateUrl: '../templates/list-page.html'
 })
 export class TopicPage {
+  syncing: any = false;
   pageTitle: string = "Minhas Regras";
   imgdef:string = "assets/icons/img/ionic.png";
   shouldShowDelete:boolean = false;
@@ -50,15 +51,24 @@ export class TopicPage {
     // If we navigated to this page, we will have an item available as a nav param
     this.selectedItem = navParams.get('item');
     this.userKey = navParams.get('key');
+
+    platform.registerBackButtonAction(()=>this.getObjects());
   }
 
   ngOnInit() { this.getObjects(); }
 
   getObjects() {
+    this.syncing = true;
     this.dataService.getData(["topic" , "ownedBy", this.userKey],null)
       .subscribe(
-        data => this.objects = data,
-        error =>  this.errorMessage = <any>error);
+        data => {
+          this.objects = data;
+          this.syncing = false;
+        },
+        error =>  {
+          this.errorMessage = <any>error;
+          this.syncing = false;
+        });
   }
 
   addTopic(item) {

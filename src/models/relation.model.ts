@@ -30,4 +30,14 @@ export class RelationModel {
     return this.formGroup;
   }
 
+  public getObject() {
+    return {
+      id: this.id,
+      sync: this.sync,
+      access: this.access,
+      publish: this.publish,
+      view: this.view
+    };
+  }
+
 }

@@ -31,6 +31,7 @@ export class HomePage implements OnDestroy {
   // Array of historic message (bodies)
   //public mq: Array<Packet> = [];
 
+  syncing: any = false;
   // A count of messages received
   public count = 0;
 
@@ -95,49 +96,56 @@ export class HomePage implements OnDestroy {
     this.userKey = navParams.get("key");
     console.log(user);
 
+    this.syncing = true;
+
     //this.config.user      = this.user.id;
     //this.config.pass      = this.user.id;
     //this.config.subscribe = [];
+    platform.registerBackButtonAction(()=>this.startHomePage());
+    this.startHomePage();
+  }
 
-    storage.ready().then(() => {
-        this.storage.get("subscribedBy" + this.userKey).then((subscriptions) => {
-          console.log(subscriptions);
+  startHomePage(){
+    this.storage.ready().then(() => {
+            this.storage.get("subscribedBy" + this.userKey).then((subscriptions) => {
+              console.log(subscriptions);
 
-          if (subscriptions) this.channels = subscriptions;
+              if (subscriptions) this.channels = subscriptions;
 
-          this.storage.get("subscribedBySyncs" + this.userKey).then((sync) => {
-              let query = null;
-              if (sync) this.lastSync = sync;
+              this.storage.get("subscribedBySyncs" + this.userKey).then((sync) => {
+                  let query = null;
+                  if (sync) this.lastSync = sync;
 
-              if (this.lastSync) query = [ this.op, this.lastSync ];
+                  if (this.lastSync) query = [ this.op, this.lastSync ];
 
-              this.dataService.getData( [ "subscribedBy", this.userKey ], query )
-                .subscribe ( newSubs => {
-                  //config.subscribe = ["591eea676a040fc9091938d2", "58f3ac46866064c6189ec943","58f3ac46866064c6189ec927"];
-                  if (!this.channels) this.channels = [];
-                  for ( let subs of newSubs ) {
-                    let id = this.channels.push ( subs );
-                    //this.config.subscribe.push ( subs._id );
-                    if ( this.lastSync < subs.sync ) this.lastSync = subs.sync;
-                    this.lookup[ subs._id ] = this.channels[ -- id ];
+                  this.dataService.getData( [ "subscribedBy", this.userKey ], query )
+                    .subscribe ( newSubs => {
+                      //config.subscribe = ["591eea676a040fc9091938d2", "58f3ac46866064c6189ec943","58f3ac46866064c6189ec927"];
+                      if (!this.channels) this.channels = [];
+                      for ( let subs of newSubs ) {
+                        let id = this.channels.push ( subs );
+                        //this.config.subscribe.push ( subs._id );
+                        if ( this.lastSync < subs.sync ) this.lastSync = subs.sync;
+                        this.lookup[ subs._id ] = this.channels[ -- id ];
+                      }
+
+                      this.storage.set("subscribedBy" + this.userKey, this.channels);
+                      this.storage.set("subscribedBySyncs" + this.userKey, this.lastSync );
+
+                      this.syncing = false;
+                      // ... then pass it to (and connect) the message queue:
+                      /*this._mqService.configure(config);
+                       this._mqService.try_connect()
+                       .then(this.on_connect)
+                       .catch(this.on_error);*/
+                    });
+
+                  for ( let item in this.channels ) {
+                    if ( this.channels[ item ].sync < Date.now () - period ) this.channels.splice(item,1);
                   }
-
-                  this.storage.set("subscribedBy" + this.userKey, this.channels);
-                  this.storage.set("subscribedBySyncs" + this.userKey, this.lastSync );
-
-                  // ... then pass it to (and connect) the message queue:
-                  /*this._mqService.configure(config);
-                   this._mqService.try_connect()
-                   .then(this.on_connect)
-                   .catch(this.on_error);*/
-                });
-
-              for ( let item in this.channels ) {
-                if ( this.channels[ item ].sync < Date.now () - period ) this.channels.splice(item,1);
-              }
-          });
+              });
+            });
         });
-    });
   }
 
   changed(item){

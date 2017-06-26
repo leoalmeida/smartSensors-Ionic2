@@ -13,9 +13,11 @@
 </ion-header>
 
 <ion-content class="cards-bg preview-cards">
-  <!--<ion-fab left top>
-    <app-mq-status></app-mq-status>
-  </ion-fab>-->
+  <ion-fab right top edge *ngIf="syncing">
+    <button ion-fab color="light" ion-fab mini class="fab-map spinner-container">
+    <ion-spinner></ion-spinner>
+    </button>
+  </ion-fab>
   <ion-card class="advanced-background" *ngFor="let item of channels; let i = index; trackBy: trackByFn" [attr.data-index]="i">
     <img [src]='item.data.configurations?.image'>
     <!--<ion-fab right top>

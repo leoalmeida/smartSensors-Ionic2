@@ -25,8 +25,13 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <ion-fab top right edge>
+  <ion-fab top right edge *ngIf="!syncing">
     <button ion-fab mini (click)="showMap()"><ion-icon name="compass"></ion-icon></button>
+  </ion-fab>
+  <ion-fab right top edge *ngIf="syncing">
+    <button ion-fab color="light" ion-fab mini class="fab-map spinner-container">
+    <ion-spinner></ion-spinner>
+    </button>
   </ion-fab>
 
   <div [ngSwitch]="getItems(selectedItem)">
@@ -42,15 +47,15 @@
           <ion-icon name="chevron-right" item-right></ion-icon>
         </button>
         <ion-item-options side="right">
-          <button ion-button color="primary" (click)="editItem($event, item)">
+          <!--<button ion-button color="primary" (click)="editItem($event, item)">
             Editar
-          </button>
+          </button>-->
           <button ion-button color="secondary"  (click)="conectItem($event, item)">
             Conectar
           </button>
         </ion-item-options>
         <ion-item-options side="left">
-          <button ion-button icon-only color="danger"  (click)="removeItem($event, item._id)">
+          <button ion-button icon-only color="danger"  (click)="removeitem($event, item._id)">
             <ion-icon name="trash"></ion-icon>
           </button>
         </ion-item-options>

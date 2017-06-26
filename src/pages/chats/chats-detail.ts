@@ -23,7 +23,7 @@ import {
   templateUrl: 'chats-detail.html'
 })
 export class ChatsDetailPage implements OnDestroy {
-
+  syncing: any = false;
   pageTitle: string = "";
   subTitle: string  = "";
   userKey: string;
@@ -60,6 +60,7 @@ export class ChatsDetailPage implements OnDestroy {
   }
 
   getData(){
+    this.syncing = true;
     this.dataService.getData<ProfileModel>( [ "subscriberAt", this.channel._id ],null)
       .subscribe ( subscribers => {
         this.listSubscriptions.objects = subscribers;
@@ -76,6 +77,7 @@ export class ChatsDetailPage implements OnDestroy {
               this.channelMsgs = msgs;
               this.getMsgs(channel._id, this.channelMsgs['sync']);
             }else this.getMsgs(channel._id, 0);
+            this.syncing = false;
           });
         });
       });

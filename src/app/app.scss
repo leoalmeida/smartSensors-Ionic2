@@ -97,3 +97,34 @@ em {
     color: #757575;
   }
 }
+
+
+.fixed-fab {
+  position: fixed !important;
+}
+
+.header-btn {
+  box-shadow:0 1px 2px 0 rgba(0,0,0,0.2),0 2px 20px 0 rgba(0,0,0,0.19);
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  color: rgba(10, 10, 10,1);
+}
+
+
+.header-btn:active {
+  color: rgb(100, 100, 100);
+  box-shadow: 0 3px #17954c;
+  border-color: rgba(0,0,0,0.2);
+  opacity: .5;
+}
+
+button[fab].fab-map {
+  top: calc(100% - 35px);
+  z-index: 50;
+}
+
+.spinner-container {
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+}

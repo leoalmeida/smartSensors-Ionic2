@@ -2,6 +2,12 @@ import { Component } from '@angular/core';
 import { AlertController, LoadingController, ModalController, NavController, NavParams,
   Platform
 } from 'ionic-angular';
+
+import { Geolocation, Geoposition } from '@ionic-native/geolocation';
+import { NativeGeocoder, NativeGeocoderReverseResult } from '@ionic-native/native-geocoder';
+import { LocationAccuracy } from '@ionic-native/location-accuracy';
+import { Diagnostic } from '@ionic-native/diagnostic';
+
 import { ModalContentPage }  from '../modals/attribute-item';
 import { ShowMapModal }  from '../modals/show-map-modal';
 
@@ -29,6 +35,7 @@ export class HubDetailsPage {
   listAttributes: boolean = false;
   listConfigurations: boolean = false;
   update: boolean = false;
+  showConnection: boolean = true;
 
   errorMessage: string;
   selectedItem: any;
@@ -55,6 +62,7 @@ export class HubDetailsPage {
 
   shouldAnimate: boolean = false;
 
+  selectedSegment: string = "basics";
   selectComponentOpen: boolean;
   connectedParent: any = {};
   componentList: KnowledgeInterface<EquipmentModel, AssociationModel>[] = [];
@@ -67,6 +75,10 @@ export class HubDetailsPage {
               public modalCtrl: ModalController,
               public alertCtrl: AlertController,
               public loadingCtrl: LoadingController,
+              private geolocation: Geolocation,
+              private geocoder: NativeGeocoder,
+              private locac: LocationAccuracy,
+              private diagnostic: Diagnostic,
               private dataService:DataService,
               private refService: ReferenceService) {
     // If we navigated to this page, we will have an item available as a nav param
@@ -124,12 +136,32 @@ export class HubDetailsPage {
       //this.changed[ref + item]=! this.changed[ref + item];
   }
 
-  addAssociation(itemId: string, associationType: string, relation: RelationModel){
-    this.dataService.addAssociation(itemId, associationType, relation);
+  addAssociation(associationType: string, selectedRel, relation1: RelationModel, relation2: RelationModel){
+    this.dataService.addAssociation(this.selectedItem, associationType, relation1)
+              .subscribe((res) => {
+                //TODO Create Toast message
+                console.log("Associação inserida com sucesso")
+                this.dataService.addAssociation(selectedRel, associationType, relation2)
+                          .subscribe((res) => {
+                            //TODO Create Toast message
+                            console.log("Associação inserida com sucesso")
+                            this.selectAssociations();
+                          });
+              });
   }
 
-  removeAssociation(itemId: string, associationType: string, relid: string){
-    this.dataService.removeAssociation(itemId, associationType , relid);
+  removeAssociation(associationType: string, relid: string){
+    this.dataService.removeAssociation(this.selectedItem, associationType , relid)
+              .subscribe((res) => {
+                //TODO Create Toast message
+                console.log("Associação removida com sucesso")
+                this.dataService.removeAssociation(relid, associationType, this.selectedItem)
+                          .subscribe((relres) => {
+                            //TODO Create Toast message
+                            console.log("Associação removida com sucesso");
+                            this.selectAssociations();
+                          });
+              });
   }
 
   openModal(type, ref) {
@@ -146,8 +178,6 @@ export class HubDetailsPage {
       }
     });
   }
-
-
   updateAttribute(ref, item){
     //let changes = {};
     //changes[ref + item] = this.values[ref + item];
@@ -156,7 +186,6 @@ export class HubDetailsPage {
             console.log(data['ok']);
           });
   }
-
   removeAttribute(item){
     this.dataService.removeAttribute(this.selectedItem, item)
         .subscribe((data: any) => {
@@ -181,23 +210,17 @@ export class HubDetailsPage {
         key: this.userKey
     });
   }
-
   updateItem() {
     this.navCtrl.push(CreateKnowledgePage, {
       item: this.selectedItem,
       key: this.userKey
     });
   }
-
-  editItem(event: any, itemIndex: number){
-  }
   enableItem(event: any, itemIndex: number){
   }
-
   removeItem(){
     this.dataService.removeKnowledge(this.selectedItem);
   }
-
   private getEquipmentList(){
     this.dataService.getData<EquipmentModel>(["ownedBy", this.userKey], null)
       .subscribe(
@@ -210,19 +233,19 @@ export class HubDetailsPage {
         (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.complexCompList = data,
         error =>  this.errorMessage = <any>error);
   }
-
-  private selectComponent(ref) {
+  private selectComponent() {
     let alert = this.alertCtrl.create();
     alert.setTitle('Selecione componente');
 
     let i = 0;
     for (let comp of this.componentList)
-      alert.addInput({
-        type: 'radio',
-        label: comp.data.name,
-        value: comp._id,
-        checked: (i++)?false:true
-      });
+      if (comp.type !== this.object.type)
+        alert.addInput({
+          type: 'radio',
+          label: comp.data.name,
+          value: comp._id,
+          checked: (i++)?false:true
+        });
     alert.addButton('Cancelar');
     alert.addButton({
       text: 'Continuar',
@@ -230,27 +253,28 @@ export class HubDetailsPage {
         if (data)
           console.log('Radio data:', data);
           this.selectComponentOpen = false;
-          let newRelation = new RelationModel({ id: data });
-          ref.push(newRelation.getFormGroup());
+          let newRelation1 = new RelationModel({ id: data });
+          let newRelation2 = new RelationModel({ id: this.selectedItem });
+          this.addAssociation("connectedTo", data, newRelation1, newRelation2);
         }
     });
     alert.present().then(() => {
       this.selectComponentOpen = true;
     });
   }
-
-  selectParent(ref) {
+  selectParent() {
     let alert = this.alertCtrl.create();
     alert.setTitle('Selecione o Componente');
 
     let i = 0;
-    for (let object of this.componentList)
-      alert.addInput({
-        type: 'radio',
-        label: object.data.name,
-        value: object._id,
-        checked: (i++)?false:true
-      });
+    for (let comp of this.componentList)
+      if (comp.type !== this.object.type)
+        alert.addInput({
+          type: 'radio',
+          label: comp.data.name,
+          value: comp._id,
+          checked: (i++)?false:true
+        });
 
     alert.addButton('Cancelar');
     alert.addButton({
@@ -259,15 +283,15 @@ export class HubDetailsPage {
         if (data)
           console.log('Radio data:', data);
           this.selectComponentOpen = false;
-          let newRelation = new RelationModel({ id: data });
-          ref = newRelation.getFormGroup();
+          let newRelation1 = new RelationModel({ id: data });
+          let newRelation2 = new RelationModel({ id: this.selectedItem });
+          this.addAssociation("connectedTo", data, newRelation1, newRelation2);
         }
     });
     alert.present().then(() => {
       this.selectComponentOpen = true;
     });
   }
-
   createItem(){
     let modal = this.modalCtrl.create(ChooseItemModal, {key: this.userKey, listType: 'equipment', itemType: 'board', title: 'Novo Hub'});
     modal.present();
@@ -281,6 +305,74 @@ export class HubDetailsPage {
         console.log('MODAL DATA', data);
       }
     });
+  }
+
+  geoLocate(){
+
+    let options = {
+      enableHighAccuracy: true
+    };
+
+    if (this.platform.is('cordova')) {
+      this.locac.canRequest ().then ( ( res: boolean ) => {
+        if ( res ) {
+          this.locac.request ( this.locac.REQUEST_PRIORITY_HIGH_ACCURACY ).then ( () => {
+            this.geolocation.getCurrentPosition ( options ).then ( ( position: Geoposition ) => {
+                this.geocoder.reverseGeocode ( position.coords.latitude, position.coords.longitude )
+                              .then (( res: NativeGeocoderReverseResult ) => {
+                                this.object.location.coordinates = [position.coords.latitude, position.coords.longitude];
+                                this.object.location.text = res.countryName;
+                                console.log(res);
+                              });
+            } ).catch ( ( error ) => {
+              console.error ( "Accuracy request failed: error code=" + error.code + "; error message=" + error.message );
+
+              if ( error.code !== this.locac.ERROR_USER_DISAGREED ) {
+                let prompt = this.alertCtrl.create ( {
+                  title:   'Falha ao buscar a localização',
+                  message: "Gostaria de ir para a página de configurações?",
+                  buttons: [
+                    {
+                      text:    'Voltar',
+                      handler: data => {
+                        console.log ( 'Cancel clicked' );
+                      }
+                    },
+                    {
+                      text:    'Configurar',
+                      handler: data => {
+                        console.log ( 'go clicked' );
+                        this.diagnostic.switchToLocationSettings ();
+                      }
+                    }
+                  ]
+                } );
+
+                prompt.present ();
+              }
+
+            } );
+          }, ( error ) => {
+            console.log ( 'Error getting location', error );
+            let alert = this.alertCtrl.create ( {
+              title:    'Falha na Geolocalização!',
+              subTitle: error,
+              buttons:  [ 'OK' ]
+            } );
+            alert.present ();
+          } )
+        }
+      } )
+    }else{
+      this.geolocation.getCurrentPosition ( options )
+        .then ((position: Geoposition ) => {
+            this.object.location.coordinates = [position.coords.latitude, position.coords.longitude];
+            this.object.location.text = "";
+          }).catch (( error ) => {
+            console.error ( "Accuracy request failed: error code=" + error.code + "; error message=" + error.message );
+          });
+    }
+
   }
 
   toggleItemStatus(){
@@ -323,5 +415,22 @@ export class HubDetailsPage {
           },
           error =>  this.errorMessage = <any>error
         );
+  }
+
+  formatDate(sync) {
+    let monthNames = [
+      "Janeiro", "Fevereiro", "Março",
+      "Abril", "Maio", "Junho", "Julho",
+      "Agosto", "Setembro", "Outubro",
+      "Novembro", "Dezembro"
+    ];
+
+    let date = new Date(sync);
+
+    let day = date.getDate();
+    let monthIndex = date.getMonth();
+    let year = date.getFullYear();
+
+    return day + ' ' + monthNames[monthIndex] + ' ' + year;
   }
 }
