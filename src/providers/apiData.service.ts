@@ -17,9 +17,9 @@ import {
 @Injectable()
 export class DataService {
   //private dbUrl: string = 'http://200.18.98.244:3001/';
-  //private dbUrl: string = 'http://191.189.96.74:3001/';
+  private dbUrl: string = 'http://191.189.96.74:3001/';
   //private mqttUrl: string = 'mqtt://192.168.0.6:1883/';
-  private dbUrl: string = 'http://localhost:3001/';
+  //private dbUrl: string = 'http://localhost:3001/';
 
   // Publishes new info to Observers
 

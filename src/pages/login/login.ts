@@ -6,6 +6,7 @@ import { GraphPage } from '../graph/graph';
 
 import { DataService } from '../../providers/apiData.service';
 
+import { ConfigurationsPage } from '../configurations/configurations';
 
 @Component({
   selector: 'page-login',
@@ -92,6 +93,10 @@ export class LoginPage {
 
   goGraph(){
     this.navCtrl.setRoot(GraphPage);
+  }
+
+  goConfigurations(){
+    this.navCtrl.push(ConfigurationsPage);
   }
 
   doRegister() {

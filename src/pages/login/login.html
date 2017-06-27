@@ -48,12 +48,13 @@
   </div>
 
   <div padding>
-      <button ion-button color="assertive" class="ink" *ngIf="showLogin && !showForgotten" full (click)="doLogin()">Conectar</button>
-      <button ion-button color="assertive" class="ink" *ngIf="(showLogin && !showForgotten) || showRegister" full (click)="doRegister()">Registrar</button>
-      <button ion-button color="assertive" class="ink" *ngIf="showLogin || showForgotten" full (click)="doForgotten()">Esqueci a senha</button>
-      <button ion-button color="assertive" class="ink" *ngIf="showVerifyCode" full (click)="doCodeVerification()">Trocar senha</button>
-      <button ion-button color="assertive" class="ink" *ngIf="!showLogin || showForgotten" full (click)="doGoBack()">Voltar</button>
+      <button ion-button color="primary" class="ink" *ngIf="showLogin && !showForgotten" full (click)="doLogin()">Conectar</button>
+      <button ion-button color="primary" class="ink" *ngIf="(showLogin && !showForgotten) || showRegister" full (click)="doRegister()">Registrar</button>
+      <button ion-button color="primary" class="ink" *ngIf="showLogin || showForgotten" full (click)="doForgotten()">Esqueci a senha</button>
+      <button ion-button color="primary" class="ink" *ngIf="showVerifyCode" full (click)="doCodeVerification()">Trocar senha</button>
+      <button ion-button color="primary" class="ink" *ngIf="!showLogin || showForgotten" full (click)="doGoBack()">Voltar</button>
 
+      <button ion-button color="dark" class="ink" full (click)="goConfigurations()">Facebook Session</button>
       <!--<button ion-button color="assertive" class="ink" full (click)="goGraph()">Facebook Session</button>-->
   </div>
 
