@@ -23,218 +23,212 @@
     </ion-segment>
   </ion-toolbar>
 </ion-header>
-<ion-content>
+<ion-content class="cards-bg">
   <!--<ion-fab top right>
     <button ion-fab mini (click)="showMap()"><ion-icon name="compass"></ion-icon></button>
   </ion-fab>-->
   <div [ngSwitch]="selectedSegment" *ngIf="data">
-    <ion-list *ngSwitchCase="'basics'">
+    <ion-card *ngSwitchCase="'basics'" class="adv-map">
       <ion-item>
-        <ion-label>
-          {{selectedItem}} <ion-note padding> ID</ion-note>
-        </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-label>
-          {{object.type}}/{{object.category}} <ion-note padding> Tipo/Categoria</ion-note>
-        </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-icon name="clock" item-left></ion-icon>
-        <ion-label>
-          {{formatDate(data?.sync)}} <ion-note padding> Última atualização</ion-note>
-        </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-icon name="attach" item-left></ion-icon>
-        <ion-label>
-           {{data?.updatedValue}} <ion-note padding> Última Leitura</ion-note>
-        </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-label padding color="primary" *ngIf="!data.connected">Conectar</ion-label>
-        <ion-label padding color="primary" *ngIf="data.connected">Desconectar</ion-label>
-        <ion-toggle [ngModel]="data?.connected" [disabled]="object.type!=='board'" (ionChange)="toggleUpdateAttr($event, '',data.connected)"></ion-toggle>
-      </ion-item>
-      <ion-item>
-        <ion-label padding color="primary" *ngIf="!data.enabled">Habilitar</ion-label>
-        <ion-label padding color="primary" *ngIf="data.enabled">Desabilitar</ion-label>
-        <ion-toggle [ngModel]="data?.enabled" [disabled]="data?.connected" (ionChange)="toggleUpdateAttr($event, '',data.enabled)"></ion-toggle>
-      </ion-item>
-      <ion-item>
-        <ion-label>
-          <ion-note padding color="primary" >Nome</ion-note>
-        </ion-label>
-        <ion-input [(ngModel)]="data.name" [disabled]="data?.connected"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label>
-          <ion-note padding color="primary" >Label</ion-note>
-        </ion-label>
-        <ion-input [(ngModel)]="data.label" [disabled]="data?.connected"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label>
-          <ion-note padding color="primary" >Descrição</ion-note>
-        </ion-label>
-        <ion-input [(ngModel)]="data.description" [disabled]="data?.connected"></ion-input>
-      </ion-item>
-      <ion-item *ngIf="object.type!=='board'">
-        <ion-label>
-          <ion-note padding color="primary">Medida</ion-note>
-        </ion-label>
-        <ion-select [(ngModel)]="data.unit" [disabled]="data?.connected">
-          <ion-option *ngFor="let item of refData.UnitTypes" [value]="item.value">{{item.display}}</ion-option>
-        </ion-select>
-      </ion-item>
-      <ion-item *ngIf="data?.image">
-        <ion-avatar item-left>
-          <img [src]="data?.image">
-        </ion-avatar>
-        <ion-label>Imagem de Fundo</ion-label>
-      </ion-item>
-      <ion-item *ngIf="data?.icon">
-        <ion-avatar item-left>
+        <ion-avatar item-left (click)="changeIcon()">
           <img [src]="data?.icon">
         </ion-avatar>
-        <ion-label>Ícone</ion-label>
+        <h2>
+          {{object.type}}/{{object.category}} <ion-note padding> Tipo/Categoria</ion-note>
+        </h2>
+        <p>
+          {{selectedItem}} <ion-note padding> ID</ion-note>
+        </p>
       </ion-item>
-    </ion-list >
-    <ion-list *ngSwitchCase="'configurations'">
+      <img [src]="data?.image" (click)="changeImage()">
+
+        <ion-item>
+          <ion-icon name="clock" item-left></ion-icon>
+          <ion-label>
+            {{formatDate(data?.sync)}} <ion-note padding> Última atualização</ion-note>
+          </ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-icon name="attach" item-left></ion-icon>
+          <ion-label>
+             {{data?.updatedValue}} <ion-note padding> Última Leitura</ion-note>
+          </ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-label padding color="primary" *ngIf="!data.connected">Conectar</ion-label>
+          <ion-label padding color="primary" *ngIf="data.connected">Desconectar</ion-label>
+          <ion-toggle [(ngModel)]="data.connected" [disabled]="object.type!=='board'" (ionChange)="toggleItemStatus(selectedItem)"></ion-toggle>
+        </ion-item>
+        <ion-item>
+          <ion-label padding color="primary" *ngIf="!data.enabled">Habilitar</ion-label>
+          <ion-label padding color="primary" *ngIf="data.enabled">Desabilitar</ion-label>
+          <ion-toggle [(ngModel)]="data.enabled" [disabled]="data?.connected" (ionChange)="toggleUpdateAttr($event, 'enabled',null)"></ion-toggle>
+        </ion-item>
+        <ion-item>
+          <ion-label>
+            <ion-note padding color="primary" >Nome</ion-note>
+          </ion-label>
+          <ion-input [(ngModel)]="data.name" [disabled]="data?.connected"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label>
+            <ion-note padding color="primary" >Label</ion-note>
+          </ion-label>
+          <ion-input [(ngModel)]="data.label" [disabled]="data?.connected"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label>
+            <ion-note padding color="primary" >Descrição</ion-note>
+          </ion-label>
+          <ion-input [(ngModel)]="data.description" [disabled]="data?.connected"></ion-input>
+        </ion-item>
+        <ion-item *ngIf="object.type!=='board'">
+          <ion-label>
+            <ion-note padding color="primary">Medida</ion-note>
+          </ion-label>
+          <ion-select [(ngModel)]="data.unit" [disabled]="data?.connected">
+            <ion-option *ngFor="let item of refData.UnitTypes" [value]="item.value">{{item.display}}</ion-option>
+          </ion-select>
+        </ion-item>
+    </ion-card>
+    <ion-card *ngSwitchCase="'configurations'">
+      <ion-card-header>
+        Configurações
+      </ion-card-header>
       <!-- geo attribute -->
-      <ion-item-group no-lines>
-        <ion-item-divider (click)="geoLocate()" color="light" class="header-btn">
+      <ion-list>
+        <button ion-item (click)="geoLocate()" color="light" class="header-btn">
           Localização
           <ion-icon name="locate" item-right></ion-icon>
-        </ion-item-divider>
-        <ion-item>
-          <ion-label>Endereço</ion-label>
-          <ion-input type="text" [(ngModel)]="object.location.text" [disabled]="data?.connected"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label>Coordenadas</ion-label>
-          <ion-input type="text" [(ngModel)]="object.location.coordinates" [disabled]="data?.connected"></ion-input>
-        </ion-item>
-      </ion-item-group>
+        </button>
 
-      <ion-item-group *ngIf="object.type==='board'" no-lines>
-        <ion-item-divider *ngIf="object.type==='board'" icon-right color="light" class="header-btn" (click)="showConnection = !showConnection">
+        <ion-list no-lines>
+          <ion-item>
+            <ion-label>Endereço</ion-label>
+            <ion-input type="text" [(ngModel)]="object.location.text" [disabled]="data?.connected"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label>Coordenadas</ion-label>
+            <ion-input type="text" [(ngModel)]="object.location.coordinates" [disabled]="data?.connected"></ion-input>
+          </ion-item>
+        </ion-list>
+
+        <button ion-item *ngIf="object.type==='board'" icon-right color="light" class="header-btn" (click)="showConnection = !showConnection">
           Conexão
           <ion-icon name="arrow-dropright" *ngIf="!showConnection" item-right></ion-icon>
           <ion-icon name="arrow-dropdown"  *ngIf="showConnection" item-right></ion-icon>
         <!-- connection attribute -->
-        </ion-item-divider>
-        <!-- name attribute -->
-        <ion-item *ngIf="showConnection">
-          <ion-label>IP</ion-label>
-          <ion-input type="text" [(ngModel)]="object.connection.host" [disabled]="data?.connected"></ion-input>
-        </ion-item>
-        <!-- label attribute -->
-        <ion-item *ngIf="showConnection">
-          <ion-label>Porta</ion-label>
-          <ion-input type="number" min="0" max="9999" [(ngModel)]="object.connection.port" [disabled]="data?.connected"></ion-input>
-        </ion-item>
-      </ion-item-group>
-      <ion-item-divider icon-right color="light" (click)="listConfigurations = !listConfigurations"  class="header-btn">
-        Configurações
-        <ion-icon name="arrow-dropright" *ngIf="!listConfigurations" item-right></ion-icon>
-        <ion-icon name="arrow-dropdown"  *ngIf="listConfigurations" item-right></ion-icon>
-      </ion-item-divider>
-      <span *ngIf="listConfigurations" >
-        <ion-item-sliding [animateItemSliding]="shouldAnimate" *ngFor="let item of configurations;let index = index;">
-          <ion-item *ngIf="configurations[index].type !== 'boolean' && configurations[index].type !== 'number'">
-            <ion-label color="primary">{{configurations[index].attribute}}</ion-label>
-            <ion-input [disabled]="data?.connected"  type="text"
-                       [(ngModel)]="configurations[index].value"
-                       [ngModelOptions]="{standalone: true}"></ion-input>
-            <button [disabled]="data?.connected"  ion-button clear *ngIf="configurations[index].type === 'object'" item-right
-                    (click)="updateAttribute(item)"><ion-icon name="pricetags"></ion-icon></button>
+        </button>
+        <ion-list *ngIf="object.type==='board' && showConnection" no-lines>
+          <!-- name attribute -->
+          <ion-item >
+            <ion-label>IP</ion-label>
+            <ion-input type="text" [(ngModel)]="object.connection.host" [disabled]="data?.connected"></ion-input>
           </ion-item>
-          <ion-item *ngIf="configurations[index].type === 'number'">
-            <ion-label>{{configurations[index].attribute}} <ion-note padding>{{configurations[index].value}}</ion-note></ion-label>
-            <ion-range [(ngModel)]="configurations[index].value" pin="true" snaps="true">
-              <ion-icon range-left small name="radio-button-off"></ion-icon>
-              <ion-icon range-right large name="radio-button-on"></ion-icon>
-            </ion-range>
+          <!-- label attribute -->
+          <ion-item *ngIf="showConnection">
+            <ion-label>Porta</ion-label>
+            <ion-input type="number" min="0" max="9999" [(ngModel)]="object.connection.port" [disabled]="data?.connected"></ion-input>
           </ion-item>
-          <ion-item *ngIf="configurations[index].type === 'boolean'">
-            <ion-label>{{configurations[index].attribute}} <ion-note padding>{{configurations[index].value}}</ion-note></ion-label>
-            <ion-toggle [disabled]="data?.connected"  [(ngModel)]="configurations[index].value" [ngModelOptions]="{standalone: true}" ></ion-toggle>
-            <ion-icon *ngIf="configurations[index].value" name="checkmark-circle-outline" item-left></ion-icon>
-            <ion-icon *ngIf="!configurations[index].value" name="radio-button-off" item-left></ion-icon>
-          </ion-item>
-          <ion-item-options side="left">
-            <button  icon-only  [disabled]="data?.connected" ion-button color="danger"  (click)="removeAttribute(configurations[index])">
-              <ion-icon name="trash"></ion-icon>
+        </ion-list>
+
+        <button ion-item color="light" (click)="listConfigurations = !listConfigurations" >
+          Configurações
+          <ion-icon name="arrow-dropright" *ngIf="!listConfigurations" item-right></ion-icon>
+          <ion-icon name="arrow-dropdown"  *ngIf="listConfigurations" item-right></ion-icon>
+        </button>
+        <ion-list *ngIf="listConfigurations" >
+          <ion-item-sliding [animateItemSliding]="shouldAnimate" *ngFor="let item of configurations;let index = index;">
+            <ion-item *ngIf="configurations[index].type !== 'boolean' && configurations[index].type !== 'number'">
+              <ion-label color="primary">{{configurations[index].attribute}}</ion-label>
+              <ion-input [disabled]="data?.connected"  type="text"
+                         [(ngModel)]="configurations[index].value"
+                         [ngModelOptions]="{standalone: true}"></ion-input>
+              <button [disabled]="data?.connected"  ion-button clear *ngIf="configurations[index].type === 'object'" item-right
+                      (click)="updateAttribute(item)"><ion-icon name="pricetags"></ion-icon></button>
+            </ion-item>
+            <ion-item *ngIf="configurations[index].type === 'number'">
+              <ion-label>{{configurations[index].attribute}} <ion-note padding>{{configurations[index].value}}</ion-note></ion-label>
+              <ion-range [(ngModel)]="configurations[index].value" pin="true" snaps="true">
+                <ion-icon range-left small name="radio-button-off"></ion-icon>
+                <ion-icon range-right large name="radio-button-on"></ion-icon>
+              </ion-range>
+            </ion-item>
+            <ion-item *ngIf="configurations[index].type === 'boolean'">
+              <ion-label>{{configurations[index].attribute}} <ion-note padding>{{configurations[index].value}}</ion-note></ion-label>
+              <ion-toggle [disabled]="data?.connected"  [(ngModel)]="configurations[index].value" [ngModelOptions]="{standalone: true}" ></ion-toggle>
+              <ion-icon *ngIf="configurations[index].value" name="checkmark-circle-outline" item-left></ion-icon>
+              <ion-icon *ngIf="!configurations[index].value" name="radio-button-off" item-left></ion-icon>
+            </ion-item>
+            <ion-item-options side="left">
+              <button  icon-only  [disabled]="data?.connected" ion-button color="danger"  (click)="removeAttribute(configurations[index])">
+                <ion-icon name="trash"></ion-icon>
+              </button>
+            </ion-item-options>
+          </ion-item-sliding>
+          <button ion-item color="primary" (click)="openModal('add')">
+            Incluir Configuração
+          </button>
+        </ion-list>
+
+        <button ion-item color="light" (click)="listAttributes = !listAttributes">
+          Propriedades
+          <ion-icon name="arrow-dropright" *ngIf="!listAttributes" item-right></ion-icon>
+          <ion-icon name="arrow-dropdown"  *ngIf="listAttributes" item-right></ion-icon>
+        </button>
+        <ion-list *ngIf="listAttributes">
+          <ion-item-sliding [animateItemSliding]="shouldAnimate" *ngFor="let item of info;let index = index;">
+            <ion-item *ngIf="info[index].type !== 'boolean'">
+              <ion-label color="primary">{{info[index].attribute}}</ion-label>
+              <ion-input type="text" [(ngModel)]="info[index]" [ngModelOptions]="{standalone: true}" ></ion-input>
+              <button ion-button clear item-right (click)="updateAttribute(item)"><ion-icon name="send"></ion-icon></button>
+            </ion-item>
+            <button ion-item (click)="toggleUpdateAttr($event,'info',item)" *ngIf="info[index].type !== 'boolean'">
+              <ion-label>
+                {{info[index].value}} <ion-note padding>{{info[index].attribute}}</ion-note>
+              </ion-label>
+              <ion-icon name="pricetag" item-left></ion-icon>
             </button>
-          </ion-item-options>
-        </ion-item-sliding>
-        <button ion-item color="primary" (click)="openModal('add')">
-          Incluir Configuração
-        </button>
-      </span>
-      <ion-item-divider icon-right color="light" (click)="listAttributes = !listAttributes"  class="header-btn">
-        Propriedades
-        <ion-icon name="arrow-dropright" *ngIf="!listAttributes" item-right></ion-icon>
-        <ion-icon name="arrow-dropdown"  *ngIf="listAttributes" item-right></ion-icon>
-      </ion-item-divider>
-      <span *ngIf="listAttributes">
-        <ion-item-sliding [animateItemSliding]="shouldAnimate" *ngFor="let item of info;let index = index;">
-          <ion-item *ngIf="info[index].type !== 'boolean'">
-            <ion-label color="primary">{{info[index].attribute}}</ion-label>
-            <ion-input type="text" [(ngModel)]="info[index]" [ngModelOptions]="{standalone: true}" ></ion-input>
-            <button ion-button clear item-right (click)="updateAttribute(item)"><ion-icon name="send"></ion-icon></button>
-          </ion-item>
-          <button ion-item (click)="toggleUpdateAttr($event,'info',item)" *ngIf="info[index].type !== 'boolean'">
-            <ion-label>
-              {{info[index].value}} <ion-note padding>{{info[index].attribute}}</ion-note>
-            </ion-label>
-            <ion-icon name="pricetag" item-left></ion-icon>
+            <ion-item *ngIf="info[index].type === 'boolean'">
+              <ion-label>{{info[index].attribute}} <ion-note padding>{{info[index].value}}</ion-note></ion-label>
+              <ion-toggle [(ngModel)]="info[index].value"></ion-toggle>
+              <ion-icon *ngIf="info[index].value" name="checkmark-circle-outline" item-left></ion-icon>
+              <ion-icon *ngIf="!info[index].value" name="radio-button-off" item-left></ion-icon>
+            </ion-item>
+            <ion-item-options side="left">
+              <button ion-button  icon-only color="danger"  (click)="removeAttribute(item)">
+                <ion-icon name="trash"></ion-icon>
+              </button>
+            </ion-item-options>
+          </ion-item-sliding>
+          <button ion-item color="primary" (click)="openModal('add')">
+            Incluir Atributo
           </button>
-          <ion-item *ngIf="info[index].type === 'boolean'">
-            <ion-label>{{info[index].attribute}} <ion-note padding>{{info[index].value}}</ion-note></ion-label>
-            <ion-toggle [(ngModel)]="info[index].value"></ion-toggle>
-            <ion-icon *ngIf="info[index].value" name="checkmark-circle-outline" item-left></ion-icon>
-            <ion-icon *ngIf="!info[index].value" name="radio-button-off" item-left></ion-icon>
-          </ion-item>
-          <ion-item-options side="left">
-            <button ion-button  icon-only color="danger"  (click)="removeAttribute(item)">
-              <ion-icon name="trash"></ion-icon>
+        </ion-list>
+
+        <button ion-item color="light" (click)="selectComponent()">
+          Associações
+          <ion-icon name="add-circle" item-right ></ion-icon>
+        </button>
+        <ion-list>
+          <ion-item-sliding [animateItemSliding]="shouldAnimate" *ngFor="let item of knowledges" #associationItem>
+            <button ion-item (click)="itemTapped($event, item)">
+              <ion-avatar item-left>
+                <img [src]="(item.data.icon)?item.data.icon:imgdef">
+              </ion-avatar>
+              <h2>{{item.data.name}}</h2>
+              <h3><em>{{item.type}}</em></h3>
+              <p>{{item.category}}</p>
+              <ion-icon name="chevron-right" item-right></ion-icon>
             </button>
-          </ion-item-options>
-        </ion-item-sliding>
-        <button ion-item color="primary" (click)="openModal('add')">
-          Incluir Atributo
-        </button>
-      </span>
-      <ion-item-divider icon-right color="light" (click)="selectComponent()"  class="header-btn">
-        Associações
-        <ion-icon name="add-circle" item-right ></ion-icon>
-      </ion-item-divider>
-      <ion-item-sliding [animateItemSliding]="shouldAnimate" *ngFor="let item of knowledges" #associationItem>
-        <button ion-item (click)="itemTapped($event, item)">
-          <ion-avatar item-left>
-            <img [src]="(item.data.icon)?item.data.icon:imgdef">
-          </ion-avatar>
-          <h2>{{item.data.name}}</h2>
-          <h3><em>{{item.type}}</em></h3>
-          <p>{{item.category}}</p>
-          <ion-icon name="chevron-right" item-right></ion-icon>
-        </button>
-        <!--<ion-item-options side="right">
-          <button ion-button color="primary" (click)="editItem($event, associationItem)">
-            Editar
-          </button>
-          <button ion-button color="secondary"  (click)="enableItem($event, item)">
-            Habilitar
-          </button>
-        </ion-item-options>-->
-        <ion-item-options side="left">
-          <button ion-button  icon-only color="danger"  (click)="removeAssociation('connectedTo', item._id)">
-            <ion-icon name="trash"></ion-icon>
-          </button>
-        </ion-item-options>
-      </ion-item-sliding>
-    </ion-list>
+            <ion-item-options side="left">
+              <button ion-button  icon-only color="danger"  (click)="removeAssociation('connectedTo', item._id)">
+                <ion-icon name="trash"></ion-icon>
+              </button>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ion-list>
+      </ion-list>
+    </ion-card>
   </div>
 </ion-content>

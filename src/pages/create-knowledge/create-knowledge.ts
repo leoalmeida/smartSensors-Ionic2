@@ -116,7 +116,7 @@ export class CreateKnowledgePage implements OnInit{
   }
 
   private getReferenceData() {
-    this.refService.getEquipmentTypes()
+    this.refService.equipmentTypesSubject
          .subscribe(
            data => this.referenceData = data,
            error =>  this.errorMessage = <any>error);

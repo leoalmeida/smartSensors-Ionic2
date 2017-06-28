@@ -3,130 +3,74 @@ import {Platform} from 'ionic-angular';
 import {User} from '@ionic/cloud-angular';
 
 import {Http, Headers, RequestOptions} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
+import { NativeStorage } from '@ionic-native/native-storage';
+import { Observable, BehaviorSubject } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 
 @Injectable()
 export class ReferenceService {
-  private dismissObserver: any;
-  public dismiss: any;
-  categories: any;
-  equipmentTypes: any;
-  refdata:any;
 
-  private dbUrl: string = 'http://191.189.96.74:3001/';
+  private hostSubject: BehaviorSubject<string> = new BehaviorSubject("");
+  categoriesSubject: BehaviorSubject<any> = new BehaviorSubject({});
+  equipmentTypesSubject: BehaviorSubject<any> = new BehaviorSubject({});
+  refdataSubject: BehaviorSubject<any> = new BehaviorSubject({});
 
   constructor(private platform: Platform,
               public user: User,
-              private http:Http){
-    this.dismissObserver = null;
-    this.dismiss = Observable.create(observer => {
-      this.dismissObserver = observer;
+              private http:Http,
+              private nativeStorage: NativeStorage){
+
+    this.getHost();
+    this.getCategories();
+    this.getEquipmentTypes();
+    this.getRefData();
+  }
+
+  getHost(){
+    this.platform.ready().then((readySource) => {
+      this.nativeStorage.getItem('smartSensors.host')
+        .then(data => {
+            if (data.host)
+              this.hostSubject.next(data.host);
+          },
+          error => {
+            console.error(error);
+            this.hostSubject.next('http://localhost:3001/');
+          });
     });
   }
 
   getCategories(){
-    if (this.categories) {
-      return Observable.of(this.categories);
-    }else{
-      this.categories = {};
-      return this.http.get(this.dbUrl + "api/reference/categories", this.generateHeader(true))
-        .map(data => {
-          this.categories = data.json().values;
-          return data.json().values;
-        });
-    }
+    this.hostSubject.subscribe(host => {
+      if (!host)   this.categoriesSubject.next({});
+      else
+        this.http.get(host + "api/reference/categories", this.generateHeader(true))
+          .subscribe(data => {
+            this.categoriesSubject.next(data.json().values);
+          });
+    });
   }
 
   getEquipmentTypes(){
-    if (this.equipmentTypes) {
-      return Observable.of(this.equipmentTypes);
-    }else{
-      this.equipmentTypes = {};
-      return this.http.get(this.dbUrl + "api/reference/types", this.generateHeader(true))
-        .map(data => {
-          this.equipmentTypes = data.json().values;
-          return data.json().values;
-        });
-    }
+    this.hostSubject.subscribe(host => {
+      if (!host)   this.equipmentTypesSubject.next({});
+      else
+        this.http.get(host + "api/reference/types", this.generateHeader(true))
+          .subscribe(data => {
+            this.equipmentTypesSubject.next(data.json().values);
+          });
+    });
   }
 
   getRefData(){
-    if (this.refdata) {
-      return Observable.of(this.refdata);
-    }else{
-      this.refdata = {};
-      return this.http.get(this.dbUrl + "api/reference/refdata", this.generateHeader(true))
-        .map(data => {
-          this.refdata = data.json().values;
-          return data.json().values;
-        });
-    }
-  }
-
-
-  filterCategoryItem(searchTerm, property){
-    if (this.categories) {
-      if (!this.categories[property]) {
-        this.categories[property] = [];
-        return Observable.of(this.categories[property]);
-      }
-      return Observable.of(this.categories[property].filter((item) => {
-          return ( item.label.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 ||
-          item.category.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 ||
-          item.type.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1);
-        }));
-    } else {
-      this.categories = {};
-      this.categories[property] = [];
-      return this.http.get(this.dbUrl + "api/reference/categories", this.generateHeader(true))
-        .map(data => {
-          this.categories = data.json().values;
-          return data.json().values[property].filter((item) => {
-              return ( item.label.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 ||
-              item.category.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 ||
-              item.type.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1);
+    this.hostSubject.subscribe(host => {
+      if (!host)   this.refdataSubject.next({});
+      else
+        this.http.get(host + "api/reference/refdata", this.generateHeader(true))
+          .subscribe(data => {
+            this.refdataSubject.next(data.json().values);
           });
-        })
-        .catch(this.handleError);
-    }
-  }
-
-  filterRefDataItem(searchTerm, property){
-    if (this.refdata) {
-      return Observable.of(this.refdata[property].filter((item) => {
-        return ( item.label.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 ||
-        item.category.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 ||
-        item.type.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1);
-      }));
-    }else{
-      this.refdata = {};
-      this.refdata[property] = [];
-      return this.http.get(this.dbUrl + "api/reference/refdata", this.generateHeader(true))
-        .map(data => {
-          this.refdata = data.json().values;
-          return data.json().values[property].filter((item) => {
-            return ( item.label.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 ||
-            item.category.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 ||
-            item.type.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1);
-          })
-        });
-
-    }
-  }
-
-  load(type): any {
-    if (this.categories) {
-      return Observable.of(this.categories);
-    } else {
-      return this.http.get(this.dbUrl + "api/reference/"+type, this.generateHeader(true))
-        .map(data => this.categories = data)
-        .catch(this.handleError);
-    }
-  }
-
-  getData(type) {
-    return this.load(type)
+    });
   }
 
   private generateHeader(hasbody: boolean): any{
@@ -143,6 +87,5 @@ export class ReferenceService {
     console.error(error);
     return Observable.throw(error.json().error || 'Server error');
   }
-
 
 }

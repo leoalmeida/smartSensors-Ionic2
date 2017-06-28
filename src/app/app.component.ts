@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Events, AlertController, Nav, Platform } from 'ionic-angular';
 import { LoadingController } from 'ionic-angular';
+import { NativeStorage } from '@ionic-native/native-storage';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { DataService } from '../providers/apiData.service';
@@ -15,10 +16,10 @@ import { TopicPage } from '../pages/topic/topic';
 import { ChatsPage } from '../pages/chats/chats';
 import { MapsPage } from '../pages/maps/maps';
 import { HubPage } from '../pages/hub/hub';
-//import { BarcodePage } from '../pages/barcode/barcode';
+import { BarcodePage } from '../pages/barcode/barcode';
 import { User, Auth } from '@ionic/cloud-angular';
-//import { GeofenceDetailsPage } from "../pages/geofence/geofence";
-//import { GraphPage } from '../pages/graph/graph';
+import { GeofenceDetailsPage } from "../pages/geofence/geofence";
+import { GraphPage } from '../pages/graph/graph';
 //import { Storage } from '@ionic/storage';
 
 
@@ -33,7 +34,6 @@ export class MyApp {
   errorMessage: string;
 
   pages: Array<{title: string, component: any}>;
-
   //private userProfile: Array<Object>;
 
   constructor(public platform: Platform,
@@ -44,7 +44,8 @@ export class MyApp {
               public user:User,
               public auth:Auth,
               public alertCtrl: AlertController,
-              public loadingCtrl:LoadingController
+              public loadingCtrl:LoadingController,
+              private nativeStorage: NativeStorage
   ){
 
     this.initializeApp();
@@ -55,17 +56,29 @@ export class MyApp {
       { title: 'Meus Canais', component: ChatsPage },
       { title: 'Minhas Regras', component: TopicPage },
       { title: 'Meus Recursos', component: EquipmentsPage },
-      //{ title: 'Acessórios', component: AccessoryPage },
-      //{ title: 'Sensores', component: SourcePage },
-      //{ title: 'Hubs', component: HubPage },
-      //{ title: 'Graph', component: GraphPage },
       { title: 'Mapa', component: MapsPage },
-      //{ title: 'Geofence', component: GeofencePage },
-      //{ title: 'Barcodes', component: BarcodePage },
       { title: 'Perfil', component: ProfilePage },
       { title: 'Configurações', component: ConfigurationsPage }
     ];
 
+    this.platform.ready().then((readySource) => {
+      this.nativeStorage.getItem('smartSensors.configurations')
+        .then(data => {
+            if (data) {
+              if (data.resourcesPages){
+                this.pages.push({ title: 'Acessórios', component: AccessoryPage });
+                this.pages.push({ title: 'Sensores', component: SourcePage });
+                this.pages.push({ title: 'Hubs', component: HubPage });
+              }
+              if (data.facebookPage) this.pages.push({ title: 'Graph', component: GraphPage });
+              if (data.geofencePage) this.pages.push({ title: 'Geofence', component: GeofenceDetailsPage });
+              if (data.barcodePage) this.pages.push({ title: 'Barcodes', component: BarcodePage });
+            }
+          },
+          error => {
+            console.error(error);
+          });
+    });
   }
 
   initializeApp() {

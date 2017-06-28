@@ -21,5 +21,21 @@
       <ion-label color="primary">Host</ion-label>
       <ion-input type="text" [(ngModel)]="host"></ion-input>
     </ion-item>
+    <ion-item>
+      <ion-label padding color="primary">Páginas de recursos</ion-label>
+      <ion-toggle [ngModel]="configurations.resourcesPages" (ionChange)="setConfiguration('resourcesPages')"></ion-toggle>
+    </ion-item>
+    <ion-item>
+      <ion-label padding color="primary">Ferramenta Facebook</ion-label>
+      <ion-toggle [ngModel]="configurations.facebookPage" (ionChange)="setConfiguration('facebookPage')"></ion-toggle>
+    </ion-item>
+    <ion-item>
+      <ion-label padding color="primary">Ferramenta Geofence</ion-label>
+      <ion-toggle [ngModel]="configurations.geofencePage" (ionChange)="setConfiguration('geofencePage')"></ion-toggle>
+    </ion-item>
+    <ion-item>
+      <ion-label padding color="primary">Ferramenta Barcode</ion-label>
+      <ion-toggle [ngModel]="configurations.barcodePage" (ionChange)="setConfiguration('barcodePage')"></ion-toggle>
+    </ion-item>
   </ion-list>
 </ion-content>

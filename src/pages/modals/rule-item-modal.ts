@@ -83,7 +83,7 @@ export class RuleModalPage {
       }
     }
 
-    this.refService.getCategories()
+    this.refService.categoriesSubject
         .subscribe(res => {
           this.categories = res;
         }, err => {

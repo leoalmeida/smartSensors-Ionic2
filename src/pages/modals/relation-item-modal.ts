@@ -23,12 +23,10 @@ export class RelationModalPage {
     private refService:ReferenceService
   ) {
     //this.item = this.navParams.get('item');
-    this.refService.getData("refdata")
-      .subscribe(res => {
-        this.refData = res.json();
-      }, err => {
-        console.log(err);
-      });
+    this.refService.refdataSubject
+            .subscribe(values => {
+                this.refData = values;
+            });
   }
 
   doSave(){

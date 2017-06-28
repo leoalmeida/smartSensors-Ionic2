@@ -17,41 +17,44 @@ import {
 @Injectable()
 export class DataService {
   //private dbUrl: string = 'http://200.18.98.244:3001/';
-  private dbUrl: string = 'http://191.189.96.74:3001/';
+  //private dbUrl: string = 'http://191.189.96.74:3001/';
   //private mqttUrl: string = 'mqtt://192.168.0.6:1883/';
-  //private dbUrl: string = 'http://localhost:3001/';
+  private dbUrl: string = 'http://localhost:3001/';
 
   // Publishes new info to Observers
+  //private hostSubject: BehaviorSubject<string> = new BehaviorSubject("");
 
   constructor(private platform: Platform,
               public user: User,
               private http:Http,
               private nativeStorage: NativeStorage){
+    this.getHost();
+  }
+
+  getHost(){
     this.platform.ready().then((readySource) => {
-      this.nativeStorage.getItem('smartSensors')
+      this.nativeStorage.getItem('smartSensors.host')
         .then(data => {
             if (data.host)
               this.dbUrl = data.host;
           },
           error => {
             console.error(error);
-            this.changeHost(this.dbUrl);
           });
     });
   }
 
   changeHost(newHost){
-    this.dbUrl = newHost;
-    this.nativeStorage.setItem('smartSensors', {host: newHost})
+    this.nativeStorage.setItem('smartSensors.host', {host: newHost})
       .then(
-        () => console.log('Stored item!', this.dbUrl),
+        () => console.log('Stored item!', newHost),
         error => console.error('Error storing item', error)
       );
   }
 
   toggleEquipmentStatus(body: any, status: boolean): Observable<any> {
     //let transactionObj = new KnowledgeModel(newObject);
-    let url = this.dbUrl + "api/action/boards/" + (status)?"connect":"disconnect";
+    let url = this.dbUrl + "api/action/boards/" + ((status)?"connect":"disconnect");
     return this.http.post(url, body, this.generateHeader(true))
           .map(response => response.json())
           .catch(this.handleError);

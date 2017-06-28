@@ -112,10 +112,10 @@ export class AccessoryDetailsPage {
   }
 
   getRefData() {
-    this.refService.getRefData()
-      .subscribe((values) => {
-        this.refData = values;
-      });
+    this.refService.refdataSubject
+            .subscribe(values => {
+                this.refData = values;
+            });
   }
 
   selectAssociations() {
@@ -136,8 +136,11 @@ export class AccessoryDetailsPage {
   }
 
   toggleUpdateAttr(evt, ref, item){
-    if(evt.checked !== this.data[ref][item])
-      this.updateAttribute(["data", ref, item].join("."), this.data[ref][item]);
+    if (!item)
+      this.updateAttribute(ref, evt.checked);
+    else
+      if(evt.checked !== this.data[ref][item])
+        this.updateAttribute(["data", ref, item].join("."), this.data[ref][item]);
       //this.changed[ref + item]=! this.changed[ref + item];
   }
 
@@ -245,9 +248,9 @@ export class AccessoryDetailsPage {
         console.log('MODAL DATA', data);
         if (type==='add') {
           var index = this.object.data[ref].push(data.item);
-          this.updateAttribute(["data", ref].join("."), index);
+          this.updateAttribute(ref, index);
         }
-        this.updateAttribute(["data", ref].join("."), this.object[ref][index]);
+        this.updateAttribute(ref, this.object[ref][index]);
       }
     });
   }
@@ -256,7 +259,7 @@ export class AccessoryDetailsPage {
   updateAttribute(ref, item){
     //let changes = {};
     //changes[ref + item] = this.values[ref + item];
-    this.dataService.updateAttribute(this.selectedItem, {ref: item})
+    this.dataService.updateAttribute(this.selectedItem, {[ref]: item})
           .subscribe((data: any) => {
             console.log(data['ok']);
           });
@@ -347,6 +350,59 @@ export class AccessoryDetailsPage {
     modal.present();
   }
 
+  changeIcon() {
+    let alert = this.alertCtrl.create();
+    alert.setTitle('Selecione componente');
+
+    let i = 0;
+    for (let comp of this.refData["IconTypes"])
+        alert.addInput({
+          type: 'radio',
+          label: comp.display,
+          value: comp.value,
+          checked: (comp.value===this.object.data.icon)?true:false
+        });
+    alert.addButton('Cancelar');
+    alert.addButton({
+      text: 'Continuar',
+      handler: data => {
+        if (data)
+          console.log('Radio data:', data);
+          this.selectComponentOpen = false;
+          this.object.data.icon = data;
+        }
+    });
+    alert.present().then(() => {
+      this.selectComponentOpen = true;
+    });
+  }
+
+  changeImage(){
+    let alert = this.alertCtrl.create();
+    alert.setTitle('Selecione componente');
+
+    let i = 0;
+    for (let comp of this.refData["ImageTypes"])
+        alert.addInput({
+          type: 'radio',
+          label: comp.display,
+          value: comp.value,
+          checked: (comp.value===this.object.data.image)?true:false
+        });
+    alert.addButton('Cancelar');
+    alert.addButton({
+      text: 'Continuar',
+      handler: data => {
+        if (data)
+          console.log('Radio data:', data);
+          this.selectComponentOpen = false;
+          this.object.data.image = data;
+        }
+    });alert.present().then(() => {
+      this.selectComponentOpen = true;
+    });
+  }
+
   itemTapped(event, item) {
     var nextPage:any = null;
 
@@ -391,6 +447,23 @@ export class AccessoryDetailsPage {
         console.log('MODAL DATA', data);
       }
     });
+  }
+
+  formatDate(sync) {
+    let monthNames = [
+      "Janeiro", "Fevereiro", "Março",
+      "Abril", "Maio", "Junho", "Julho",
+      "Agosto", "Setembro", "Outubro",
+      "Novembro", "Dezembro"
+    ];
+
+    let date = new Date(sync);
+
+    let day = date.getDate();
+    let monthIndex = date.getMonth();
+    let year = date.getFullYear();
+
+    return day + ' ' + monthNames[monthIndex] + ' ' + year;
   }
 
   onSubmit() {

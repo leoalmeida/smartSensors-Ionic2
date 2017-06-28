@@ -52,6 +52,8 @@ export class TopicDesignerPage implements OnInit{
   ruleCategoryItems: any;
   actionCategoryItems: any;
 
+  categories: any = {};
+
   constructor(public user:User,
               public navCtrl: NavController,
               public modalCtrl: ModalController,
@@ -66,6 +68,11 @@ export class TopicDesignerPage implements OnInit{
     this.userKey = navParams.get('key');
     this.ruleSearchControl = new FormControl();
     this.actionSearchControl = new FormControl();
+
+    this.refService.categoriesSubject
+            .subscribe(values => {
+                this.categories = values;
+            });
   }
 
   ionViewDidLoad() {
@@ -95,31 +102,28 @@ export class TopicDesignerPage implements OnInit{
   }
 
   setFilteredRules() {
-    if (this.object)
-      if (this.object.data.ruleContainer.length%2){
-        this.refService.filterCategoryItem(this.ruleSearchTerm, "Connectors")
-          .subscribe((values) => {
-            this.ruleCategoryItems = values;
-            if (this.ruleSearchTerm && this.ruleSearchTerm.trim() != '')
-                this.showListRules = true;
-          });
-        return;
-      }
+    if (this.object){
+      if (this.object.data.ruleContainer.length%2)
+        this.ruleCategoryItems = this.categories["Connectors"].filter(this.filterRuleItems, this.ruleSearchTerm);
+      else
+        this.ruleCategoryItems = this.categories["RuleCategories"].filter(this.filterRuleItems, this.ruleSearchTerm);
 
-  this.refService.filterCategoryItem(this.ruleSearchTerm, "RuleCategories")
-    .subscribe((values) => {
-      this.ruleCategoryItems = values;
       if (this.ruleSearchTerm && this.ruleSearchTerm.trim() != '')
           this.showListRules = true;
-    });
+    }
   }
+
   setFilteredActions() {
-    this.refService.filterCategoryItem(this.actionSearchTerm, "ActionCategories")
-      .subscribe((values) => {
-        this.actionCategoryItems = values;
-        if (this.actionSearchTerm && this.actionSearchTerm.trim() != '')
-            this.showListActions = true;
-      });
+    this.actionCategoryItems = this.categories["ActionCategories"].filter(this.filterRuleItems, this.actionSearchTerm);
+
+    if (this.actionSearchTerm && this.actionSearchTerm.trim() != '')
+        this.showListActions = true;
+  }
+
+  filterRuleItems(element, index, array){
+    return (element.label.toLowerCase().indexOf(this["toLowerCase"]()) > -1 ||
+      element.category.toLowerCase().indexOf(this["toLowerCase"]()) > -1 ||
+      element.type.toLowerCase().indexOf(this["toLowerCase"]()) > -1);
   }
 
   onSearchInput(type){

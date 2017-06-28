@@ -254,7 +254,7 @@ export class ChooseItemModal {
   }
 
   private getReferenceData() {
-    this.refService.getEquipmentTypes()
+    this.refService.equipmentTypesSubject
         .subscribe(res => {
           this.listReferences = res[[this.listType,"Types"].join("")];
           if (this.itemType) {

@@ -19,12 +19,10 @@ export class ItemPopOverPage {
               private refService:ReferenceService) {
     if (this.navParams.data.items) {
       this.objectEle = this.navParams.data.items;
-      this.refService.getData("categories")
-        .subscribe(res => {
-          this.categories = res.json();
-        }, err => {
-          console.log(err);
-        });
+      this.refService.categoriesSubject
+              .subscribe(values => {
+                  this.categories = values;
+              });
     }
   }
 
