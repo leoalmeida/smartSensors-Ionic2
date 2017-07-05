@@ -475,7 +475,7 @@ export const EQUIPMENT_TYPES = [
     ]
   },
   {
-    "name" : "board",
+    "name" : "complex",
     "options" : [
       {
         "available" : true,

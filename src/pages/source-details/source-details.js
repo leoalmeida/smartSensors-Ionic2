@@ -13,7 +13,7 @@ import { DataService } from '../../providers/apiData.service';
 import { User } from '@ionic/cloud-angular';
 import { ShowMapModal } from '../modals/show-map-modal';
 import { AccessoryDetailsPage } from '../accessory-details/accessory-details';
-import { HubDetailsPage } from '../hub-details/hub-details';
+import { ComplexObjectDetailsPage } from '../complex-details/complex-details';
 import { ProfilePage } from '../profile/profile';
 import { CreateKnowledgePage } from '../create-knowledge/create-knowledge';
 import { ChooseItemModal } from '../modals/choose-item-modal';
@@ -74,7 +74,7 @@ var SourceDetailsPage = SourceDetailsPage_1 = (function () {
         return new Date(date).toLocaleString();
     };
     SourceDetailsPage.prototype.propertyTapped = function (event, item) {
-        /*this.navCtrl.push(HubDetailsPage, {
+        /*this.navCtrl.push(ComplexObjectDetailsPage, {
             item: item
         });*/
     };
@@ -130,8 +130,8 @@ var SourceDetailsPage = SourceDetailsPage_1 = (function () {
             nextPage = SourceDetailsPage_1;
         else if (item.type === "actuator")
             nextPage = AccessoryDetailsPage;
-        else if (item.type === "board")
-            nextPage = HubDetailsPage;
+        else if (item.type === "complex")
+            nextPage = ComplexObjectDetailsPage;
         else if (item.type === "topic")
             nextPage = TopicDesignerPage;
         else

@@ -542,7 +542,7 @@ export var EQUIPMENT_TYPES = [
         ]
     },
     {
-        "name": "board",
+        "name": "complex",
         "options": [
             {
                 "available": true,

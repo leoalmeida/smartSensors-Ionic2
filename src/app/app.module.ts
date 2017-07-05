@@ -15,11 +15,11 @@ import { SourcePage } from '../pages/source/source';
 import { SourceDetailsPage } from '../pages/source-details/source-details';
 import { ChatsPage } from '../pages/chats/chats';
 import { ChatsDetailPage } from '../pages/chats/chats-detail';
-import { HubPage } from '../pages/hub/hub';
+import { ComplexObjectPage } from '../pages/complex/complex';
 import { ModalContentPage } from '../pages/modals/attribute-item';
 import { ShowMapModal } from '../pages/modals/show-map-modal';
 import { ChooseItemModal } from '../pages/modals/choose-item-modal';
-import { HubDetailsPage } from '../pages/hub-details/hub-details';
+import { ComplexObjectDetailsPage } from '../pages/complex-details/complex-details';
 import { CreateKnowledgePage } from '../pages/create-knowledge/create-knowledge';
 import { GraphPage } from '../pages/graph/graph';
 import { MapsPage } from '../pages/maps/maps';
@@ -39,7 +39,8 @@ import { ConfigService } from '../providers/config/config.service';
 import { GeofenceService } from "../providers/geofence.service";
 import { LocationTracker } from '../providers/location-tracker';
 import { ReferenceService } from '../providers/reference.service';
-
+import { WebSocketService } from '../providers/websocket.service';
+import { TopicService } from '../providers/topic.service';
 
 import { ReversePipe } from '../pipes/reverse.pipe'
 import { DerpPipe } from '../pipes/derp.filter'
@@ -99,8 +100,8 @@ const cloudSettings: CloudSettings = {
     AccessoryDetailsPage,
     SourcePage,
     SourceDetailsPage,
-    HubPage,
-    HubDetailsPage,
+    ComplexObjectPage,
+    ComplexObjectDetailsPage,
     CreateKnowledgePage,
     GeofenceDetailsPage,
     GraphPage,
@@ -140,8 +141,8 @@ const cloudSettings: CloudSettings = {
     AccessoryDetailsPage,
     SourcePage,
     SourceDetailsPage,
-    HubPage,
-    HubDetailsPage,
+    ComplexObjectPage,
+    ComplexObjectDetailsPage,
     ChatsPage,
     ChatsDetailPage,
     CreateKnowledgePage,
@@ -184,6 +185,8 @@ const cloudSettings: CloudSettings = {
     LocationTracker,
     GeofenceService,
     ReferenceService,
+    WebSocketService,
+    TopicService,
     //SpeechRecognition,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   AlertController, LoadingController, ModalController, NavController, NavParams,
   Platform
@@ -15,7 +15,7 @@ import { User } from '@ionic/cloud-angular';
 import { ShowMapModal }  from '../modals/show-map-modal';
 
 import { AccessoryDetailsPage } from '../accessory-details/accessory-details';
-import { HubDetailsPage } from '../hub-details/hub-details';
+import { ComplexObjectDetailsPage } from '../complex-details/complex-details';
 import { ProfilePage } from '../profile/profile';
 import { CreateKnowledgePage } from '../create-knowledge/create-knowledge';
 
@@ -33,7 +33,7 @@ import { ReferenceService } from '../../providers/reference.service';
   selector: 'page-source-details',
   templateUrl: '../templates/details-page.html'
 })
-export class SourceDetailsPage {
+export class SourceDetailsPage implements OnInit{
   pageTitle: string;
   imgdef:string = "assets/icons/img/ionic.png";
   listAttributes: boolean = false;
@@ -51,6 +51,8 @@ export class SourceDetailsPage {
   data: EquipmentModel;
   info: Array<AttributeModel> = [];
   knowledges: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
+  abstractions: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
+  components: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
   changed: boolean[];
 
   refData = {};
@@ -96,6 +98,8 @@ export class SourceDetailsPage {
   ngOnInit() {
     this.selectObject();
     this.selectAssociations();
+    this.selectAbstractions();
+    this.selectComponents();
   }
 
   selectObject() {
@@ -123,12 +127,26 @@ export class SourceDetailsPage {
     });
   }
 
+  selectAbstractions() {
+    this.dataService.getData(["parent", this.selectedItem],null)
+                  .subscribe((components: any[]) => {
+      this.components = components;
+    });
+  }
+
+  selectComponents() {
+    this.dataService.getData(["components", this.selectedItem],null)
+                  .subscribe((abstractions: any[]) => {
+      this.abstractions = abstractions;
+    });
+  }
+
   transformDate(date){
     return new Date(date).toLocaleString();
   }
 
   propertyTapped(event, item) {
-      /*this.navCtrl.push(HubDetailsPage, {
+      /*this.navCtrl.push(ComplexObjectDetailsPage, {
           item: item
       });*/
   }
@@ -169,6 +187,25 @@ export class SourceDetailsPage {
                           });
               });
   }
+
+  removeParent(relid: string){
+      this.dataService.removeAssociation(relid, "parent" , this.selectedItem)
+                .subscribe((res) => {
+                  //TODO Create Toast message
+                  console.log("Associação removida com sucesso");
+                  this.selectAssociations();
+                });
+  }
+  removeComponent(relid: string){
+      this.dataService.removeAssociation(relid, "components" , this.selectedItem)
+                .subscribe((res) => {
+                  //TODO Create Toast message
+                  console.log("Associação removida com sucesso");
+                  this.selectAssociations();
+                });
+    }
+
+
 
   geoLocate(){
 
@@ -332,7 +369,7 @@ export class SourceDetailsPage {
     var nextPage:any = null;
     if (item.type === "sensor") nextPage = SourceDetailsPage;
     else if (item.type === "actuator") nextPage = AccessoryDetailsPage;
-    else if (item.type === "board") nextPage = HubDetailsPage;
+    else if (item.type === "complex") nextPage = ComplexObjectDetailsPage;
     else if (item.type === "topic") nextPage = TopicDesignerPage;
     else nextPage = ProfilePage;
 
@@ -455,6 +492,21 @@ export class SourceDetailsPage {
     let year = date.getFullYear();
 
     return day + ' ' + monthNames[monthIndex] + ' ' + year;
+  }
+
+  toggleItemStatus(){
+    var body = {
+      "keys": [
+        {"keyId": this.selectedItem, "status": this.object.data.connected}
+      ]
+    };
+
+    this.dataService.toggleEquipmentStatus(body, this.object.data.connected)
+      .subscribe(
+        (data) => {
+          console.log(data)
+          this.object.data.connected = data.status;
+        },error =>  this.errorMessage = <any>error);
   }
 
   onSubmit() {

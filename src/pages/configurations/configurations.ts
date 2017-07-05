@@ -11,7 +11,11 @@ import { DataService } from '../../providers/apiData.service';
 })
 export class ConfigurationsPage {
   userKey: any;
-  host: string = "";
+  connection = {
+    host: "191.189.96.74",
+    httpPort: 3001,
+    wsPort: 3005
+  };
   configurations = {
     resourcesPages: false,
     facebookPage: false,
@@ -27,35 +31,35 @@ export class ConfigurationsPage {
               private nativeStorage: NativeStorage) {
     this.userKey = navParams.get('key');
     this.platform.ready().then((readySource) => {
-      this.nativeStorage.getItem('smartSensors.host')
-        .then(
-          data => {
-            if (data.host)
-              this.host = data.host;
-          },
-          error => console.error(error)
-        );
+      this.nativeStorage.getItem('smartSensors.connection')
+            .then(
+              connection => {
+                if (connection)
+                  this.connection = connection;
+              },
+              error => console.error(error)
+            );
 
       this.nativeStorage.getItem('smartSensors.configurations')
-        .then(data => {
-            if (data)
-              this.configurations = data;
-          },
-          error => {
-            console.error(error);
-            this.setConfiguration(this.configurations);
-          });
+            .then(data => {
+                if (data)
+                  this.configurations = data;
+              },
+              error => {
+                console.error(error);
+                this.setConfiguration(this.configurations);
+              });
     });
 
   }
 
   saveHost(){
-    if (this.host && this.userKey)
-      this.dataService.changeHost(this.host);
+    if (this.connection && this.userKey)
+      this.dataService.changeConnection(this.connection);
     else
-      this.nativeStorage.setItem('smartSensors.host', {host: this.host})
+      this.nativeStorage.setItem('smartSensors.connection', this.connection)
         .then(
-          () => console.log('Stored item!', this.host),
+          () => console.log('Stored item!', this.connection),
           error => console.error('Error storing item', error)
         );
   }

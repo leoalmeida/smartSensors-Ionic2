@@ -92,7 +92,7 @@ var TopicDesignerPage = (function () {
     TopicDesignerPage.prototype.toggleList = function () { this.listed = !this.listed; };
     ;
     TopicDesignerPage.prototype.propertyTapped = function (event, item) {
-        /*this.navCtrl.push(HubDetailsPage, {
+        /*this.navCtrl.push(ComplexObjectDetailsPage, {
             item: item
         });*/
     };

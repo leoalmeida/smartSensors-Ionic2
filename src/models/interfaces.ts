@@ -91,11 +91,32 @@ export interface ProfileModel {
   name: string;
   configurations: Array<any>;
 }
+
 export interface MessageModel {
-  enabled: boolean;
-  message: string;
-  profile: string;
+	author: string,
+	knowledgeMessage: KnowledgeMessage,
+  route: string,
+  sync?: number,
+  err?: string
 }
+
+// Identifier that shows the object can be set as message
+export interface KnowledgeMessage {}
+
+export interface MessageInput extends KnowledgeMessage {
+  topicKeys: any,
+  coordinates: Array<number>,
+  radius: number,
+  type?: string,
+  category?: string,
+}
+
+export interface MessageOutput {
+  status: string,
+  value: any,
+  equipments?: Array<any>,
+}
+
 export interface TopicModel {
   enabled: boolean;
   updatedValue: string;
@@ -141,7 +162,7 @@ export interface AssociationModel {
   commentedAt: Array<RelationModel>;
   subscribedBy: Array<RelationModel>;
 }
-export interface KnowledgeInterface<DT, RL>{
+export interface KnowledgeInterface<DT, RL> extends KnowledgeMessage{
   _id: string,
   root: string,
   access: string,

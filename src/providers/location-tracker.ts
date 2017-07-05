@@ -1,10 +1,14 @@
 import { Injectable, NgZone } from '@angular/core';
+import {User} from '@ionic/cloud-angular';
 import { BackgroundGeolocation } from '@ionic-native/background-geolocation';
 import { Geolocation, Geoposition } from '@ionic-native/geolocation';
 import 'rxjs/add/operator/filter';
 import * as Leaflet from "leaflet";
+import Rx from 'rxjs/Rx';
 
+import { MessageModel, MessageInput } from '../models/interfaces'
 import { DataService }  from './apiData.service';
+import { TopicService }  from './topic.service';
 
 const iconUrls = {
   shadow: 'assets/leaflet/images/marker-shadow.png',
@@ -36,7 +40,10 @@ const newIcon = function (color){
 };
 
 @Injectable()
-export class LocationTracker {
+export class LocationTracker{
+
+  messages: MessageModel[] = [];
+  randomData: number[] = [];
 
   public watch: any;
   private _radius: number = 700;
@@ -52,12 +59,59 @@ export class LocationTracker {
   private _running:boolean = false;
   private _status:any;
   private locals = [];
-
+  private userKey = "";
 
   constructor(public zone: NgZone,
               public backgroundGeolocation: BackgroundGeolocation,
               public geolocation: Geolocation,
-              private dataService: DataService) {}
+              public user: User,
+              private wsService: TopicService,
+              private dataService: DataService) {
+
+    this.userKey = btoa(this.user.id + ":" + this.user.details.password);
+  }
+
+  trackServices() {
+  		this.wsService.messages.subscribe( (msg: MessageModel) => {
+  			this.messages.push(msg);
+        if (msg.author !== this.userKey && this._evaluation === "evaluateTopic"){
+            console.log ( msg );
+            this._status = msg.knowledgeMessage["data"]["status"];
+            if (msg.err)
+              this.marker
+                .bindPopup(msg.err["msg"] +" / "+ msg.sync)
+                .openPopup();
+            else
+              this.marker
+                .bindPopup(msg.knowledgeMessage["data"]["value"] +" / "+ msg.sync)
+                .openPopup();
+
+            this._items = msg.knowledgeMessage["data"]["equipments"];
+            for (let equip of this._items["connected"])
+              this._equipLayers["green"].addLayer(Leaflet.marker(Leaflet.latLng(equip.location.coordinates),{icon: newIcon("green")}).bindPopup(equip.data.label + "  (" + equip.category + ")"));
+            for (let equip of this._items["disconnected"])
+              this._equipLayers["red"].addLayer(Leaflet.marker(Leaflet.latLng(equip.location.coordinates),{icon: newIcon("red")}).bindPopup(equip.data.label + "  (" + equip.category + ")"));
+        }else if(msg.author !== this.userKey){
+          this._items =  msg.knowledgeMessage["data"]["equipments"];
+          for (let equip of this._items){
+            let itemColor = equip.data.connected?"green":"red";
+            this._equipLayers[itemColor].addLayer(Leaflet.marker(Leaflet.latLng(equip.location.coordinates),{icon: newIcon(itemColor)}).bindPopup(equip.data.label + "  (" + equip.category + ")"));
+          }
+        }
+  		});
+      this.wsService.randomData.subscribe(num => {
+  			this.randomData.push(num);
+  			// reset if there are 20 numbers in the array
+  			if (this.randomData.length > 20) {
+  				this.randomData = [];
+  			}
+		})
+  }
+
+  stopTrackServices() {
+    this.wsService.messages.unsubscribe();
+    this.wsService.randomData.unsubscribe();
+  }
 
   // Background Tracking
   startTracking(latlng: any, radius: number, params: any, evaluation: any) {
@@ -88,7 +142,9 @@ export class LocationTracker {
       // Run update inside of Angular's zone
       this.zone.run(() => {
         this.latLng = {lat: location.latitude, lng: location.longitude};
-        this.bindProcessing(this.latLng);
+        //this.bindProcessing(this.latLng);
+        this.sendMsg(this.latLng);
+        this.trackServices();
       });
 
     }, (err) => {
@@ -115,7 +171,9 @@ export class LocationTracker {
       // Run update inside of Angular's zone
       this.zone.run(() => {
         this.latLng = {lat: position.coords.latitude, lng: position.coords.longitude};
-        this.bindProcessing(this.latLng);
+        //this.bindProcessing(this.latLng);
+        this.sendMsg(this.latLng);
+        this.trackServices();
       });
 
     });
@@ -123,6 +181,39 @@ export class LocationTracker {
 
   isRunning(){
     return this._running;
+  }
+
+  sendMsg(latlng){
+    for (let layer of Object.keys(this._equipLayers)) this._equipLayers[layer].clearLayers();
+
+    var options:MessageInput;
+    if (this._evaluation === "evaluateTopic"){
+      options = {
+        "topicKeys": [{ "topicId": this._items[0]}],
+        "coordinates": [this._latLng.lat, this._latLng.lng],
+        "radius": this.radius
+      };
+    }else{
+      //for (let layer of Object.keys(this._equipLayers)) this._equipLayers[layer].clearLayers();
+      options = {
+        "topicKeys": [],
+        "coordinates": [this._latLng.lat, this._latLng.lng],
+        "radius":this.radius
+      };
+      if (this._type) options["type"] = this._type;
+      if (this._category) options["category"] = this._category;
+    }
+    var msg: MessageModel;
+    msg = {
+      "author": this.userKey,
+      "knowledgeMessage": options,
+      "sync": Date.now(),
+      "route": (this._evaluation === "evaluateTopic")?"/topic/dynamic":"/topic/static"
+    },
+
+		this.wsService.messages.next(msg);
+
+    this.locals.push(msg);
   }
 
   bindProcessing(latlng){
@@ -183,6 +274,7 @@ export class LocationTracker {
     this._running = false;
     this.backgroundGeolocation.finish();
     this.watch.unsubscribe();
+    this.stopTrackServices();
   }
 
   get radius() {

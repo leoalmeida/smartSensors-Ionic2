@@ -140,7 +140,7 @@ export class ShowMapModal implements OnInit{
 
   //when we have a location draw a marker and accuracy circle
   onLocationFound(e) {
-    this.drawLayers();
+    //this.drawLayers();
 
     if (this.mapModel === "dynamicTopic"){
       let params = {items: [this.item._id]}
@@ -156,6 +156,7 @@ export class ShowMapModal implements OnInit{
   }
 
   private setMarker(){
+    this.drawLayers();
     this.map.setZoom(13);
     this.locationTracker.marker.addTo(this.map);
     this.locationTracker.circle.addTo(this.map);
@@ -192,6 +193,7 @@ export class ShowMapModal implements OnInit{
 
   stop(){
     this.locationTracker.stopTracking();
+    //this.dismiss();
   }
 
   //alert on location error
@@ -213,7 +215,6 @@ export class ShowMapModal implements OnInit{
   }
 
   saveChanges(){
-    this.stop();
     this.viewCtrl.dismiss({
       newLocal: this.locationTracker.latLng
     });

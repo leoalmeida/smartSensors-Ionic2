@@ -28,10 +28,11 @@ export class ReferenceService {
 
   getHost(){
     this.platform.ready().then((readySource) => {
-      this.nativeStorage.getItem('smartSensors.host')
-        .then(data => {
-            if (data.host)
-              this.hostSubject.next(data.host);
+      this.nativeStorage.getItem('smartSensors.connection')
+        .then(connection => {
+            if (connection){
+              this.hostSubject.next("http://" + connection.host + ":" + connection.httpPort + "/");
+            }
           },
           error => {
             console.error(error);

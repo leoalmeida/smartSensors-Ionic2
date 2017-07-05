@@ -17,10 +17,11 @@ import {
 @Injectable()
 export class DataService {
   //private dbUrl: string = 'http://200.18.98.244:3001/';
-  //private dbUrl: string = 'http://191.189.96.74:3001/';
+  private httpUrl: string = 'http://191.189.96.74:3001/';
   //private mqttUrl: string = 'mqtt://192.168.0.6:1883/';
-  private dbUrl: string = 'http://localhost:3001/';
-
+  //private dbUrl: string = 'http://localhost:3001/';
+  private wsUrl: string = 'ws://191.189.96.74:3005/';
+  private connection = {};
   // Publishes new info to Observers
   //private hostSubject: BehaviorSubject<string> = new BehaviorSubject("");
 
@@ -33,28 +34,36 @@ export class DataService {
 
   getHost(){
     this.platform.ready().then((readySource) => {
-      this.nativeStorage.getItem('smartSensors.host')
-        .then(data => {
-            if (data.host)
-              this.dbUrl = data.host;
+      this.nativeStorage.getItem('smartSensors.connection')
+        .then(connection => {
+            if (connection)
+              this.connection = connection;
+              this.httpUrl = "http://" + connection.host + ":" + connection.httpPort + "/";
+              this.wsUrl = "ws://" + connection.host + ":" + connection.wsPort + "/";
           },
           error => {
             console.error(error);
+            this.changeConnection({
+              host: "191.189.96.74",
+              httpPort: 3001,
+              wsPort: 3005
+            })
           });
     });
   }
 
-  changeHost(newHost){
-    this.nativeStorage.setItem('smartSensors.host', {host: newHost})
+  changeConnection(connection){
+    this.connection = connection;
+    this.nativeStorage.setItem('smartSensors.connection', connection)
       .then(
-        () => console.log('Stored item!', newHost),
+        () => console.log('Stored item!', connection),
         error => console.error('Error storing item', error)
       );
   }
 
   toggleEquipmentStatus(body: any, status: boolean): Observable<any> {
     //let transactionObj = new KnowledgeModel(newObject);
-    let url = this.dbUrl + "api/action/boards/" + ((status)?"connect":"disconnect");
+    let url = this.httpUrl + "api/action/equipment/connect";
     return this.http.post(url, body, this.generateHeader(true))
           .map(response => response.json())
           .catch(this.handleError);
@@ -62,7 +71,7 @@ export class DataService {
 
   evaluateTopic(body: any): Observable<any> {
     //let transactionObj = new KnowledgeModel(newObject);
-    let url = this.dbUrl + "api/action/topic/dynamic";
+    let url = this.httpUrl + "api/action/topic/dynamic";
     return this.http.post(url, body, this.generateHeader(true))
       .map(response => response.json())
       .catch(this.handleError);
@@ -74,20 +83,20 @@ export class DataService {
     if (options.category) parameters.push(options.category);
     //parameters.push("ownedBy", this.userKey);
 
-    let url = this.dbUrl + "api/knowledge/" + parameters.join("/");
+    let url = this.httpUrl + "api/knowledge/" + parameters.join("/");
     return this.http.get(url, this.generateHeader(true))
       .map(response => response.json() as KnowledgeInterface<EquipmentModel, AssociationModel>[]);
   };
 
   getReferenceData(resource: Array<string>): Observable<KnowledgeInterface<EquipmentModel, AssociationModel>[]> {
-    return this.http.get(this.dbUrl + "api/reference/" + resource.join("/"), this.generateHeader(true))
+    return this.http.get(this.httpUrl + "api/reference/" + resource.join("/"), this.generateHeader(true))
       .map(response => response.json() as any);
       //.map(this.processData)
       //.catch(this.handleError);
   }
 
   getMessengerData(resource: Array<string>, query: any): Observable<KnowledgeInterface<MessageModel, AssociationModel>[]> {
-    let url = this.dbUrl + "api/messenger/" + resource.join("/");
+    let url = this.httpUrl + "api/messenger/" + resource.join("/");
     if (query!= null) {
       url += '?' + query.join("&");
     }
@@ -98,13 +107,13 @@ export class DataService {
   }
 
   publishMessage(newObject: any): Observable<KnowledgeInterface<MessageModel, AssociationModel>> {
-    return this.http.post(this.dbUrl + "api/messenger/publish", newObject, this.generateHeader(true))
+    return this.http.post(this.httpUrl + "api/messenger/publish", newObject, this.generateHeader(true))
       .map(response => response.json())
       .catch(this.handleError);
   }
 
   getData<T>(resource: Array<string>, query: Array<any>): Observable<KnowledgeInterface<T, AssociationModel>[]> {
-    let url = this.dbUrl + "api/knowledge/" + resource.join("/");
+    let url = this.httpUrl + "api/knowledge/" + resource.join("/");
     if (query!= null) {
       url += '?' + query.join("=");
     }
@@ -115,13 +124,13 @@ export class DataService {
   }
 
   getOne<T>(resource: Array<string>): Observable<KnowledgeInterface<T, AssociationModel>> {
-    return this.http.get(this.dbUrl + "api/knowledge/" + resource.join("/"), this.generateHeader(true))
+    return this.http.get(this.httpUrl + "api/knowledge/" + resource.join("/"), this.generateHeader(true))
       .map(response => response.json() as KnowledgeInterface<T, AssociationModel>)
       .catch(this.handleError);
   }
 
   getStaticData(resource: Array<string>, requestedCols: string): Promise<any> {
-    const url = this.dbUrl + "api/knowledge/" + resource.join("/") + '?columns=' + requestedCols;
+    const url = this.httpUrl + "api/knowledge/" + resource.join("/") + '?columns=' + requestedCols;
     return this.http.get(url, this.generateHeader(true))
         .toPromise()
         .then(response => response.json())
@@ -131,7 +140,7 @@ export class DataService {
   createKnowledge<T>(newObject: any): Observable<KnowledgeInterface<T, AssociationModel>> {
     //let transactionObj = new KnowledgeModel(newObject);
     //console.log(transactionObj);
-    return this.http.put(this.dbUrl + "api/knowledge", newObject, this.generateHeader(true))
+    return this.http.put(this.httpUrl + "api/knowledge", newObject, this.generateHeader(true))
           .map(response => response.json() as KnowledgeInterface<T, AssociationModel>)
           .catch(this.handleError);
 
@@ -140,14 +149,14 @@ export class DataService {
 
   updateKnowledge<T>(resource: string, newData: {}): Observable<KnowledgeInterface<T, AssociationModel>> {
     //let transactionObj = new KnowledgeModel(changes);
-    let url = this.dbUrl + "api/knowledge/" + resource;
+    let url = this.httpUrl + "api/knowledge/" + resource;
     return this.http.post(url, newData, this.generateHeader(true))
           .map(response => response.json() as KnowledgeInterface<T, AssociationModel>)
           .catch(this.handleError);
   }
 
   updateAttribute(documentId: string, newValues: any): any {
-    let url = this.dbUrl + "api/knowledge/" + documentId;
+    let url = this.httpUrl + "api/knowledge/" + documentId;
     return this.http.post(url, newValues, this.generateHeader(true))
           .map(response => response.json())
           .catch(this.handleError);
@@ -156,41 +165,41 @@ export class DataService {
   }
 
   removeKnowledge<T>(resource: string): Observable<any> {
-    return this.http.delete(this.dbUrl + "api/knowledge/" + resource, this.generateHeader(true))
+    return this.http.delete(this.httpUrl + "api/knowledge/" + resource, this.generateHeader(true))
       .map(response => response.json())
       .catch(this.handleError);
   }
 
   removeAttribute(documentId: string, attribute: string): any {
-    let url = this.dbUrl + "api/knowledge/" + documentId + "/" + attribute;
+    let url = this.httpUrl + "api/knowledge/" + documentId + "/" + attribute;
     return this.http.delete(url, this.generateHeader(true))
         .map(response => response.json())
         .catch(this.handleError);
   }
 
   addAttrInfo(documentId: string, attrName: string, body: AttributeModel): any {
-    let url = this.dbUrl + "api/knowledge/" + documentId + "/attr/" + attrName;
+    let url = this.httpUrl + "api/knowledge/" + documentId + "/attr/" + attrName;
     return this.http.post(url, body, this.generateHeader(true))
       .map(response => response.json())
       .catch(this.handleError);
   }
 
   removeAttrInfo(documentId: string, attrName: string): any {
-    let url = this.dbUrl + "api/knowledge/" + documentId + "/attr/" + attrName;
+    let url = this.httpUrl + "api/knowledge/" + documentId + "/attr/" + attrName;
     return this.http.delete(url, this.generateHeader(true))
       .map(response => response.json())
       .catch(this.handleError);
   }
 
   addAssociation(documentId: string, associationType: string, body: RelationModel): any {
-    let url = this.dbUrl + "api/knowledge/" + documentId + "/relation/" + associationType;
+    let url = this.httpUrl + "api/knowledge/" + documentId + "/relation/" + associationType;
     return this.http.post(url, body, this.generateHeader(true))
       .map(response => response.json())
       .catch(this.handleError);
   }
 
   removeAssociation(documentId: string, associationType: string, relid: string): any {
-    let url = this.dbUrl + "api/knowledge/" + documentId + "/" + associationType + "/" + relid;
+    let url = this.httpUrl + "api/knowledge/" + documentId + "/" + associationType + "/" + relid;
     return this.http.delete(url, this.generateHeader(true))
       .map(response => response.json())
       .catch(this.handleError);

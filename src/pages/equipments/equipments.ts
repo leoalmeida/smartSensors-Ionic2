@@ -10,7 +10,7 @@ import { ChooseItemModal }  from '../modals/choose-item-modal';
 import { CreateKnowledgePage } from '../create-knowledge/create-knowledge';
 import { AccessoryDetailsPage } from '../accessory-details/accessory-details';
 import { SourceDetailsPage } from '../source-details/source-details';
-import { HubDetailsPage } from '../hub-details/hub-details';
+import { ComplexObjectDetailsPage } from '../complex-details/complex-details';
 
 import { DataService } from '../../providers/apiData.service';
 
@@ -45,7 +45,7 @@ export class EquipmentsPage  implements OnInit {
     // If we navigated to this page, we will have an item available as a nav param
     this.isAndroid = platform.is('android');
     this.userKey = navParams.get('key');
-    this.selectedItem = "board";
+    this.selectedItem = "sensor";
 
     platform.registerBackButtonAction(()=>this.getEquipments());
   }
@@ -97,8 +97,8 @@ export class EquipmentsPage  implements OnInit {
 
   toggleItemStatus(item: any){
     var body = {
-      "boardKeys": [
-        {"boardId": item}
+      "keys": [
+        {"keyId": this.objects[item]._id, "status": this.objects[item].data.connected}
       ]
     };
 
@@ -178,7 +178,7 @@ export class EquipmentsPage  implements OnInit {
       nextPage = SourceDetailsPage;
     else if (item.type === "actuator")
       nextPage = AccessoryDetailsPage;
-    else nextPage = HubDetailsPage;
+    else nextPage = ComplexObjectDetailsPage;
 
     this.navCtrl.push(nextPage, {
         item: item._id,

@@ -198,7 +198,7 @@ export class TopicDesignerPage implements OnInit{
   toggleList(){this.listed = !this.listed};
 
   propertyTapped(event, item) {
-      /*this.navCtrl.push(HubDetailsPage, {
+      /*this.navCtrl.push(ComplexObjectDetailsPage, {
           item: item
       });*/
   }

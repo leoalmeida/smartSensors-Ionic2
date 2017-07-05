@@ -113,7 +113,7 @@ var CreateKnowledgePage = (function () {
         }, function (error) { return _this.errorMessage = error; });
     };
     CreateKnowledgePage.prototype.propertyTapped = function (event, item) {
-        /*this.navCtrl.push(HubDetailsPage, {
+        /*this.navCtrl.push(ComplexObjectDetailsPage, {
             item: item
         });*/
     };

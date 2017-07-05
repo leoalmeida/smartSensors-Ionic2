@@ -135,7 +135,7 @@ export class ChooseItemModal {
       text: 'Continuar',
       handler: data => {
         if (data == "new")
-          this.restart("board");
+          this.restart("complex");
         else{
           console.log('Radio data:', data);
           this.selectBoardOpen = false;
@@ -152,7 +152,7 @@ export class ChooseItemModal {
   }
 
   private getBoardList(){
-    this.dataService.getData<EquipmentModel>(["board" , "ownedBy", this.userKey], null)
+    this.dataService.getData<EquipmentModel>(["complex" , "ownedBy", this.userKey], null)
       .subscribe(
         (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.boardList = data,
         error =>  this.errorMessage = <any>error);

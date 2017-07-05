@@ -12,15 +12,17 @@
    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content class="home" >
+<ion-content class="home">
   <ion-slides pager="true" paginationType="progress" parallax="true" (ionSlideDidChange)="slideChanged()" (ionSlideWillChange)="ionSlideWillChange()" >
     <ion-slide *ngFor="let slide of slideList; index as i;">
-
-      <ion-grid *ngIf="i<firstSlide">
+      <ion-grid *ngIf="i<firstSlide" class="card-background-page">
         <ion-row wrap *ngIf="slide.length" align-items-center>
           <ion-col *ngFor="let item of slide;index as idx;" (click)="itemSelected(idx, i)">
-                <div class="card-title">{{item.name}}</div>
-                <div class="card-subtitle">{{listType}}</div>
+                <ion-card>
+                  <img [src]="item.icon"/>
+                  <div class="card-title">{{item.name}}</div>
+                  <div class="card-subtitle">{{listType}}</div>
+                </ion-card>
           </ion-col>
         </ion-row>
       </ion-grid>

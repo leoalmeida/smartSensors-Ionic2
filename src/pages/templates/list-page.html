@@ -36,10 +36,10 @@
           Editar
         </button>
         <button *ngIf="object.type === 'topic'" ion-button color="primary" (click)="toggleItemStatus(object)">
-          <span *ngIf="!watchID[object._id] || watchID[object._id]?.closed">Iniciar</span>
-          <span *ngIf="watchID[object._id] && !watchID[object._id]?.closed">Parar</span>
+          <span *ngIf="!object.running">Iniciar</span>
+          <span *ngIf="object.running">Mostrar</span>
         </button>
-        <button *ngIf="object.type === 'board'" ion-button color="primary" (click)="toggleItemStatus(object._id)">
+        <button *ngIf="object.type === 'sensor' || object.type === 'actuator'"  ion-button color="primary" (click)="toggleItemStatus(object._id)">
           <span *ngIf="!object.data.connected">Iniciar</span>
           <span *ngIf="object.data.connected">Parar</span>
         </button>

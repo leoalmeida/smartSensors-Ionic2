@@ -18,7 +18,7 @@ import { ChooseItemModal } from '../modals/choose-item-modal';
 import { CreateKnowledgePage } from '../create-knowledge/create-knowledge';
 import { AccessoryDetailsPage } from '../accessory-details/accessory-details';
 import { SourceDetailsPage } from '../source-details/source-details';
-import { HubDetailsPage } from '../hub-details/hub-details';
+import { ComplexObjectDetailsPage } from '../complex-details/complex-details';
 import { DataService } from '../../providers/apiData.service';
 var EquipmentsPage = (function () {
     function EquipmentsPage(user, platform, navCtrl, actionsheetCtrl, modalCtrl, navParams, dataService) {
@@ -37,7 +37,7 @@ var EquipmentsPage = (function () {
         // If we navigated to this page, we will have an item available as a nav param
         this.isAndroid = platform.is('android');
         this.userKey = navParams.get('key');
-        this.selectedItem = "board";
+        this.selectedItem = "complex";
     }
     // Push a search term into the observable stream.
     EquipmentsPage.prototype.getItems = function (selectedItem) {
@@ -65,7 +65,7 @@ var EquipmentsPage = (function () {
                 /*this.serial.requestPermission().then(() => {
                   this.serial.open({
                     baudRate: this.connConf.baudRate
-        
+
                   }).then(() => {
                     console.log('Serial connection opened');
                   });
@@ -76,9 +76,9 @@ var EquipmentsPage = (function () {
     EquipmentsPage.prototype.toggleItemStatus = function (item) {
         var _this = this;
         var body = {
-            "boardKeys": [
-                { "boardId": item }
-            ]
+          "keys": [
+            {"keyId": item, "status": this.object.data.connected}
+          ]
         };
         this.dataService.toggleEquipmentStatus(body, !this.objects[item].data.connected)
             .subscribe(function (data) {
@@ -95,7 +95,7 @@ var EquipmentsPage = (function () {
          }));
          */
         /*
-    
+
         $mdDialog.show({
          controller: WaitController,
          parent: angular.element(document.body),
@@ -111,14 +111,14 @@ var EquipmentsPage = (function () {
          left: 1500
          }
          });
-    
+
          function WaitController($scope, $mdDialog) {
          $scope.hide = function() {vm.status = 'Processado com sucesso.'};
          $scope.close = function(result) {$mdDialog.hide(result)};
          $scope.cancel = function() {vm.status = 'You cancelled the dialog.'};
          };
-    
-    
+
+
         // var email = "leoalmeida.rj@gmail.com"; //currentUser.email,
         alert = ApiDataService.startBoard({
           ip: configurations.hostip,
@@ -127,7 +127,7 @@ var EquipmentsPage = (function () {
           board: configurations.board,
           serialport: configurations.serialport
         }, cbStartBoardSuccess, cbStartBoardError);
-    
+
         */
     };
     EquipmentsPage.prototype.removeItem = function (event, itemId) {
@@ -146,7 +146,7 @@ var EquipmentsPage = (function () {
         else if (item.type === "actuator")
             nextPage = AccessoryDetailsPage;
         else
-            nextPage = HubDetailsPage;
+            nextPage = ComplexObjectDetailsPage;
         this.navCtrl.push(nextPage, {
             item: item._id,
             key: this.userKey

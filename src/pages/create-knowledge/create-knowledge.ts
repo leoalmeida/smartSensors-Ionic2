@@ -152,7 +152,7 @@ export class CreateKnowledgePage implements OnInit{
   }
 
   propertyTapped(event, item) {
-      /*this.navCtrl.push(HubDetailsPage, {
+      /*this.navCtrl.push(ComplexObjectDetailsPage, {
           item: item
       });*/
   }

@@ -19,8 +19,19 @@
     </ion-list-header>
     <ion-item>
       <ion-label color="primary">Host</ion-label>
-      <ion-input type="text" [(ngModel)]="host"></ion-input>
+      <ion-input type="text" [(ngModel)]="connection.host"></ion-input>
     </ion-item>
+    <ion-item>
+      <ion-label color="primary">Porta HTTP</ion-label>
+      <ion-input type="number" min="0" max="9999" [(ngModel)]="connection.httpPort"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label color="primary">Porta WS</ion-label>
+      <ion-input type="number" min="0" max="9999" [(ngModel)]="connection.wsPort"></ion-input>
+    </ion-item>
+    <ion-item-divider color="light">
+      Funcionalidades
+    </ion-item-divider>
     <ion-item>
       <ion-label padding color="primary">Páginas de recursos</ion-label>
       <ion-toggle [ngModel]="configurations.resourcesPages" (ionChange)="setConfiguration('resourcesPages')"></ion-toggle>

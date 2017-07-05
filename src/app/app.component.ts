@@ -15,7 +15,7 @@ import { ConfigurationsPage } from '../pages/configurations/configurations';
 import { TopicPage } from '../pages/topic/topic';
 import { ChatsPage } from '../pages/chats/chats';
 import { MapsPage } from '../pages/maps/maps';
-import { HubPage } from '../pages/hub/hub';
+import { ComplexObjectPage } from '../pages/complex/complex';
 import { BarcodePage } from '../pages/barcode/barcode';
 import { User, Auth } from '@ionic/cloud-angular';
 import { GeofenceDetailsPage } from "../pages/geofence/geofence";
@@ -68,7 +68,7 @@ export class MyApp {
               if (data.resourcesPages){
                 this.pages.push({ title: 'Acessórios', component: AccessoryPage });
                 this.pages.push({ title: 'Sensores', component: SourcePage });
-                this.pages.push({ title: 'Hubs', component: HubPage });
+                this.pages.push({ title: 'Hubs', component: ComplexObjectPage });
               }
               if (data.facebookPage) this.pages.push({ title: 'Graph', component: GraphPage });
               if (data.geofencePage) this.pages.push({ title: 'Geofence', component: GeofenceDetailsPage });
