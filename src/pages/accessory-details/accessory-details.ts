@@ -54,6 +54,7 @@ export class AccessoryDetailsPage implements OnInit{
   info: Array<AttributeModel> = [];
   knowledges: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
   abstractions: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
+  elements: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
   components: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
   changed: boolean[];
 
@@ -99,9 +100,10 @@ export class AccessoryDetailsPage implements OnInit{
 
   ngOnInit() {
     this.selectObject();
-    this.selectAssociations();
+    this.selectAssociations("connectedTo");
+    this.selectAssociations("likedTo");
     this.selectAbstractions();
-    this.selectComponents();
+    this.selectElements();
   }
 
   selectObject() {
@@ -122,22 +124,22 @@ export class AccessoryDetailsPage implements OnInit{
             });
   }
 
-  selectAssociations() {
-    this.dataService.getData(["connectedTo", this.selectedItem],null)
+  selectAssociations(type) {
+    this.dataService.getData([type, this.selectedItem],null)
                   .subscribe((objects: any[]) => {
       this.knowledges = objects;
     });
   }
 
-  selectAbstractions() {
-    this.dataService.getData(["parent", this.selectedItem],null)
-                  .subscribe((components: any[]) => {
-      this.components = components;
+  selectElements() {
+    this.dataService.getData(["abstractions", this.selectedItem],null)
+                  .subscribe((elements: any[]) => {
+      this.elements = elements;
     });
   }
 
-  selectComponents() {
-    this.dataService.getData(["components", this.selectedItem],null)
+  selectAbstractions() {
+    this.dataService.getData(["elements", this.selectedItem],null)
                   .subscribe((abstractions: any[]) => {
       this.abstractions = abstractions;
     });
@@ -171,7 +173,7 @@ export class AccessoryDetailsPage implements OnInit{
                           .subscribe((res) => {
                             //TODO Create Toast message
                             console.log("Associação inserida com sucesso");
-                            this.selectAssociations();
+                            this.selectAssociations(associationType);
                           });
               });
   }
@@ -185,26 +187,26 @@ export class AccessoryDetailsPage implements OnInit{
                           .subscribe((relres) => {
                             //TODO Create Toast message
                             console.log("Associação removida com sucesso");
-                            this.selectAssociations();
+                            this.selectAssociations(associationType);
                           });
               });
   }
 
-  removeParent(relid: string){
-      this.dataService.removeAssociation(relid, "parent" , this.selectedItem)
+  removeAbstraction(relid: string){
+      this.dataService.removeAssociation(relid, "abstractions" , this.selectedItem)
                 .subscribe((res) => {
                   //TODO Create Toast message
                   console.log("Associação removida com sucesso");
-                  this.selectAssociations();
+                  this.selectAssociations("abstractions");
                 });
   }
 
-  removeComponent(relid: string){
-      this.dataService.removeAssociation(relid, "components" , this.selectedItem)
+  removeElement(relid: string){
+      this.dataService.removeAssociation(relid, "elements" , this.selectedItem)
                 .subscribe((res) => {
                   //TODO Create Toast message
                   console.log("Associação removida com sucesso");
-                  this.selectAssociations();
+                  this.selectAssociations("elements");
                 });
   }
 
@@ -321,13 +323,13 @@ export class AccessoryDetailsPage implements OnInit{
         (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.complexCompList = data,
         error =>  this.errorMessage = <any>error);
   }
-  private selectComponent() {
+  private selectComponent(type) {
     let alert = this.alertCtrl.create();
     alert.setTitle('Selecione componente');
 
     let i = 0;
     for (let comp of this.componentList)
-      if (comp.type !== this.object.type)
+      if (comp.type === type)
         alert.addInput({
           type: 'radio',
           label: comp.data.name,
@@ -343,7 +345,7 @@ export class AccessoryDetailsPage implements OnInit{
           this.selectComponentOpen = false;
           let newRelation1 = new RelationModel({ id: data });
           let newRelation2 = new RelationModel({ id: this.selectedItem });
-          this.addAssociation("connectedTo", data, newRelation1, newRelation2);
+          this.addAssociation(type, data, newRelation1, newRelation2);
         }
     });
     alert.present().then(() => {

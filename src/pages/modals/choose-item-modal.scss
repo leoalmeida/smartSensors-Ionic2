@@ -29,42 +29,47 @@
       box-shadow:0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19);
       -webkit-transition-duration: 0.4s; /* Safari */
       transition-duration: 0.4s;
-      background: rgb(35, 98, 163);
+      /*background: rgb(35, 98, 163);*/
+      background: rgb(255, 255, 255);
 
       img {
         top: 0px;
         left: 0px;
-        width: 100%;
-        height: 100%;
+        width: 30%;
+        height: 30%;
         z-index: 1;
-        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
-        filter: alpha(opacity=50);
-        opacity: .5;
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=10)";
+        filter: alpha(opacity=10);
+        opacity: .1;
+        background-color: transparent;
       }
 
       .card-title {
         z-index: 5;
         position: absolute;
         text-align: center;
-        top:50%;
+        top: 50%;
         left:50%;
         width: 100%;
+        text-transform: capitalize;
         transform:translate(-50%,-50%);
         -ms-transform:translate(-50%,-50%);
-        font-size: 1.2em;
+        font-size: 1.5em;
         font-weight: bold;
-        color: rgba(255,255,255,1);
+        color: rgba(0,0,0,1);
       }
 
       .card-subtitle {
+        top: 60%;
+        width: 100%;
         z-index: 5;
         position: absolute;
-        font-size: 0.8em;
+        font-size: 1.0em;
         left:0;
         text-transform: capitalize;
         padding:8px 16px!important;
         bottom:0;
-        color: rgba(220, 220, 220,1);
+        color: rgba(0, 0, 0,1);
       }
 
 
@@ -101,31 +106,4 @@ ion-title{
 
 .swiper-slide {
   display: block;
-}
-
-
-.card-background-page {
-
-  ion-card {
-    position: relative;
-    text-align: center;
-  }
-
-  .card-title {
-    position: absolute;
-    top: 36%;
-    font-size: 2.0em;
-    width: 100%;
-    font-weight: bold;
-    color: #fff;
-  }
-
-  .card-subtitle {
-    font-size: 1.0em;
-    position: absolute;
-    top: 52%;
-    width: 100%;
-    color: #fff;
-  }
-
 }

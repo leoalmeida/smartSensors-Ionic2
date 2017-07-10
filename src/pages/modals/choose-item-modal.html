@@ -13,20 +13,23 @@
   </ion-toolbar>
 </ion-header>
 <ion-content class="home">
-  <ion-slides pager="true" paginationType="progress" parallax="true" (ionSlideDidChange)="slideChanged()" (ionSlideWillChange)="ionSlideWillChange()" >
+  <ion-fab top right *ngIf="syncing">
+    <button ion-fab color="light" ion-fab mini class="fab-map spinner-container">
+    <ion-spinner></ion-spinner>
+    </button>
+  </ion-fab>
+  <ion-slides [pager]="pager" paginationType="progress" parallax="true" (ionSlideDidChange)="slideChanged()" (ionSlideWillChange)="ionSlideWillChange()" >
     <ion-slide *ngFor="let slide of slideList; index as i;">
-      <ion-grid *ngIf="i<firstSlide" class="card-background-page">
-        <ion-row wrap *ngIf="slide.length" align-items-center>
+      <ion-grid *ngIf="optionsSelectShow" class="card-background-page">
+        <ion-row wrap *ngIf="slide" align-items-center>
           <ion-col *ngFor="let item of slide;index as idx;" (click)="itemSelected(idx, i)">
-                <ion-card>
                   <img [src]="item.icon"/>
                   <div class="card-title">{{item.name}}</div>
                   <div class="card-subtitle">{{listType}}</div>
-                </ion-card>
           </ion-col>
         </ion-row>
       </ion-grid>
-      <span *ngIf="firstSlide<=slides.getActiveIndex()">
+      <span *ngIf="!optionsSelectShow">
         <ion-item inset *ngIf="slide.type === 'string' || !slide.type || slide.type === 'array' || slide.type === 'object'">
             <ion-input placeholder="{{slide.display}}" clearInput [(ngModel)]="slide.value" autofocus></ion-input>
         </ion-item>
@@ -99,26 +102,27 @@
           </ion-item>
         </ion-list>
 
-        <ion-fab bottom left  *ngIf="firstSlide<slides.getActiveIndex()">
-          <button ion-fab clear color="dark" (click)="goBack()">
-            <ion-icon name="arrow-back"></ion-icon>
-          </button>
-        </ion-fab>
-
-        <ion-fab bottom right  *ngIf="!slides.isEnd()" >
-          <button ion-fab clear color="dark" (click)="goNext()">
-            <ion-icon name="arrow-forward"></ion-icon>
-          </button>
-        </ion-fab>
-
-        <ion-fab bottom right  *ngIf="slides.isEnd()" >
-          <button ion-fab clear color="primary" (click)="doSave()">
-            <ion-icon name="send"></ion-icon>
-          </button>
-        </ion-fab>
-
       </span>
-
     </ion-slide>
   </ion-slides>
+
+  <span *ngIf="!optionsSelectShow">
+    <ion-fab bottom left  *ngIf="!slides.isBeginning()">
+      <button ion-fab clear color="dark" (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </button>
+    </ion-fab>
+
+    <ion-fab bottom right  *ngIf="!slides.isEnd()" >
+      <button ion-fab clear color="dark" (click)="goNext()">
+        <ion-icon name="arrow-forward"></ion-icon>
+      </button>
+    </ion-fab>
+
+    <ion-fab bottom right  *ngIf="slides.isEnd()" >
+      <button ion-fab clear color="primary" (click)="doSave()">
+        <ion-icon name="send"></ion-icon>
+      </button>
+    </ion-fab>
+  </span>
 </ion-content>

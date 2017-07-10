@@ -153,14 +153,18 @@ export interface RelationModel {
   view?: boolean;
 }
 export interface AssociationModel {
-  abstraction: boolean;
-  parent: string;
-  ownedBy: Array<RelationModel>;
-  connectedTo: Array<RelationModel>;
-  subscriberAt: Array<RelationModel>;
-  likedTo: Array<RelationModel>;
-  commentedAt: Array<RelationModel>;
+  abstractions: Array<RelationModel>;
+  elements: Array<RelationModel>;
   subscribedBy: Array<RelationModel>;
+  subscriberAt: Array<RelationModel>;
+  ownedBy: Array<RelationModel>;
+  presentedBy: Array<RelationModel>;
+  commentedBy: Array<RelationModel>;
+  commentedAt: Array<RelationModel>;
+  statedTo: Array<RelationModel>;
+  actedAt: Array<RelationModel>;
+  likedTo: Array<RelationModel>;
+  connectedTo: Array<RelationModel>;
 }
 export interface KnowledgeInterface<DT, RL> extends KnowledgeMessage{
   _id: string,

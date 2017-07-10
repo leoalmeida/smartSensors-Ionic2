@@ -16,6 +16,8 @@ import { Camera, CameraOptions } from '@ionic-native/camera';
 export class ChooseItemModal {
   @ViewChild(Slides) slides: Slides;
 
+  syncing: any = false;
+  pager: boolean = false;
   item: AttributeModel;
   index: string;
   ref: string;
@@ -29,8 +31,9 @@ export class ChooseItemModal {
   itemSubType: string;
 
   pageTitle: string;
+  optionsSelectShow: boolean = true;
   slideList: Array<any> = [];
-
+  slideAttrList: Array<any> = [];
   selectedItem: any;
   selectedType: string = "";
   selectedName: string = "";
@@ -57,21 +60,23 @@ export class ChooseItemModal {
     this.pageTitle = this.navParams.get('title');
     this.listType = this.navParams.get('listType');
     this.itemType = this.navParams.get('itemType');
-    if (this.itemType == "sensor" || this.itemType == "actuator"){
+/*    if (this.itemType == "sensor" || this.itemType == "actuator"){
       this.getBoardList();
-    }
+    }*/
     this.getReferenceData();
   }
 
   ionSlideWillChange() {
     // Initialize the flag
     //this.slides.lockSwipes(true);
-    if ( this.slideList.length - this.slides.getActiveIndex() >= 2 )
+    /*if ( this.slideList.length - this.slides.getActiveIndex() >= 2 ){
       this.slides.lockSwipeToNext(false);
-    else this.slides.lockSwipeToNext(true);
+    }else {
+      this.slides.lockSwipeToNext(true);
+    };
     if ( this.slides.getActiveIndex() <= 2 )
       this.slides.lockSwipeToPrev(true);
-    else  this.slides.lockSwipeToPrev(false);
+    else  this.slides.lockSwipeToPrev(false);*/
   }
 
   itemSelected(itemIndex: number, slideIndex: number) {
@@ -83,32 +88,40 @@ export class ChooseItemModal {
       if (!this.boardList && (this.selectedType == "sensor" || this.selectedType == "actuator")){
         this.getBoardList();
       }
-      this.slideList.push("");
-      this.slideList[slideIndex+1] = this.selectedItem.options;
+      this.slideList.pop();
+      //this.slideList[slideIndex+1] = this.selectedItem.options;
+      this.slideList.push(this.selectedItem.options);
       this.slides.lockSwipeToNext(false);
-      this.slides.slideTo(slideIndex+1, 500, true);
+      this.slides.slideTo(0, 500, true);
       this.firstSlide++;
       //this.slides.slideNext(500, true);
     }else if (this.selectedItem.properties.length){
-      if (this.selectedType == "sensor" || this.selectedType == "actuator"){
-        this.selectConnected(slideIndex);
-      }else{
+      //if (this.selectedType == "sensor" || this.selectedType == "actuator"){
+        //this.selectConnected(slideIndex);
+      //}else{
+        this.slideList.pop();
         this.fillAttributes(slideIndex);
-      }
+      //}
     }else{
       this.doSave();
     }
   }
 
   private fillAttributes(slideIndex){
-    this.slideList[slideIndex+1] = this.selectedItem.info[0];
+    //this.slideList.pull;
+    this.slideList.push(this.selectedItem.info[0]);
     for (let attr of this.selectedItem.properties)
       if (!attr.hidden)
         this.slideList.push(attr);
 
-    this.slides.lockSwipeToNext(false);
+    this.optionsSelectShow = false;
+    this.pager = true;
+    //this.slides.lockSwipeToNext(false);
     //this.slides.slideTo(slideIndex+1, 500, true);
-    this.slides.slideTo(slideIndex+1, 500, true);
+    //this.slides.slideTo(0, 500, true);
+    this.goNext();
+    this.pageTitle = this.slideList[this.slides.getActiveIndex()].display;
+    //this.slides.slideNext(500, true);
   }
 
   private selectConnected(slideIndex) {
@@ -170,10 +183,7 @@ export class ChooseItemModal {
   slideChanged() {
     let currentIndex = this.slides.getActiveIndex();
     console.log("Current index is", currentIndex);
-
-    if (this.slides.getActiveIndex()<2) return;
-
-    if(this.slides.getActiveIndex()>= 2) {
+    if(!this.optionsSelectShow) {
       this.pageTitle = this.slideList[this.slides.getActiveIndex()].display;
     }
   }
@@ -254,15 +264,17 @@ export class ChooseItemModal {
   }
 
   private getReferenceData() {
+    this.syncing = true;
     this.refService.equipmentTypesSubject
         .subscribe(res => {
           this.listReferences = res[[this.listType,"Types"].join("")];
-          if (this.itemType) {
+          if (!this.listReferences) return;
+          if (this.itemType){
             this.selectedType = this.itemType;
             this.slideList.push(this.listReferences.find(this.findItem, this.itemType).options);
           }else this.slideList.push(this.listReferences);
           this.firstSlide++;
-          this.slideList.push("");
+          this.syncing = false;
         }, err => {
           console.log(err);
         });
@@ -286,8 +298,7 @@ export class ChooseItemModal {
   doSave(){
     this.selectedItem.type = this.selectedType;
     this.viewCtrl.dismiss({
-      itemTemplate: this.selectedItem,
-      connectedBoard : this.connectedBoard
+      itemTemplate: this.selectedItem
     });
   }
 

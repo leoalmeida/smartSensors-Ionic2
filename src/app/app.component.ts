@@ -23,6 +23,8 @@ import { GraphPage } from '../pages/graph/graph';
 //import { Storage } from '@ionic/storage';
 
 
+import { ErrorNotifierService } from '../providers/error.notifier';
+
 @Component({
   templateUrl: 'app.html'
 })
@@ -31,7 +33,11 @@ export class MyApp {
 
   rootPage: any = LoginPage;
   userKey: any;
-  errorMessage: string;
+
+  errorMessage: any;
+  validationError: any;
+  numberOfLoading: number;
+  loader: any;
 
   pages: Array<{title: string, component: any}>;
   //private userProfile: Array<Object>;
@@ -44,9 +50,15 @@ export class MyApp {
               public user:User,
               public auth:Auth,
               public alertCtrl: AlertController,
+              private errorNotifier:ErrorNotifierService,
               public loadingCtrl:LoadingController,
               private nativeStorage: NativeStorage
   ){
+
+    this.errorNotifier.onError(err => {
+  	  this.errorMessage = err;
+  	  console.log(err);
+  	});
 
     this.initializeApp();
 
@@ -96,22 +108,17 @@ export class MyApp {
   }
 
   private identifyUser(page){
-    let loader = this.loadingCtrl.create({
-      content: "Conectando..."
-    });
-    loader.present();
     this.dataService.getStaticData(["data", "data.email", this.user.details.email], "owner")
           .then(value => {
             if (value.length === 0) {
-              loader.dismissAll();
               this.auth.logout();
               this.nav.setRoot(LoginPage);
             }else{
               this.userKey  = value[0]._id
-              loader.dismissAll();
+
               this.nav.setRoot(page, {"key": this.userKey})
             }
-          },error =>  this.errorMessage = <any>error);
+          });
   }
 
 
@@ -124,6 +131,33 @@ export class MyApp {
 		this.events.subscribe('user:logout', () => {
 			console.log('user:logout')
 		})
+
+    this.events.subscribe('unAuthorizedRequest', (err) => {
+      //if (!_.endsWith(err.url, '/token')) {
+        this.nav.setRoot(LoginPage);
+      //}
+    });
+
+    this.events.subscribe('showLoader', () => {
+      this.numberOfLoading = this.numberOfLoading + 1;
+      if(this.numberOfLoading === 1){
+        //this.loader = this.loadingCtrl.presentLoading();
+        this.loader  = this.loadingCtrl.create({
+          content: "Conectando..."
+        });
+        this.loader.present();
+      }
+    });
+
+    this.events.subscribe('hideLoader', () => {
+      if(this.numberOfLoading === 1){
+        this.loader.dismiss();
+        this.numberOfLoading = 0;
+      }
+      if(this.numberOfLoading > 0){
+        this.numberOfLoading = this.numberOfLoading - 1;
+      }
+    });
 	}
 
 

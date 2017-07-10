@@ -64,7 +64,7 @@ export class CreateKnowledgePage implements OnInit{
   };
 
   submitted = false;
-  connectedBoard: any = {};
+  //connectedBoard: any = {};
 
   selectComponentOpen: boolean;
   connectedParent: any = {};
@@ -92,7 +92,7 @@ export class CreateKnowledgePage implements OnInit{
     this.templateData = this.navParams.get('template');
     if (this.templateData) {
       this.templateType = this.templateData.type;
-      this.connectedBoard = this.navParams.get('connectedBoard');
+      //this.connectedBoard = this.navParams.get('connectedBoard');
     }else this.templateType = this.navParams.get('type');
     if (this.templateData) this.pageTitle = this.templateData.name;
     this.selectedItem = this.navParams.get('item');
@@ -108,7 +108,7 @@ export class CreateKnowledgePage implements OnInit{
       this.templateData.root = this.userKey;
       this.knowledge = new KnowledgeModel({template: this.templateData},this.fb);
       this.knowledge.pushRelation("formOwnedByArray", {"id": this.userKey});
-      this.knowledge.pushRelation("formConnectedToArray", this.connectedBoard);
+      //this.knowledge.pushRelation("formConnectedToArray", this.connectedBoard);
 
       //this.knowledgeForm = this.knowledge.fillTemplate();
       this.knowledgeForm = this.knowledge.getFormGroup();
@@ -238,18 +238,20 @@ export class CreateKnowledgePage implements OnInit{
 
   }
 
-  private selectComponent(ref) {
+  private selectComponent(ref, type) {
     let alert = this.alertCtrl.create();
-    alert.setTitle('Selecione componente');
-
+    alert.setTitle('Selecione: ');
     let i = 0;
     for (let comp of this.componentList)
-      alert.addInput({
-        type: 'radio',
-        label: comp.data.name,
-        value: comp._id,
-        checked: (i++)?false:true
-      });
+      if ((type !== 'equipment' && comp.type === type) ||
+          (type === 'equipment' &&
+              (comp.type === 'sensor' || comp.type === 'actuator' || comp.type === 'complex')))
+        alert.addInput({
+          type: 'radio',
+          label: comp.data.name,
+          value: comp._id,
+          checked: (i++)?false:true
+        });
     alert.addButton('Cancelar');
     alert.addButton({
       text: 'Continuar',

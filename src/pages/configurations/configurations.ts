@@ -54,14 +54,11 @@ export class ConfigurationsPage {
   }
 
   saveHost(){
-    if (this.connection && this.userKey)
-      this.dataService.changeConnection(this.connection);
-    else
-      this.nativeStorage.setItem('smartSensors.connection', this.connection)
-        .then(
-          () => console.log('Stored item!', this.connection),
-          error => console.error('Error storing item', error)
-        );
+    this.nativeStorage.setItem('smartSensors.connection', this.connection)
+      .then(
+        () => console.log('Stored item!', this.connection),
+        error => console.error('Error storing item', error)
+      );
   }
 
   setConfiguration(configItem){

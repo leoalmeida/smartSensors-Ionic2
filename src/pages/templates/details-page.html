@@ -24,9 +24,14 @@
   </ion-toolbar>
 </ion-header>
 <ion-content class="cards-bg">
-  <!--<ion-fab top right>
+  <!--<ion-fab top right *ngIf="!syncing">
     <button ion-fab mini (click)="showMap()"><ion-icon name="compass"></ion-icon></button>
   </ion-fab>-->
+  <ion-fab top right *ngIf="syncing">
+    <button ion-fab color="light" ion-fab mini class="fab-map spinner-container">
+    <ion-spinner></ion-spinner>
+    </button>
+  </ion-fab>
   <div [ngSwitch]="selectedSegment" *ngIf="data">
     <ion-card *ngSwitchCase="'basics'" class="adv-map">
       <ion-item>
@@ -41,7 +46,6 @@
         </p>
       </ion-item>
       <img [src]="data?.image" (click)="changeImage()">
-
         <ion-item>
           <ion-icon name="clock" item-left></ion-icon>
           <ion-label>
@@ -89,6 +93,11 @@
           <ion-select [(ngModel)]="data.unit" [disabled]="data?.connected">
             <ion-option *ngFor="let item of refData.UnitTypes" [value]="item.value">{{item.display}}</ion-option>
           </ion-select>
+        </ion-item>
+        <ion-item *ngIf="object.object==='Sensor'">
+          <ion-label padding color="primary" *ngIf="!data.digital">Digital</ion-label>
+          <ion-label padding color="primary" *ngIf="data.digital">Analógico</ion-label>
+          <ion-toggle [(ngModel)]="data.digital"></ion-toggle>
         </ion-item>
     </ion-card>
     <ion-card *ngSwitchCase="'configurations'">
@@ -206,7 +215,7 @@
           </button>
         </ion-list>
 
-        <button ion-item color="light" (click)="selectComponent()">
+        <button ion-item color="light" (click)="selectComponent('abstractions')">
           Abstrações
           <ion-icon name="add-circle" item-right ></ion-icon>
         </button>
@@ -222,19 +231,19 @@
               <ion-icon name="chevron-right" item-right></ion-icon>
             </button>
             <ion-item-options side="left">
-              <button ion-button  icon-only color="danger"  (click)="removeParent(item._id)">
+              <button ion-button  icon-only color="danger"  (click)="removeAbstraction(item._id)">
                 <ion-icon name="trash"></ion-icon>
               </button>
             </ion-item-options>
           </ion-item-sliding>
         </ion-list>
 
-        <button ion-item color="light" (click)="selectComponent()">
-          Componentes
+        <button ion-item color="light" (click)="selectComponent('elements')">
+          Elementos
           <ion-icon name="add-circle" item-right ></ion-icon>
         </button>
-        <ion-list *ngIf="components">
-          <ion-item-sliding [animateItemSliding]="shouldAnimate" *ngFor="let item of components" #associationItem>
+        <ion-list *ngIf="elements">
+          <ion-item-sliding [animateItemSliding]="shouldAnimate" *ngFor="let item of elements" #associationItem>
             <button ion-item (click)="itemTapped($event, item)">
               <ion-avatar item-left>
                 <img [src]="(item.data.icon)?item.data.icon:imgdef">
@@ -245,15 +254,38 @@
               <ion-icon name="chevron-right" item-right></ion-icon>
             </button>
             <ion-item-options side="left">
-              <button ion-button  icon-only color="danger"  (click)="removeComponent(item._id)">
+              <button ion-button  icon-only color="danger"  (click)="removeElement(item._id)">
                 <ion-icon name="trash"></ion-icon>
               </button>
             </ion-item-options>
           </ion-item-sliding>
         </ion-list>
 
-        <button ion-item color="light" (click)="selectComponent()">
+        <button ion-item color="light" (click)="selectComponent('connectedTo')">
           Associações
+          <ion-icon name="add-circle" item-right ></ion-icon>
+        </button>
+        <ion-list *ngIf="knowledges">
+          <ion-item-sliding [animateItemSliding]="shouldAnimate" *ngFor="let item of knowledges" #associationItem>
+            <button ion-item (click)="itemTapped($event, item)">
+              <ion-avatar item-left>
+                <img [src]="(item.data.icon)?item.data.icon:imgdef">
+              </ion-avatar>
+              <h2>{{item.data.name}}</h2>
+              <h3><em>{{item.type}}</em></h3>
+              <p>{{item.category}}</p>
+              <ion-icon name="chevron-right" item-right></ion-icon>
+            </button>
+            <ion-item-options side="left">
+              <button ion-button  icon-only color="danger"  (click)="removeAssociation('connectedTo', item._id)">
+                <ion-icon name="trash"></ion-icon>
+              </button>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ion-list>
+
+        <button ion-item color="light" (click)="selectComponent('likedTo')">
+          Likes
           <ion-icon name="add-circle" item-right ></ion-icon>
         </button>
         <ion-list *ngIf="knowledges">

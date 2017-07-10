@@ -1,8 +1,12 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
+import { HttpModule, Http,
+  XHRBackend, RequestOptions } from '@angular/http';
 import { ErrorHandler, NgModule } from '@angular/core';
-import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
+import { Events,IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
+
+import { CloudSettings, CloudModule, Auth, User } from '@ionic/cloud-angular';
+//Pages
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -29,8 +33,15 @@ import { ItemPopOverPage } from '../pages/topic-designer/item-popover';
 import { TopicDesignerPage } from '../pages/topic-designer/topic-designer';
 import { TopicPage } from '../pages/topic/topic';
 import { ConfigurationsPage } from '../pages/configurations/configurations';
-
+import { RelationModalPage } from '../pages/modals/relation-item-modal';
+import { RuleModalPage } from '../pages/modals/rule-item-modal';
 //import { StatusComponent } from '../pages/status/status.component';
+
+
+//Providers
+import { ErrorNotifierService } from '../providers/error.notifier';
+import { CustomHttp } from '../providers/custom.http';
+import { AppRequestOptions, WEBAPI_URL_TOKEN } from '../providers/app.request.options';
 
 import { DataService } from '../providers/apiData.service';
 import { FollowersService } from '../providers/followers.service';
@@ -42,12 +53,15 @@ import { ReferenceService } from '../providers/reference.service';
 import { WebSocketService } from '../providers/websocket.service';
 import { TopicService } from '../providers/topic.service';
 
+//Pipes
+
 import { ReversePipe } from '../pipes/reverse.pipe'
 import { DerpPipe } from '../pipes/derp.filter'
 import { AssociationFilterPipe } from '../pipes/association.filter'
 
 import { AnimateItemSliding } from '../directives/animate-item-sliding'
 
+// Cordova
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -69,10 +83,6 @@ import { BackgroundGeolocation } from '@ionic-native/background-geolocation';
 import { Geolocation } from '@ionic-native/geolocation';
 import { NativeStorage } from '@ionic-native/native-storage';
 
-import { CloudSettings, CloudModule } from '@ionic/cloud-angular';
-
-import { RelationModalPage } from '../pages/modals/relation-item-modal';
-import { RuleModalPage } from '../pages/modals/rule-item-modal';
 
 //import { SpeechRecognition } from '@ionic-native/speech-recognition';
 
@@ -188,7 +198,23 @@ const cloudSettings: CloudSettings = {
     WebSocketService,
     TopicService,
     //SpeechRecognition,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    ErrorNotifierService,
+    {
+      provide: Http,
+      useFactory: ( backend: XHRBackend,
+                    defaultOptions: RequestOptions,
+                    errorNotifier: ErrorNotifierService,
+                    auth: Auth,
+                    events: Events) => {
+        return new CustomHttp(backend, defaultOptions, errorNotifier, auth, events);
+      },
+      deps: [ XHRBackend, RequestOptions, ErrorNotifierService, Auth, Events ]
+    },
+    {
+      provide: WEBAPI_URL_TOKEN, useValue: 'http://localhost:3001/'
+    },
+    {provide: ErrorHandler, useClass: IonicErrorHandler},
+    {provide: RequestOptions, useClass: AppRequestOptions}
   ]
 })
 export class AppModule {}
