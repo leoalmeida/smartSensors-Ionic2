@@ -158,7 +158,7 @@ export class GeofenceDetailsPage implements OnInit {
       this.layerControl.addOverlay(this.equipLayer, "Equipamentos");
     }
 
-    this.dataService.getData<EquipmentModel>(["loc", this.locationTracker.latLng.lat, this.locationTracker.latLng.lng, this.locationTracker.radius],null)
+    this.dataService.getData<EquipmentModel>(["loc", this.locationTracker.latLng.lat, this.locationTracker.latLng.lng, this.locationTracker.radius].join("/"),null)
       .subscribe((equipments: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => {
         this.equipments = equipments;
         this.equipLayer.clearLayers();

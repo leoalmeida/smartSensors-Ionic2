@@ -79,7 +79,7 @@ export class AccessoryPage implements OnInit {
         .distinctUntilChanged()   // ignore if next search term is same as previous
         .switchMap(term => term   // switch to new observable each time the term changes
           // return the http search observable
-          ? this.dataService.getData(["object", "actuator" , this.userKey])
+          ? this.dataService.getData(["eq", "object", "actuator" , this.userKey])
           // or the observable of empty heroes if there was no search term
           : Observable.of<any[]>([]))
         .catch(error => {
@@ -87,7 +87,7 @@ export class AccessoryPage implements OnInit {
           console.log(error);
           return Observable.of<any[]>([]);
         });*/
-    this.dataService.getData<EquipmentModel>(["actuator" , "ownedBy", this.userKey], null)
+    this.dataService.getData<EquipmentModel>(["eq", "actuator", "ownedBy", this.userKey].join("/"), null)
                      .subscribe(
                        (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.objects = data,
                        error =>  this.errorMessage = <any>error);

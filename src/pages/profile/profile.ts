@@ -32,10 +32,10 @@ export class ProfilePage {
   }
 
   ngOnInit() {
-    this.dataService.getOne<ProfileModel>([ this.userKey]).subscribe((data: KnowledgeInterface<ProfileModel, AssociationModel>) => {
+    this.dataService.getOne<ProfileModel>(this.userKey).subscribe((data: KnowledgeInterface<ProfileModel, AssociationModel>) => {
       this.profile = data;
     });
-    this.dataService.getData<ProfileModel>(["subscribedBy", this.userKey],null).subscribe((data: KnowledgeInterface<ProfileModel, AssociationModel>[]) => {
+    this.dataService.getData<ProfileModel>(["eq", "subscribedBy", this.userKey].join("/"),null).subscribe((data: KnowledgeInterface<ProfileModel, AssociationModel>[]) => {
       for (let follow of data){
         this.followings.push(follow);
       }

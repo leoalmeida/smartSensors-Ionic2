@@ -123,14 +123,14 @@ export class CreateKnowledgePage implements OnInit{
   }
 
   private getComplexList(){
-    this.dataService.getData<EquipmentModel>(["complex" , "ownedBy", this.userKey], null)
+    this.dataService.getData<EquipmentModel>(["eq","complex" , "ownedBy", this.userKey].join("/"), null)
       .subscribe(
         (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.complexCompList = data,
         error =>  this.errorMessage = <any>error);
   }
 
   private setKnowledgeForm() {
-      this.dataService.getOne([this.selectedItem])
+      this.dataService.getOne<EquipmentModel>(this.selectedItem)
                        .subscribe(result => {
                          this.knowledge = new KnowledgeModel(result, this.fb);
                          this.knowledgeForm = this.knowledge.getFormGroup();
@@ -269,7 +269,7 @@ export class CreateKnowledgePage implements OnInit{
   }
 
   private getEquipmentList(){
-    this.dataService.getData<EquipmentModel>(["ownedBy", this.userKey], null)
+    this.dataService.getData<EquipmentModel>(["eq","eq","ownedBy", this.userKey].join("/"), null)
       .subscribe(
         (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.componentList = data,
         error =>  this.errorMessage = <any>error);
@@ -304,13 +304,13 @@ export class CreateKnowledgePage implements OnInit{
     });
   }
 
-  openModal(type, ref) {
-    let modal = this.modalCtrl.create(ModalContentPage);
+  openModal(ref, item, index) {
+    let modal = this.modalCtrl.create(ModalContentPage, { item: item, index: index, ref: ref });
     modal.present();
     modal.onWillDismiss((data: any) => {
       if (data) {
         console.log('MODAL DATA', data);
-        if (type==='add') this.knowledge[ref].push(data.item);
+        this.knowledge[ref].push(data.item);
         //else this.values[ref + data.item.name] = data.item;
       }
     });

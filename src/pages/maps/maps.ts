@@ -133,7 +133,7 @@ export class MapsPage implements OnInit{
     for (let layer of Object.keys(this.equipLayers)) this.equipLayers[layer].clearLayers();
 
     //this.dataService.getData<EquipmentModel>(["loc", this.locationTracker.latLng.lat, this.locationTracker.latLng.lng, this.locationTracker.radius],null)
-    this.dataService.getData<EquipmentModel>(parameters, null)
+    this.dataService.getData<EquipmentModel>(parameters.join("/"), null)
           .subscribe((equipments: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => {
             this.equipments = equipments;
             let connected = "red";

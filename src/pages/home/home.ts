@@ -118,7 +118,7 @@ export class HomePage implements OnDestroy {
 
                   if (this.lastSync) query = [ this.op, this.lastSync ];
 
-                  this.dataService.getData( [ "subscribedBy", this.userKey ], query )
+                  this.dataService.getData( ["eq", "subscribedBy", this.userKey ].join("/"), query )
                     .subscribe ( newSubs => {
                       //config.subscribe = ["591eea676a040fc9091938d2", "58f3ac46866064c6189ec943","58f3ac46866064c6189ec927"];
                       if (!this.channels) this.channels = [];
@@ -261,7 +261,7 @@ export class HomePage implements OnDestroy {
   }*/
 
   selectUserChannels() {
-    /*this.dataService.getData(["channel","user", this.userKey])
+    /*this.dataService.getData(["eq", "channel","user", this.userKey])
       .subscribe(this.on_channel);
                        //console.log(JSON.stringify(data));
                        for (let chan of data){
@@ -282,7 +282,7 @@ export class HomePage implements OnDestroy {
   }*/
 
   selectObjects(channelId) {
-    this.dataService.getData([channelId],null)
+    this.dataService.getData([channelId].join("/"),null)
             .subscribe(model => {
               this.channels.push(new KnowledgeModel(model));
             });

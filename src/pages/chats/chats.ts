@@ -100,11 +100,11 @@ export class ChatsPage {
     this.objectLastMsgs = {};
     this.myChannels.objects = [];
     this.storeChannels.objects = [];
-    this.dataService.getData<KnowledgeInterface<ChannelModel, AssociationModel>>( [ "channels", "connected" ],null)
+    this.dataService.getData<KnowledgeInterface<ChannelModel, AssociationModel>>( [ "channels", "connected" ].join("/"),null)
       .subscribe ( newChannels => {
         for (let chan of newChannels){
           this.myChannels.objects.push(chan);
-          this.dataService.getData<ProfileModel>( [ "subscriberAt", chan._id ],null)
+          this.dataService.getData<ProfileModel>( ["eq", "subscriberAt", chan._id ].join("/"),null)
             .subscribe ( subscribers => {
               let index = this.listSubscriptions.push(new SyncObjectModel<KnowledgeInterface<ProfileModel, AssociationModel>>());
               this.listSubscriptions[index-1].objects = subscribers;
@@ -129,7 +129,7 @@ export class ChatsPage {
         }
       });
 
-    this.dataService.getData<ChannelModel>( [ "channels", "disconnected"],null)
+    this.dataService.getData<ChannelModel>( [ "channels", "disconnected"].join("/"),null)
       .subscribe ( storeChannels => {
         this.storeChannels.objects = storeChannels;
       });

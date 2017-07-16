@@ -59,7 +59,7 @@ export class TopicPage {
 
   getObjects() {
     this.syncing = true;
-    this.dataService.getData(["topic" , "ownedBy", this.userKey],null)
+    this.dataService.getData(["eq", "topic" , "ownedBy", this.userKey].join("/"),null)
       .subscribe(
         data => {
           this.objects = data;

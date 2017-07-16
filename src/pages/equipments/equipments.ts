@@ -62,7 +62,7 @@ export class EquipmentsPage  implements OnInit {
 
   getEquipments() {
     this.syncing = true;
-    this.dataService.getData<EquipmentModel>(["ownedBy", this.userKey],null)
+    this.dataService.getData<EquipmentModel>(["eq","ownedBy", this.userKey].join("/"),null)
                      .subscribe(
                        data => {
                          this.objects = data;
@@ -161,10 +161,6 @@ export class EquipmentsPage  implements OnInit {
               console.log("item removido com sucesso: ", res)
               this.ngOnInit();
             });
-  }
-
-  editItem(event, item){
-
   }
 
   showMap() {

@@ -232,7 +232,7 @@ var CreateKnowledgePage = (function () {
     };
     CreateKnowledgePage.prototype.openModal = function (type, ref) {
         var _this = this;
-        var modal = this.modalCtrl.create(ModalContentPage);
+        var modal = this.modalCtrl.create(ModalContentPage, { item: item, index: index, ref: ref });
         modal.present();
         modal.onWillDismiss(function (data) {
             if (data) {

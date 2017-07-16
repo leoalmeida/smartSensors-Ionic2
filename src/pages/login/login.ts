@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, LoadingController } from 'ionic-angular';
+import { Events, NavParams, Platform, NavController, AlertController, LoadingController } from 'ionic-angular';
 import { Auth, FacebookAuth, User, UserDetails, IDetailedError } from '@ionic/cloud-angular';
 import { HomePage } from '../home/home';
+import { ConfigurationsPage } from '../configurations/configurations';
+import { RealTimePage } from '../realtimeobjects/realtime';
+import { EquipmentsPage } from '../equipments/equipments';
 import { GraphPage } from '../graph/graph';
 
 import { DataService } from '../../providers/apiData.service';
-
-import { ConfigurationsPage } from '../configurations/configurations';
 
 @Component({
   selector: 'page-login',
@@ -23,23 +24,26 @@ export class LoginPage {
   resetCode:number = 0;
   newPassword:string = '';
   pageTitle:string = "Login";
+  private loader: any;
+  private home: string = "";
 
-  constructor(public navCtrl: NavController,
+  constructor(public platform: Platform,
+              public navCtrl: NavController,
+              public navParams: NavParams,
               public auth:Auth,
               public facebookAuth: FacebookAuth,
               public user: User,
+              public events: Events,
               public alertCtrl: AlertController,
               public dataService:DataService,
-              public loadingCtrl:LoadingController) {}
+              public loadingCtrl:LoadingController) {
+                this.home = navParams.get("home");
+              }
 
   ionViewDidLoad() {
     //console.log('LoginPage Page');
   }
 
-  /*
-  for both of these, if the right form is showing, process the form,
-  otherwise show it
-  */
   doLogin() {
     if(this.showLogin) {
       console.log('process login');
@@ -54,19 +58,16 @@ export class LoginPage {
         return;
       }
 
-      let loader = this.loadingCtrl.create({
+      this.loader = this.loadingCtrl.create({
         content: "Conectando..."
       });
-      loader.present();
+      this.loader.present();
 
       this.auth.login('basic', {'email':this.email, 'password':this.password}).then((userProfile) => {
         console.log('Conectado: ', userProfile);
-
-        this.navCtrl.setRoot(HomePage);
-        loader.dismissAll();
-
+        this.identifyUser();
       }, (err) => {
-        loader.dismissAll();
+        this.loader.dismissAll();
         console.log(err.message);
 
         let errors = '';
@@ -90,13 +91,24 @@ export class LoginPage {
     }
   }
 
-
-  goGraph(){
-    this.navCtrl.setRoot(GraphPage);
+  private identifyUser(){
+    this.dataService.getStaticData(["data", "data.email", this.user.details.email], "owner")
+         .then(value => {
+           if (value.length === 0) {
+             this.user.set('key', '');
+             this.auth.logout();
+           }else{
+             this.user.set('key', value[0]._id);
+             //this.navCtrl.setRoot(HomePage, {"key": value[0]._id});
+             this.openHome(this.user.details.email);
+           }
+           this.user.save();
+           if (this.loader) this.loader.dismissAll();
+         });
   }
 
-  goConfigurations(){
-    this.navCtrl.push(ConfigurationsPage);
+  goGraph(){
+    this.navCtrl.push(GraphPage);
   }
 
   doRegister() {
@@ -119,20 +131,20 @@ export class LoginPage {
       let details: UserDetails = {'email':this.email, 'password':this.password, 'name':this.name};
       console.log(details);
 
-      let loader = this.loadingCtrl.create({
+      this.loader = this.loadingCtrl.create({
         content: "Registrando sua conta..."
       });
-      loader.present();
+      this.loader.present();
 
       this.auth.signup(details).then(() => {
         console.log('ok signup');
         this.auth.login('basic', {'email':details.email, 'password':details.password}).then(() => {
-          loader.dismissAll();
-          this.navCtrl.setRoot(HomePage);
+          this.loader.dismissAll();
+          this.openHome(details.email);
         });
 
       }, (err:IDetailedError<string[]>) => {
-        loader.dismissAll();
+        this.loader.dismissAll();
         let errors = '';
         for(let e of err.details) {
           console.log(e);
@@ -173,10 +185,10 @@ export class LoginPage {
 
       console.log(this.email);
 
-      let loader = this.loadingCtrl.create({
+      this.loader = this.loadingCtrl.create({
         content: "Enviando código de acesso para seu email..."
       });
-      loader.present();
+      this.loader.present();
 
       this.auth.requestPasswordReset(this.email).then(() => {
         this.showLogin = false;
@@ -184,7 +196,7 @@ export class LoginPage {
         this.showVerifyCode = true;
         this.showForgotten = false;
         this.pageTitle = "Alterar senha";
-        loader.dismissAll();
+        this.loader.dismissAll();
       });
     }else{
       this.showLogin = true;
@@ -209,17 +221,17 @@ export class LoginPage {
 
       console.log(this.resetCode, this.newPassword);
 
-      let loader = this.loadingCtrl.create({
+      this.loader = this.loadingCtrl.create({
         content: "Verificando seu código..."
       });
-      loader.present();
+      this.loader.present();
 
       this.auth.confirmPasswordReset(this.resetCode, this.newPassword).then(() => {
         this.showLogin = true;
         this.showRegister = false;
         this.showVerifyCode = false;
         this.showForgotten = false;
-        loader.dismissAll();
+        this.loader.dismissAll();
       });
     }
   }
@@ -232,16 +244,24 @@ export class LoginPage {
 
   doFbLogin(){
 
-    let loader = this.loadingCtrl.create({
+    this.loader = this.loadingCtrl.create({
       content: "Conectando..."
     });
-    loader.present();
+    this.loader.present();
 
     this.facebookAuth.login()
         .then((response) => {
           //now we have the users info, let's save it in the NativeStorage
-          loader.dismissAll();
+          this.loader.dismissAll();
         });
+  }
+
+  openHome(user){
+    this.events.publish('user:login', user, Date.now());
+    if (this.home === "HomePage") this.navCtrl.setRoot(HomePage, {"key": this.user.get('key','')});
+    else if (this.home === "RealTimePage") this.navCtrl.setRoot(RealTimePage, {"key": this.user.get('key','')});
+    else if (this.home === "EquipmentsPage") this.navCtrl.setRoot(EquipmentsPage, {"key": this.user.get('key','')});
+    else this.navCtrl.setRoot(ConfigurationsPage, {"key": this.user.get('key','')});
   }
 
   doGoBack(){

@@ -9,17 +9,19 @@ export enum TransportState {
   DESCONECTADO,
   CONECTANDO,
   CONECTADO,
+  REGISTRANDO,
   REGISTRADO,
   DESCONECTANDO
 }
 
-export enum TransportStateColor {
-  dark,
-  primary,
-  secondary,
-  warning,
-  danger
-}
+export const TransportStateColor = [
+  "dark",
+  "primary",
+  "secondary",
+  "warning",
+  "warning",
+  "danger"
+]
 
 /* Interface which MQ Transports must implement */
 export abstract class TransportService {
@@ -52,5 +54,7 @@ export abstract class TransportService {
   abstract publish(topic: string ,message?: string): void;
 
   /** Subscribe to server message queues */
-  abstract subscribe(): void;
+  abstract subscribeAll(): void;
+  abstract subscribe(topic: string): void;
+  abstract unsubscribe(topic: string): void;
 }

@@ -2,8 +2,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpModule, Http,
   XHRBackend, RequestOptions } from '@angular/http';
-import { ErrorHandler, NgModule } from '@angular/core';
-import { Events,IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
+import { ErrorHandler, NgModule, Injector } from '@angular/core';
+import { Events, Platform, IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
 import { CloudSettings, CloudModule, Auth, User } from '@ionic/cloud-angular';
 //Pages
@@ -35,13 +35,16 @@ import { TopicPage } from '../pages/topic/topic';
 import { ConfigurationsPage } from '../pages/configurations/configurations';
 import { RelationModalPage } from '../pages/modals/relation-item-modal';
 import { RuleModalPage } from '../pages/modals/rule-item-modal';
-//import { StatusComponent } from '../pages/status/status.component';
+import { RealTimePage } from '../pages/realtimeobjects/realtime';
+import { RealTimeDetailPage } from '../pages/realtimeobjects/realtime-detail';
+import { StatusComponent } from '../pages/status/status.component';
 
+import { PlotlyComponent } from '../pages/plotly/plotly.component';
 
 //Providers
 import { ErrorNotifierService } from '../providers/error.notifier';
-import { CustomHttp } from '../providers/custom.http';
-import { AppRequestOptions, WEBAPI_URL_TOKEN } from '../providers/app.request.options';
+import { NetworkNotifierService } from '../providers/network.notifier';
+import { CustomHttp, WEBAPI_URL_TOKEN, WSAPI_URL_TOKEN} from '../providers/custom.http';
 
 import { DataService } from '../providers/apiData.service';
 import { FollowersService } from '../providers/followers.service';
@@ -52,6 +55,7 @@ import { LocationTracker } from '../providers/location-tracker';
 import { ReferenceService } from '../providers/reference.service';
 import { WebSocketService } from '../providers/websocket.service';
 import { TopicService } from '../providers/topic.service';
+import { ConnectionService } from '../providers/connection.service';
 
 //Pipes
 
@@ -82,7 +86,7 @@ import { Geofence } from '@ionic-native/geofence';
 import { BackgroundGeolocation } from '@ionic-native/background-geolocation';
 import { Geolocation } from '@ionic-native/geolocation';
 import { NativeStorage } from '@ionic-native/native-storage';
-
+import { Network } from '@ionic-native/network';
 
 //import { SpeechRecognition } from '@ionic-native/speech-recognition';
 
@@ -125,11 +129,15 @@ const cloudSettings: CloudSettings = {
     RelationModalPage,
     RuleModalPage,
     ConfigurationsPage,
+    RealTimePage,
+    RealTimeDetailPage,
     ShowMapModal,
     AssociationFilterPipe,
     ReversePipe,
     DerpPipe,
-    AnimateItemSliding
+    AnimateItemSliding,
+    StatusComponent,
+    PlotlyComponent
   ],
   imports: [
     BrowserModule,
@@ -168,7 +176,9 @@ const cloudSettings: CloudSettings = {
     TopicDesignerPage,
     RelationModalPage,
     RuleModalPage,
-    ConfigurationsPage
+    ConfigurationsPage,
+    RealTimePage,
+    RealTimeDetailPage
   ],
   providers: [
     StatusBar,
@@ -187,6 +197,7 @@ const cloudSettings: CloudSettings = {
     Dialogs,
     InAppBrowser,
     NativeStorage,
+    Network,
     Geolocation,
     BackgroundGeolocation,
     NativeGeocoder,
@@ -199,22 +210,31 @@ const cloudSettings: CloudSettings = {
     TopicService,
     //SpeechRecognition,
     ErrorNotifierService,
+    NetworkNotifierService,
+    ConnectionService,
     {
       provide: Http,
       useFactory: ( backend: XHRBackend,
                     defaultOptions: RequestOptions,
                     errorNotifier: ErrorNotifierService,
-                    auth: Auth,
-                    events: Events) => {
-        return new CustomHttp(backend, defaultOptions, errorNotifier, auth, events);
+                    network: NetworkNotifierService,
+                    geolocation:Geolocation,
+                    user:User,
+                    auth:Auth,
+                    events: Events,
+                    platform: Platform,
+                    nativeStorage: NativeStorage) => {
+        return new CustomHttp(backend, defaultOptions, errorNotifier, network, geolocation, user, auth, events, platform, nativeStorage);
       },
-      deps: [ XHRBackend, RequestOptions, ErrorNotifierService, Auth, Events ]
+      deps: [ XHRBackend, RequestOptions, ErrorNotifierService, NetworkNotifierService, Geolocation, User, Auth, Events, Platform, NativeStorage ]
     },
     {
-      provide: WEBAPI_URL_TOKEN, useValue: 'http://localhost:3001/'
+      provide: WEBAPI_URL_TOKEN, useValue: 'http://191.168.0.5:3001/'
     },
-    {provide: ErrorHandler, useClass: IonicErrorHandler},
-    {provide: RequestOptions, useClass: AppRequestOptions}
+    {
+      provide: WSAPI_URL_TOKEN, useValue: 'ws://191.168.0.5:3005/'
+    },
+    {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
 export class AppModule {}

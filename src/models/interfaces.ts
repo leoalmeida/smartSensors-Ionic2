@@ -35,9 +35,11 @@ export interface ConnectionModel {
   host: string
 }
 export interface AttributeModel {
-  attribute: string;
+  name: string;
   type: string;
   value:  any;
+  min?:  number;
+  max?:  number;
 }
 export interface ActionModel{
   enabled : boolean;

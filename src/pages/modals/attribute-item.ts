@@ -13,9 +13,15 @@ export class ModalContentPage {
   ref: string;
 
   constructor(
-    params: NavParams,
+    navParams: NavParams,
     private viewCtrl: ViewController
-  ) {}
+  ) {
+    this.item = navParams.get('item');
+    if (!this.item)
+      this.item = new AttributeModel();
+    this.index = navParams.get('index');
+    this.ref = navParams.get('ref');
+  }
 
   doSave(){
     this.viewCtrl.dismiss({

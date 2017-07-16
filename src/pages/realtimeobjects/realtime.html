@@ -1,0 +1,217 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>RealTime</ion-title>
+    <ion-buttons end>
+     <button ion-button icon-only (click)="showMap()">
+       <ion-icon name="compass"></ion-icon>
+     </button>
+   </ion-buttons>
+  </ion-navbar>
+  <ion-toolbar no-border-top>
+    <ion-segment [(ngModel)]="channels">
+      <ion-segment-button value="myChannels">
+        Meus Canais
+      </ion-segment-button>
+      <ion-segment-button value="channelStore">
+        Prateleira
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-fab right top *ngIf="!syncing && !searching">
+    <app-mq-status></app-mq-status>
+  </ion-fab>
+  <ion-fab right top edge *ngIf="syncing || searching">
+    <button ion-fab color="light" ion-fab mini class="fab-map spinner-container">
+    <ion-spinner></ion-spinner>
+    </button>
+  </ion-fab>
+  <div [ngSwitch]="channels">
+    <!--<span *ngSwitchCase="'virtual'"  class="cards-bg" >
+      <ion-list [virtualScroll]="storeChannels.objects" [approxItemHeight]="'500px'" [bufferRatio]="3.1">
+        <ion-card class="adv-map" *virtualItem="let item">
+          <div *ngIf="objectLastMsgs[item._id]" style="position: relative">
+            <ion-img [src]='item.data.image'></ion-img>
+            <ion-fab right bottom edge (click)="unsubscribe(item)">
+              <button ion-fab mini color="danger"  class="fab-map">
+                <ion-icon name="log-out"></ion-icon>
+              </button>
+            </ion-fab>
+          </div>
+          <ion-list *ngIf="objectLastMsgs[item._id]" (click)="openDetail($event, item )">
+            <ion-item-divider icon-right>
+              <h2>{{item.data.label}}
+                <ion-note *ngIf="objectLastMsgs[item._id].objects.length">{{objectLastMsgs[item._id].objects.length}} novos comentários</ion-note>
+                <ion-note *ngIf="!objectLastMsgs[item._id].objects.length">Sem comentários novos</ion-note>
+              </h2>
+              <h3>{{item.data.description}}</h3>
+              <button color="dark" ion-button icon-right item-right clear small>
+                <span>{{item.relations.subscribedBy.length}}</span>
+                <ion-icon name="eye" ></ion-icon>
+              </button>
+            </ion-item-divider>
+            <ion-item *ngFor="let msg of objectLastMsgs[item._id].objects; let m = index; trackBy: trackBySync">
+              <ion-avatar *ngIf="msg.data.profile != userKey" item-left>
+                <img [src]="listSubscriptions[item._id].items[msg.data?.profile]?.data.icon"/>
+              </ion-avatar>
+              <ion-note *ngIf="msg.data.profile == userKey" item-left>{{changed(msg.sync)}}</ion-note>
+              <h2 [align]="(msg.data.profile == userKey)?'right':'left'">{{msg.data.message}}</h2>
+              <p [align]="(msg.data.profile == userKey)?'right':'left'">{{listSubscriptions[item._id].items[msg.data?.profile]?.data.name}}</p>
+              <ion-note *ngIf="msg.data.profile != userKey" item-right>{{changed(msg.sync)}}</ion-note>
+              <ion-avatar *ngIf="msg.data.profile == userKey" item-right>
+                <img [src]="listSubscriptions[item._id].items[msg.data?.profile]?.data.icon"/>
+              </ion-avatar>
+            </ion-item>
+          </ion-list>
+          <ion-item *ngIf="objectLastMsgs[item._id]">
+            <ion-grid no-padding class="advanced-bottom">
+              <ion-row>
+                <ion-col>
+                  <button *ngIf="item.relations.likedBy" class="no-margin likes" ion-button full icon-left clear (click)="likeit(item._id)">
+                    <ion-icon name="thumbs-up"></ion-icon>
+                    <div> {{item.relations.likedBy.length}}</div>
+                  </button>
+                </ion-col>
+                <ion-col >
+                  <button *ngIf="item.relations.commentedBy" class="no-margin messages" disabled ion-button full icon-left clear color="secondary">
+                    <ion-icon name="text" class="shadow"></ion-icon>
+                    <div>{{item.relations.commentedBy.length}}</div>
+                  </button>
+                </ion-col>
+                <ion-col>
+                  <ion-note item-right>{{changed(item.sync)}}</ion-note>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-item>
+        </ion-card>
+      </ion-list>
+    </span>-->
+    <ion-list *ngSwitchCase="'myChannels'"  class="cards-bg" >
+      <form #formRule="ngForm">
+        <ion-searchbar
+          animated="true"
+          [(ngModel)]="myChannelSearchTerm"
+          [formControl]="myChannelSearchControl"
+          (ionInput)="onSearchInput()">
+        </ion-searchbar>
+        <!--<ion-item *ngIf="PlotlyData">
+            <plotlychart
+                  [data]="PlotlyData"
+                  [layout]="PlotlyLayout"
+                  [options]="PlotlyOptions"
+                  [displayRawData]="true">
+            </plotlychart>
+        </ion-item>-->
+        <ion-card class="adv-map" *ngFor="let item of myFilteredChannels; let idx = index; trackBy: trackBySync" [attr.data-index]="idx">
+          <div style="position: relative">
+            <img [src]='item.data.image'>
+            <ion-fab right bottom edge (click)="unsubscribe(item)">
+              <button ion-fab mini color="danger"  class="fab-map">
+                <ion-icon name="log-out"></ion-icon>
+              </button>
+            </ion-fab>
+          </div>
+          <ion-list *ngIf="lastmsg[item._id]">
+            <ion-item-divider icon-right [ngClass]="colors[item.category]">
+              <h2>{{item.data.label}}
+                <ion-note *ngIf="channelMsgList[item._id].length">{{channelMsgList[item._id].length}} atualizações</ion-note>
+                <ion-note *ngIf="!channelMsgList[item._id].length">Sem atualizações</ion-note>
+              </h2>
+              <h3>{{item.data.description}}</h3>
+              <button color="dark" ion-button icon-right item-right clear small>
+                <span>{{item.relations.subscribedBy.length}}</span>
+                <ion-icon name="eye" ></ion-icon>
+              </button>
+            </ion-item-divider>
+            <!--<ion-item *ngFor="let msg of objectLastMsgs[item._id].objects; let m = index; trackBy: trackBySync" (click)="openDetail($event, item )">-->
+            <ion-item *ngIf="lastmsg[item._id].message" (click)="openDetail($event, item )">
+              <ion-avatar *ngIf="listSubscriptions[item._id]" item-left>
+                <img [src]="listSubscriptions[item._id].items[lastmsg[item._id].profile]?.data.icon"/>
+              </ion-avatar>
+              <ion-note item-left>{{changed(lastmsg[item._id].sync)}}</ion-note>
+              <h2 align="left">{{lastmsg[item._id].message}}</h2>
+              <p *ngIf="listSubscriptions[item._id]" align="left">{{listSubscriptions[item._id].items[lastmsg[item._id].profile]?.data.name}}</p>
+            </ion-item>
+          </ion-list>
+          <ion-item>
+            <ion-grid no-padding class="advanced-bottom">
+              <ion-row>
+                <ion-col>
+                  <button *ngIf="item.relations.likedBy" class="no-margin likes" ion-button full icon-left clear (click)="likeit(item._id)">
+                    <ion-icon name="thumbs-up"></ion-icon>
+                    <div> {{item.relations.likedBy.length}}</div>
+                  </button>
+                </ion-col>
+                <ion-col >
+                  <button *ngIf="item.relations.commentedBy" class="no-margin messages" disabled ion-button full icon-left clear color="secondary">
+                    <ion-icon name="text" class="shadow"></ion-icon>
+                    <div>{{item.relations.commentedBy.length}}</div>
+                  </button>
+                </ion-col>
+                <ion-col>
+                  <ion-note item-right>{{changed(item.sync)}}</ion-note>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-item>
+        </ion-card>
+      </form>
+    </ion-list>
+    <ion-list *ngSwitchCase="'channelStore'"  class="cards-bg">
+      <form #formRule="ngForm">
+        <ion-searchbar
+          animated="true"
+          [(ngModel)]="storeSearchTerm"
+          [formControl]="storeSearchControl"
+          (ionInput)="onSearchInput()">
+        </ion-searchbar>
+        <ion-card class="adv-map" *ngFor="let item of filteredStoreChannels; let idx = index; trackBy: trackBySync" [attr.data-index]="idx">
+          <ion-item-divider [ngClass]="colors[item.category]" icon-right>
+            <ion-avatar item-left>
+              <img [src]="item.data.icon">
+            </ion-avatar>
+            <h2>{{item.data.label}}</h2>
+            <p>{{item.data.description}}</p>
+            <button color="dark" ion-button icon-right item-right clear small>
+              <span>{{item.relations.subscribedBy.length}}</span>
+              <ion-icon name="eye" ></ion-icon>
+            </button>
+          </ion-item-divider>
+          <div style="position: relative">
+            <ion-fab right bottom edge (click)="subscribe(item)">
+              <button ion-fab mini  color="primary"  class="fab-map">
+                <ion-icon name="cart"></ion-icon>
+              </button>
+            </ion-fab>
+          </div>
+          <ion-item>
+            <ion-grid no-padding  class="advanced-bottom">
+              <ion-row>
+                <ion-col>
+                  <button *ngIf="item.relations.likedBy" class="no-margin likes" ion-button full icon-left clear>
+                    <ion-icon name="thumbs-up"></ion-icon>
+                    <div> {{item.relations.likedBy.length}}</div>
+                  </button>
+                </ion-col>
+                <ion-col >
+                  <button *ngIf="item.relations.commentedBy" class="no-margin messages" disabled ion-button full icon-left clear color="secondary">
+                    <ion-icon name="text" class="shadow"></ion-icon>
+                    <div>{{item.relations.commentedBy.length}}</div>
+                  </button>
+                </ion-col>
+                <ion-col align-self-end item-right>
+                  <ion-note item-right>{{changed(item.sync)}} </ion-note>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-item>
+        </ion-card>
+      </form>
+    </ion-list>
+  </div>
+</ion-content>

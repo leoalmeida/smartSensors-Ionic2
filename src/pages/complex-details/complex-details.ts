@@ -50,7 +50,7 @@ export class ComplexObjectDetailsPage implements OnInit{
   abstractions: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
   elements: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
 
-  changed: boolean[];
+  changedItems = {};
 
   refData = {};
 
@@ -65,7 +65,7 @@ export class ComplexObjectDetailsPage implements OnInit{
 
   shouldAnimate: boolean = false;
 
-  selectedSegment: string = "basics";
+  selectedSegment: string = "configurations";
   selectComponentOpen: boolean;
   connectedParent: any = {};
   componentList: KnowledgeInterface<EquipmentModel, AssociationModel>[] = [];
@@ -87,7 +87,6 @@ export class ComplexObjectDetailsPage implements OnInit{
     // If we navigated to this page, we will have an item available as a nav param
     this.selectedItem = navParams.get('item');
     this.userKey = navParams.get('key');
-    this.changed = [];
     this.getRefData();
     this.getComplexList();
     this.getEquipmentList();
@@ -102,7 +101,7 @@ export class ComplexObjectDetailsPage implements OnInit{
   }
 
   selectObject() {
-    this.dataService.getOne<EquipmentModel>([ this.selectedItem])
+    this.dataService.getOne<EquipmentModel>(this.selectedItem)
                      .subscribe((result: KnowledgeInterface<EquipmentModel, AssociationModel>) => {
                        this.pageTitle  = result.data.name;
                        this.info = result.data.info;
@@ -120,21 +119,21 @@ export class ComplexObjectDetailsPage implements OnInit{
   }
 
   selectAssociations(type) {
-    this.dataService.getData([type, this.selectedItem],null)
+    this.dataService.getData(["eq", type, this.selectedItem].join("/"),null)
                   .subscribe((objects: any[]) => {
       this.knowledges = objects;
     });
   }
 
   selectElements() {
-    this.dataService.getData(["abstractions", this.selectedItem],null)
+    this.dataService.getData(["eq", "abstractions", this.selectedItem].join("/"),null)
                   .subscribe((elements: any[]) => {
       this.elements = elements;
     });
   }
 
   selectAbstractions() {
-    this.dataService.getData(["elements", this.selectedItem],null)
+    this.dataService.getData(["eq", "elements", this.selectedItem].join("/"),null)
                   .subscribe((abstractions: any[]) => {
       this.abstractions = abstractions;
     });
@@ -207,20 +206,145 @@ export class ComplexObjectDetailsPage implements OnInit{
     }
 
 
-  openModal(type, ref) {
-    let modal = this.modalCtrl.create(ModalContentPage);
+  openModal(ref, item, index) {
+    let modal = this.modalCtrl.create(ModalContentPage, { item: item, index: index, ref: ref });
     modal.present();
     modal.onWillDismiss((data: any) => {
       if (data) {
         console.log('MODAL DATA', data);
-        if (type==='add') {
-          var index = this.object.data[ref].push(data.item);
-          this.updateAttribute(ref, index);
-        }
-        this.updateAttribute(ref, this.object[ref][index]);
+        var index = this.object.data[ref].push(data.item);
+        this.updateAttribute(ref, index);
       }
     });
   }
+
+  addAttribute(ref) {
+    let alert = this.alertCtrl.create();
+    alert.setTitle('Escolha o Tipo');
+    alert.addInput({
+      type: 'radio',
+      label: 'Texto',
+      value: 'string',
+      checked: true
+    });
+    alert.addInput({
+      type: 'radio',
+      label: 'Numérico',
+      value: 'number'
+    });
+    alert.addInput({
+      type: 'radio',
+      label: 'Booleano',
+      value: 'boolean'
+    });
+    alert.addButton('Cancelar');
+    alert.addButton({
+      text: 'Seguir',
+      handler: radiodata => {
+        if (radiodata){
+          console.log('radiodata:', radiodata);
+          this.selectComponentOpen = false;
+
+          let alertName = this.alertCtrl.create();
+          alertName.setTitle('Atributo');
+          alertName.addInput({
+            name: 'name',
+            placeholder: 'Nome'
+          });
+          alertName.addButton('Cancelar');
+          alertName.addButton({
+            text: 'Seguir',
+            handler: dataname => {
+              if (dataname){
+                console.log('dataname:', dataname);
+                let alertValue = this.alertCtrl.create();
+                alertValue.setTitle('Valor inicial');
+                if (radiodata === 'boolean'){
+                    alertValue.addInput({
+                      type: 'radio',
+                      label: 'Verdadeiro',
+                      value: 'true',
+                      checked: true
+                    });
+                    alertValue.addInput({
+                      type: 'radio',
+                      label: 'Falso',
+                      value: 'false'
+                    });
+                } else {
+                  if (radiodata === 'number'){
+                    alertValue.addInput({
+                      name: 'min',
+                      placeholder: 'Min',
+                      value: '0',
+                      type: 'number'
+                    });
+                    alertValue.addInput({
+                      name: 'max',
+                      placeholder: 'Max',
+                      value: '100',
+                      type: 'number'
+                    });
+                  }
+                  alertValue.addInput({
+                    name: 'value',
+                    placeholder: 'Valor',
+                    type: radiodata
+                  });
+                };
+                alertValue.addButton('Cancelar');
+                alertValue.addButton({
+                  text: 'Salvar',
+                  handler: datavalue => {
+                    if (datavalue){
+                      console.log('datavalue:', datavalue);
+                      let dataObj: AttributeModel
+                      if (radiodata === 'boolean')
+                        dataObj = {name: dataname.name, type: radiodata, value: datavalue};
+                      else{
+                        dataObj = {name: dataname.name, type: radiodata, value: datavalue.value};
+                        if (radiodata === 'number'){
+                          if (!dataObj["value"]) dataObj["value"] = datavalue.min;
+                          dataObj["max"] =  datavalue.max;
+                          dataObj["min"] =  datavalue.min;
+                          if (dataObj["min"] > dataObj["max"] ||
+                              dataObj["value"] < dataObj["min"] ||
+                              dataObj["value"] > dataObj["max"]) return;
+                        }
+                      }
+                      this.object.data[ref].push(dataObj);
+                      this.dataService.addAttrInfo(this.selectedItem, ref, dataObj)
+                            .subscribe((data: any) => {
+                              console.log(data['ok']);
+                              this.selectComponentOpen = false;
+                            });
+                    }
+                  }
+                });
+                alertValue.present().then(() => {
+                  this.selectComponentOpen = true;
+                });
+              }
+            }
+          });
+          alertName.present().then(() => {
+            this.selectComponentOpen = true;
+          });
+        }
+      }
+    });
+    alert.present().then(() => {
+      this.selectComponentOpen = true;
+    });
+  }
+  removeAttrInfo(ref, index){
+    this.dataService.removeAttrInfo(this.selectedItem, ref, index)
+        .subscribe((data: any) => {
+          console.log(data['ok']);
+          this.selectObject();
+        });
+  }
+
   updateAttribute(ref, item){
     //let changes = {};
     //changes[ref + item] = this.values[ref + item];
@@ -229,13 +353,13 @@ export class ComplexObjectDetailsPage implements OnInit{
             console.log(data['ok']);
           });
   }
-  removeAttribute(item){
+  /*removeAttribute(item){
     this.dataService.removeAttribute(this.selectedItem, item)
         .subscribe((data: any) => {
           console.log(data['ok']);
           this.selectObject();
         });
-  }
+  }*/
   showMap() {
     let modal = this.modalCtrl.create(ShowMapModal,{ items: [].push(this.object), key: this.userKey });
     modal.present();
@@ -318,24 +442,24 @@ export class ComplexObjectDetailsPage implements OnInit{
     this.dataService.removeKnowledge(this.selectedItem);
   }
   private getEquipmentList(){
-    this.dataService.getData<EquipmentModel>(["ownedBy", this.userKey], null)
+    this.dataService.getData<EquipmentModel>(["eq", "ownedBy", this.userKey].join("/"), null)
       .subscribe(
         (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.componentList = data,
         error =>  this.errorMessage = <any>error);
   }
   private getComplexList(){
-    this.dataService.getData<EquipmentModel>(["complex" , "ownedBy", this.userKey], null)
+    this.dataService.getData<EquipmentModel>(["eq","complex" , "ownedBy", this.userKey].join("/"), null)
       .subscribe(
         (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.complexCompList = data,
         error =>  this.errorMessage = <any>error);
   }
-  private selectComponent(type) {
+  private selectComponent(association, type) {
     let alert = this.alertCtrl.create();
     alert.setTitle('Selecione componente');
 
     let i = 0;
     for (let comp of this.componentList)
-      if (comp.type !== type)
+      if (!type || (comp.type === type))
         alert.addInput({
           type: 'radio',
           label: comp.data.name,
@@ -351,7 +475,7 @@ export class ComplexObjectDetailsPage implements OnInit{
           this.selectComponentOpen = false;
           let newRelation1 = new RelationModel({ id: data });
           let newRelation2 = new RelationModel({ id: this.selectedItem });
-          this.addAssociation(type, data, newRelation1, newRelation2);
+          this.addAssociation(association, data, newRelation1, newRelation2);
         }
     });
     alert.present().then(() => {

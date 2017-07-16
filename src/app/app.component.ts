@@ -20,6 +20,8 @@ import { BarcodePage } from '../pages/barcode/barcode';
 import { User, Auth } from '@ionic/cloud-angular';
 import { GeofenceDetailsPage } from "../pages/geofence/geofence";
 import { GraphPage } from '../pages/graph/graph';
+import { RealTimePage } from '../pages/realtimeobjects/realtime';
+
 //import { Storage } from '@ionic/storage';
 
 
@@ -32,7 +34,6 @@ export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
   rootPage: any = LoginPage;
-  userKey: any;
 
   errorMessage: any;
   validationError: any;
@@ -41,6 +42,28 @@ export class MyApp {
 
   pages: Array<{title: string, component: any}>;
   //private userProfile: Array<Object>;
+
+  default: boolean = true;
+  home:any = "HomePage";
+
+  configurations: any = {
+    default: true,
+    floatingHttp: true,
+    floatingPubSub: true,
+    homepage: "RealTimePage",
+    realtime: true,
+    mainResources: true,
+    timeline: false,
+    designer: false,
+    chats: false,
+    maps: false,
+    profile: false,
+    aditionalResources: false,
+    resourcesPages: false,
+    facebookPage: false,
+    geofencePage: false,
+    barcodePage: false
+  };
 
   constructor(public platform: Platform,
               public events: Events,
@@ -54,91 +77,114 @@ export class MyApp {
               public loadingCtrl:LoadingController,
               private nativeStorage: NativeStorage
   ){
-
     this.errorNotifier.onError(err => {
   	  this.errorMessage = err;
   	  console.log(err);
   	});
 
-    this.initializeApp();
 
-    // used for an example of ngFor and navigation
-    this.pages = [
-      { title: 'Timeline', component: HomePage },
-      { title: 'Meus Canais', component: ChatsPage },
-      { title: 'Minhas Regras', component: TopicPage },
-      { title: 'Meus Recursos', component: EquipmentsPage },
-      { title: 'Mapa', component: MapsPage },
-      { title: 'Perfil', component: ProfilePage },
-      { title: 'Configurações', component: ConfigurationsPage }
-    ];
-
+    this.platform.ready().then((readySource) => {
+      this.initializeApp();
+      this.listenToLoginEvents();
+    });
+  }
+  bootApp(){
+    this.pages = [];
     this.platform.ready().then((readySource) => {
       this.nativeStorage.getItem('smartSensors.configurations')
         .then(data => {
-            if (data) {
-              if (data.resourcesPages){
-                this.pages.push({ title: 'Acessórios', component: AccessoryPage });
-                this.pages.push({ title: 'Sensores', component: SourcePage });
-                this.pages.push({ title: 'Hubs', component: ComplexObjectPage });
-              }
-              if (data.facebookPage) this.pages.push({ title: 'Graph', component: GraphPage });
-              if (data.geofencePage) this.pages.push({ title: 'Geofence', component: GeofenceDetailsPage });
-              if (data.barcodePage) this.pages.push({ title: 'Barcodes', component: BarcodePage });
-            }
+          this.bootMenu(data);
           },
           error => {
             console.error(error);
+            this.nativeStorage.setItem('smartSensors.configurations', this.configurations)
+              .then(
+                () => {
+                  console.log('Stored default configurations!')
+                  this.bootMenu(this.configurations);
+                },
+                error => console.error('Error storing item', error)
+              );
           });
     });
+  }
+
+  bootMenu(data){
+    this.pages = [];
+    if (data) this.default = data.default;
+
+    if (!this.default) this.home = data.homepage;
+
+    if (data.realtime)
+      this.pages.push({ title: 'RealTime', component: RealTimePage });
+
+    if (this.default || data.mainResources)
+      this.pages.push({ title: 'Meus Recursos', component: EquipmentsPage });
+    if (this.default || data.timeline)
+      this.pages.push({ title: 'Timeline', component: HomePage });
+    if (this.default || data.designer)
+      this.pages.push({ title: 'Minhas Regras', component: TopicPage });
+    if (this.default || data.chats)
+      this.pages.push({ title: 'Meus Canais', component: ChatsPage });
+    if (this.default || data.maps)
+      this.pages.push({ title: 'Mapa', component: MapsPage });
+    if (this.default || data.profile)
+      this.pages.push({ title: 'Perfil', component: ProfilePage });
+
+    if (data.aditionalResources){
+        this.pages.push({ title: 'Acessórios', component: AccessoryPage });
+        this.pages.push({ title: 'Sensores', component: SourcePage });
+        this.pages.push({ title: 'Hubs', component: ComplexObjectPage });
+    }
+    if (data.facebookPage) this.pages.push({ title: 'Graph', component: GraphPage });
+    if (data.geofencePage) this.pages.push({ title: 'Geofence', component: GeofenceDetailsPage });
+    if (data.barcodePage) this.pages.push({ title: 'Barcodes', component: BarcodePage });
+    this.pages.push({ title: 'Configurações', component: ConfigurationsPage });
   }
 
   initializeApp() {
-    this.platform.ready().then(() => {
-
-      this.statusBar.styleDefault();
-      this.splashScreen.hide();
-      if(this.auth.isAuthenticated()) {
-        this.identifyUser(HomePage);
-      }else{
-        this.nav.setRoot(LoginPage);
-      }
-
-    });
+    this.statusBar.styleDefault();
+    this.splashScreen.hide();
+    if(this.auth.isAuthenticated()) {
+      if (!this.user.get('key',''))
+        this.nav.setRoot(LoginPage, {"home": this.home});
+      else
+          this.openHome();
+    }else{
+      this.nav.setRoot(LoginPage, {"home": this.home});
+    }
   }
-
-  private identifyUser(page){
-    this.dataService.getStaticData(["data", "data.email", this.user.details.email], "owner")
-          .then(value => {
-            if (value.length === 0) {
-              this.auth.logout();
-              this.nav.setRoot(LoginPage);
-            }else{
-              this.userKey  = value[0]._id
-
-              this.nav.setRoot(page, {"key": this.userKey})
-            }
-          });
+  openHome(){
+    this.bootApp();
+    if (this.home === "HomePage") this.nav.setRoot(HomePage, {"key": this.user.get('key','')});
+    else if (this.home === "RealTimePage") this.nav.setRoot(RealTimePage, {"key": this.user.get('key','')});
+    else if (this.home === "EquipmentsPage") this.nav.setRoot(EquipmentsPage, {"key": this.user.get('key','')});
+    else this.nav.setRoot(ConfigurationsPage, {"key": this.user.get('key','')});
   }
-
 
   listenToLoginEvents() {
-		this.events.subscribe('user:login', () => {
+		this.events.subscribe('user:login', (user, time) => {
 			// this.navCtrl.push(HomePage)
 			// this.navCtrl.setRoot(HomePage);
+      console.log('user:login');
+      console.log('Welcome', user, 'at', time);
+      this.bootApp();
 		})
 
 		this.events.subscribe('user:logout', () => {
-			console.log('user:logout')
+      this.user.set('key', '');
+      this.user.save();
+      this.auth.logout();
+			console.log('user:logout');
 		})
 
     this.events.subscribe('unAuthorizedRequest', (err) => {
       //if (!_.endsWith(err.url, '/token')) {
-        this.nav.setRoot(LoginPage);
+        this.nav.setRoot(LoginPage, {"home": this.home});
       //}
     });
 
-    this.events.subscribe('showLoader', () => {
+    this.events.subscribe('app:showLoader', () => {
       this.numberOfLoading = this.numberOfLoading + 1;
       if(this.numberOfLoading === 1){
         //this.loader = this.loadingCtrl.presentLoading();
@@ -149,7 +195,7 @@ export class MyApp {
       }
     });
 
-    this.events.subscribe('hideLoader', () => {
+    this.events.subscribe('app:hideLoader', () => {
       if(this.numberOfLoading === 1){
         this.loader.dismiss();
         this.numberOfLoading = 0;
@@ -158,16 +204,24 @@ export class MyApp {
         this.numberOfLoading = this.numberOfLoading - 1;
       }
     });
+    this.events.subscribe('configurations:updated', (configurations, time) => {
+      // user and time are the same arguments passed in `events.publish(user, time)`
+      console.log('Changed', configurations, 'at', time);
+      this.bootMenu(configurations);
+    });
 	}
 
 
   openPage(page) {
     // Reset the content nav to have just this page
     // we wouldn't want the back button to show in this scenario
-    if (this.userKey)
-      this.nav.setRoot(page.component, {"key": this.userKey});
+    let userKey = this.user.get('key','');
+    if (page.component === ConfigurationsPage)
+      this.nav.push(ConfigurationsPage, {"key": userKey});
+    else if (userKey)
+      this.nav.setRoot(page.component, {"key": userKey});
     else
-      this.identifyUser(page.component)
+      this.nav.setRoot(LoginPage, {"home": this.home});
   }
 
 }

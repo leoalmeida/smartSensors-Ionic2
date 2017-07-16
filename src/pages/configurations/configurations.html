@@ -5,48 +5,132 @@
     </button>
     <ion-title>Configurações</ion-title>
     <ion-buttons end>
-      <button ion-button (click)="saveHost()">
-        <span ion-text color="primary" showWhen="ios">Salvar</span>
-        <ion-icon name="md-create" showWhen="android, windows"></ion-icon>
+      <button ion-button (click)="saveSettings()">
+        <span ion-text color="primary" >Salvar</span>
+        <!--<ion-icon name="md-create" showWhen="android, windows"></ion-icon>-->
       </button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
 <ion-content>
-  <ion-list>
-    <ion-list-header color="light">
-      Acesso
-    </ion-list-header>
-    <ion-item>
-      <ion-label color="primary">Host</ion-label>
-      <ion-input type="text" [(ngModel)]="connection.host"></ion-input>
+  <ion-list *ngIf="configurations">
+    <ion-item color="light">
+      <ion-label color="primary">Acesso Http fixo</ion-label>
+      <ion-toggle [(ngModel)]="configurations.floatingHttp"></ion-toggle>
     </ion-item>
-    <ion-item>
-      <ion-label color="primary">Porta HTTP</ion-label>
-      <ion-input type="number" min="0" max="9999" [(ngModel)]="connection.httpPort"></ion-input>
+    <ion-item color="light">
+      <ion-label color="primary">Acesso fixo para publicações</ion-label>
+      <ion-toggle [(ngModel)]="configurations.floatingPubSub"></ion-toggle>
     </ion-item>
-    <ion-item>
-      <ion-label color="primary">Porta WS</ion-label>
-      <ion-input type="number" min="0" max="9999" [(ngModel)]="connection.wsPort"></ion-input>
-    </ion-item>
-    <ion-item-divider color="light">
-      Funcionalidades
+    <ion-item-divider icon-right color="light" class="header-btn" (click)="showConnection = !showConnection" *ngIf="!configurations.floatingHttp">
+        Acesso Http
+        <ion-icon name="arrow-dropright" *ngIf="!showConnection" item-right></ion-icon>
+        <ion-icon name="arrow-dropdown"  *ngIf="showConnection" item-right></ion-icon>
     </ion-item-divider>
-    <ion-item>
-      <ion-label padding color="primary">Páginas de recursos</ion-label>
-      <ion-toggle [ngModel]="configurations.resourcesPages" (ionChange)="setConfiguration('resourcesPages')"></ion-toggle>
+    <ion-item-group *ngIf="!configurations.floatingHttp && showConnection">
+      <ion-item>
+        <ion-label color="primary">Host</ion-label>
+        <ion-input type="text" [(ngModel)]="connection.host"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label color="primary">Porta HTTP</ion-label>
+        <ion-input type="number" min="0" max="9999" [(ngModel)]="connection.Port"></ion-input>
+      </ion-item>
+    </ion-item-group>
+    <ion-item-divider icon-right color="light" class="header-btn" (click)="showPubSub = !showPubSub" *ngIf="!configurations.floatingPubSub">
+        Acesso para publicações
+        <ion-icon name="arrow-dropright" *ngIf="!showPubSub" item-right></ion-icon>
+        <ion-icon name="arrow-dropdown"  *ngIf="showPubSub" item-right></ion-icon>
+    </ion-item-divider>
+    <ion-item-group *ngIf="!configurations.floatingPubSub && showPubSub">
+      <ion-item>
+        <ion-label color="primary">Host PubSub</ion-label>
+        <ion-input type="text" [(ngModel)]="mqttconnection.host"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label color="primary">Porta PubSub</ion-label>
+        <ion-input type="number" min="0" max="9999" [(ngModel)]="mqttconnection.port"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label color="primary">Path PubSub</ion-label>
+        <ion-input type="text" [(ngModel)]="mqttconnection.path"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label color="primary">Keep Alive</ion-label>
+        <ion-input type="number" min="0" max="9999" [(ngModel)]="connection.keepalive"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label color="primary">SSL</ion-label>
+        <ion-toggle [(ngModel)]="mqttconnection.ssl"></ion-toggle>
+      </ion-item>
+    </ion-item-group>
+    <ion-item color="light">
+      <ion-label color="primary">Selecionar Funcionalidades</ion-label>
+      <ion-toggle [(ngModel)]="configurations.default" [checked]="!configurations.default"></ion-toggle>
     </ion-item>
-    <ion-item>
-      <ion-label padding color="primary">Ferramenta Facebook</ion-label>
-      <ion-toggle [ngModel]="configurations.facebookPage" (ionChange)="setConfiguration('facebookPage')"></ion-toggle>
+    <ion-item  *ngIf="!configurations.default">
+      <ion-label padding color="primary">Home</ion-label>
+      <ion-select [(ngModel)]="configurations.homepage">
+        <ion-option value="RealTimePage" *ngIf="configurations.realtime">RealTime</ion-option>
+        <ion-option value="HomePage" *ngIf="configurations.timeline">Timeline</ion-option>
+        <ion-option value="EquipmentsPage" *ngIf="configurations.mainResources">Meus Recursos</ion-option>
+        <ion-option value="ConfigurationsPage">Configurações</ion-option>
+      </ion-select>
     </ion-item>
-    <ion-item>
-      <ion-label padding color="primary">Ferramenta Geofence</ion-label>
-      <ion-toggle [ngModel]="configurations.geofencePage" (ionChange)="setConfiguration('geofencePage')"></ion-toggle>
-    </ion-item>
-    <ion-item>
-      <ion-label padding color="primary">Ferramenta Barcode</ion-label>
-      <ion-toggle [ngModel]="configurations.barcodePage" (ionChange)="setConfiguration('barcodePage')"></ion-toggle>
-    </ion-item>
+    <ion-item-divider icon-right color="light" class="header-btn" (click)="showFuncs = !showFuncs"  *ngIf="!configurations.default">
+        Funcionalidades
+        <ion-icon name="arrow-dropright" *ngIf="!showPubSub" item-right></ion-icon>
+        <ion-icon name="arrow-dropdown"  *ngIf="showPubSub" item-right></ion-icon>
+    </ion-item-divider>
+    <ion-item-group *ngIf="!configurations.default && showFuncs">
+      <ion-item color="light">
+        <ion-label color="primary">Selecionar Todos</ion-label>
+        <ion-toggle [(ngModel)]="allItems"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary">RealTime</ion-label>
+        <ion-toggle [(ngModel)]="configurations.realtime"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary">Meus Recursos</ion-label>
+        <ion-toggle [(ngModel)]="configurations.mainResources"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary">Timeline</ion-label>
+        <ion-toggle [(ngModel)]="configurations.timeline"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary">Meus Canais</ion-label>
+        <ion-toggle [(ngModel)]="configurations.designer"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary">Meus Canais</ion-label>
+        <ion-toggle [(ngModel)]="configurations.chats"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary">Maps</ion-label>
+        <ion-toggle [(ngModel)]="configurations.maps"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary">Perfil</ion-label>
+        <ion-toggle [(ngModel)]="configurations.profile"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary">Recursos</ion-label>
+        <ion-toggle [(ngModel)]="configurations.aditionalResources"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary">Ferramenta Facebook</ion-label>
+        <ion-toggle [(ngModel)]="configurations.facebookPage"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary">Ferramenta Geofence</ion-label>
+        <ion-toggle [(ngModel)]="configurations.geofencePage" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label padding color="primary">Ferramenta Barcode</ion-label>
+        <ion-toggle [(ngModel)]="configurations.barcodePage" ></ion-toggle>
+      </ion-item>
+    </ion-item-group>
   </ion-list>
 </ion-content>

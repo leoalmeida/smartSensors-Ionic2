@@ -93,7 +93,7 @@ export class RuleModalPage {
   }
 
   private getEquipmentList(type, category){
-    this.dataService.getData<EquipmentModel>([type.toLowerCase(), category.toLowerCase(), "ownedBy", this.userKey], null)
+    this.dataService.getData<EquipmentModel>(["eq",type.toLowerCase(), category.toLowerCase(), "ownedBy", this.userKey].join("/"), null)
       .subscribe(
         (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.knowledges = data,
         error =>  console.log(<any>error));

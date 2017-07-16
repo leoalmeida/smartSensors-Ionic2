@@ -14,12 +14,20 @@
 <ion-content>
   <ion-list>
     <ion-item>
-      <ion-label color="primary">Atributo</ion-label>
-      <ion-input [(ngModel)]="item.attribute"></ion-input>
+      <ion-label color="primary">Nome</ion-label>
+      <ion-input [(ngModel)]="item.name"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label color="primary">Tipo</ion-label>\
+      <ion-select [(ngModel)]="item.type">
+        <ion-option value="string">Texto</ion-option>
+        <ion-option value="number">Numérico</ion-option>
+        <ion-option value="boolean">Booleano</ion-option>
+      </ion-select>
     </ion-item>
     <ion-item>
       <ion-label color="primary">Valor</ion-label>
-      <ion-input [(ngModel)]="item.value"></ion-input>
+      <ion-input [type]="item.type" [(ngModel)]="item.value"></ion-input>
     </ion-item>
   </ion-list>
   <div padding>

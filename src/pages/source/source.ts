@@ -63,7 +63,7 @@ export class SourcePage implements OnInit {
   ngOnInit() { this.getObjects(); }
 
   getObjects() {
-    this.dataService.getData(["sensor" , "ownedBy", this.userKey],null)
+    this.dataService.getData(["eq", "sensor" , "ownedBy", this.userKey].join("/"),null)
                      .subscribe(
                        data => this.objects = data,
                        error =>  this.errorMessage = <any>error);

@@ -11,6 +11,10 @@ export interface Config {
 
   ssl: boolean;   // false
 
+  lat: number;
+  lng: number;
+  distance: number;
+
   // What credentials?
   user: string;
   pass: string;

@@ -165,7 +165,7 @@ export class ChooseItemModal {
   }
 
   private getBoardList(){
-    this.dataService.getData<EquipmentModel>(["complex" , "ownedBy", this.userKey], null)
+    this.dataService.getData<EquipmentModel>(["eq","complex" , "ownedBy", this.userKey].join("/"), null)
       .subscribe(
         (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.boardList = data,
         error =>  this.errorMessage = <any>error);

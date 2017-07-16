@@ -18,10 +18,10 @@ export class TopicService {
 		private nativeStorage: NativeStorage) {
 
 		this.platform.ready().then((readySource) => {
-			this.nativeStorage.getItem('smartSensors.connection')
+			this.nativeStorage.getItem('smartSensors.pubsubConnection')
 				.then(connection => {
 						if (connection)
-							var topicUrl = "ws://" + connection.host + ":" + connection.wsPort;
+							var topicUrl = connection.schema + "://" + connection.host + ":" + connection.port;
 							// 1. subscribe to TOPICbox
 							this.messages   = <Subject<MessageModel>>this.wsService
 								.connect(topicUrl)

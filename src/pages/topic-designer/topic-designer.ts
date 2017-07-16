@@ -135,7 +135,7 @@ export class TopicDesignerPage implements OnInit{
 
   ngOnInit() {
     this.dataService
-      .getOne<EquipmentModel>([ this.selectedItem])
+      .getOne<EquipmentModel>(this.selectedItem)
       .subscribe((result: any) => {
         this.pageTitle  = result.data.name;
         this.object     = result;

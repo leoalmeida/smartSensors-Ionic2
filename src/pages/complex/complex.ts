@@ -66,7 +66,7 @@ export class ComplexObjectPage implements OnInit {
   ngOnInit() { this.getObjects(); }
 
   getObjects() {
-    this.dataService.getData<EquipmentModel>(["complex" , "ownedBy", this.userKey], null)
+    this.dataService.getData<EquipmentModel>(["eq","complex" , "ownedBy", this.userKey].join("/"), null)
       .subscribe(
         (data: KnowledgeInterface<EquipmentModel, AssociationModel>[]) => this.objects = data,
         error =>  this.errorMessage = <any>error);

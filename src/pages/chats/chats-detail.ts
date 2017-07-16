@@ -61,7 +61,7 @@ export class ChatsDetailPage implements OnDestroy {
 
   getData(){
     this.syncing = true;
-    this.dataService.getData<ProfileModel>( [ "subscriberAt", this.channel._id ],null)
+    this.dataService.getData<ProfileModel>( ["eq", "subscriberAt", this.channel._id ].join("/"),null)
       .subscribe ( subscribers => {
         this.listSubscriptions.objects = subscribers;
         for (let sub of subscribers){

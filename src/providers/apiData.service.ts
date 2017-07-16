@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-
 import {Http, URLSearchParams, Headers, RequestOptions, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/observable/of';
@@ -27,8 +26,7 @@ export class DataService {
   toggleEquipmentStatus(body: any, status: boolean): Observable<any> {
     //let transactionObj = new KnowledgeModel(newObject);
     //let url = "api/action/equipment/connect";
-    return this.http.post("api/action/equipment/connect", body)
-
+    return this.http.post("api/action/equipment/toggle", body)
           .map(response => response.json())
 
   };
@@ -37,7 +35,6 @@ export class DataService {
     //let transactionObj = new KnowledgeModel(newObject);
     //let url = "api/action/topic/dynamic";
     return this.http.post("api/action/topic/dynamic", body)
-
       .map(response => response.json())
 
   };
@@ -76,8 +73,8 @@ export class DataService {
       .map(response => response.json())
   }
 
-  getData<T>(resource: Array<string>, query: Array<any>): Observable<KnowledgeInterface<T, AssociationModel>[]> {
-    let url = "api/knowledge/" + resource.join("/");
+  getData<T>(resource: string, query: Array<any>): Observable<KnowledgeInterface<T, AssociationModel>[]> {
+    let url = "api/knowledge/" + resource;
     if (query!= null) {
       url += '?' + query.join("=");
     }
@@ -87,10 +84,9 @@ export class DataService {
       //
   }
 
-  getOne<T>(resource: Array<string>): Observable<KnowledgeInterface<T, AssociationModel>> {
-    return this.http.get("api/knowledge/" + resource.join("/"))
+  getOne<T>(resource: string): Observable<KnowledgeInterface<T, AssociationModel>> {
+    return this.http.get("api/knowledge/" + resource)
       .map(response => response.json() as KnowledgeInterface<T, AssociationModel>)
-
   }
 
   getStaticData(resource: Array<string>, requestedCols: string): Promise<any> {
@@ -106,9 +102,6 @@ export class DataService {
     //console.log(transactionObj);
     return this.http.put("api/knowledge", newObject)
           .map(response => response.json() as KnowledgeInterface<T, AssociationModel>)
-
-
-
   }
 
   updateKnowledge<T>(resource: string, newData: {}): Observable<KnowledgeInterface<T, AssociationModel>> {
@@ -148,8 +141,8 @@ export class DataService {
 
   }
 
-  removeAttrInfo(documentId: string, attrName: string): any {
-    let url = "api/knowledge/" + documentId + "/attr/" + attrName;
+  removeAttrInfo(documentId: string, attrName: string, index: number): any {
+    let url = "api/knowledge/" + documentId + "/attr/" + attrName + "/"+ index;
     return this.http.delete(url)
       .map(response => response.json())
 

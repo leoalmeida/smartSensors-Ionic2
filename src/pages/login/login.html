@@ -1,11 +1,11 @@
 <ion-content padding>
-
+<!--
   <ion-fab right top>
     <button ion-fab color="light" ion-fab (click)="goConfigurations()">
       <ion-icon name="build"></ion-icon>
     </button>
   </ion-fab>
-
+-->
   <div>
       <div class="content">
           <div class="app-icon"></div>
@@ -49,19 +49,19 @@
       <ion-input type="password" placeholder="Senha" [(ngModel)]="password"></ion-input>
     </ion-item>
 
-    <button  ion-item icon-right color="primary" class="ink" *ngIf="showLogin && !showForgotten" (click)="doLogin()">
+    <button round ion-item icon-right color="primary" class="ink" *ngIf="showLogin && !showForgotten" (click)="doLogin()">
       Conectar <ion-icon name="build" item-right></ion-icon>
     </button>
-    <button  ion-item icon-right color="primary" class="ink" *ngIf="(showLogin && !showForgotten) || showRegister" (click)="doRegister()">
+    <button round ion-item icon-right color="primary" class="ink" *ngIf="(showLogin && !showForgotten) || showRegister" (click)="doRegister()">
       Registrar <ion-icon name="add" item-right></ion-icon>
     </button>
-    <button  ion-item icon-right color="primary" class="ink" *ngIf="showLogin || showForgotten" (click)="doForgotten()">
+    <button round ion-item icon-right color="primary" class="ink" *ngIf="showLogin || showForgotten" (click)="doForgotten()">
       Esqueci a senha <ion-icon name="bulb" item-right></ion-icon>
     </button>
-    <button  ion-item icon-right color="primary" class="ink" *ngIf="showVerifyCode" (click)="doCodeVerification()">
+    <button round ion-item icon-right color="primary" class="ink" *ngIf="showVerifyCode" (click)="doCodeVerification()">
       Trocar senha
     </button>
-    <button ion-item icon-right color="primary" class="ink" *ngIf="!showLogin || showForgotten" (click)="doGoBack()">
+    <button round ion-item icon-right color="primary" class="ink" *ngIf="!showLogin || showForgotten" (click)="doGoBack()">
       Voltar
     </button>
     <!--<button ion-button color="assertive" class="ink" (click)="goGraph()">
