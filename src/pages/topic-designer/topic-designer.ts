@@ -213,10 +213,8 @@ export class TopicDesignerPage implements OnInit{
       ev: myEvent
     });
   }
-
-
-  newRule(catItem){
-    let category: any;
+  newRule(event, catItem){
+    var category: any;
 
     if (catItem === undefined || !catItem){
       let catIndex = this.ruleCategoryItems.findIndex(this.findCategory, this.ruleSearchTerm.toLowerCase() );
@@ -230,14 +228,55 @@ export class TopicDesignerPage implements OnInit{
       return;
     }
 
-    let hasConnector = !!(this.object.data.ruleContainer.length);
+    var hasConnector = !!(this.object.data.ruleContainer.length);
 
-    let modal = this.modalCtrl.create(RuleModalPage,{ def: "rule", category: category, hasConnector: hasConnector, userKey: this.userKey, dynamic: (this.object.category === "dynamic") });
+    var modal = this.modalCtrl.create(RuleModalPage,{ mode:"rule", label: "Regra" + (this.object.data.ruleContainer.length+1), category: category, hasConnector: hasConnector, userKey: this.userKey, dynamic: (this.object.category === "dynamic") });
     modal.present();
     modal.onWillDismiss((data: any) => {
       if (data) {
         console.log('MODAL DATA', data);
-        this.object.data.ruleContainer.push(data.item);
+        if (this.object.data.ruleContainer.length%2){
+          let modal = this.modalCtrl.create(RuleModalPage,{ mode:"operador" });
+          modal.present();
+          modal.onWillDismiss((oper: any) => {
+            if (oper) {
+              this.object.data.ruleContainer.push(data.item);
+              this.object.data.ruleContainer.push(oper.item);
+            }
+          })
+        }else this.object.data.ruleContainer.push(data.item);
+
+        this.ruleSearchTerm = '';
+      }
+    });
+  }
+
+  editRule(event, itemIndex)
+  {
+    if (itemIndex === undefined || itemIndex < 0) return;
+
+    if (this.object.data.ruleContainer[itemIndex].type === 'operador') {
+      //this.object.data.ruleContainer.push(category);
+      //this.ruleSearchTerm = '';
+      return;
+    }
+
+    let catIndex = this.categories["RuleCategories"].filter(this.filterRuleItems, this.object.data.ruleContainer[itemIndex].category.toLowerCase());
+    if (catIndex.length <= 0) return;
+    var category = catIndex[0];
+
+    //let catIndex = this.ruleCategoryItems.findIndex(this.findCategory, this.object.data.ruleContainer[itemIndex].category.toLowerCase());
+    //if (catIndex < 0) return;
+    //let category = this.ruleCategoryItems[catIndex];
+
+    var hasConnector = !!(this.object.data.ruleContainer.length);
+
+    var modal = this.modalCtrl.create(RuleModalPage,{ mode: "rule", object: this.object.data.ruleContainer[itemIndex] , category: category, hasConnector: hasConnector, userKey: this.userKey, dynamic: (this.object.category === "dynamic") });
+    modal.present();
+    modal.onWillDismiss((data: any) => {
+      if (data) {
+        console.log('MODAL DATA', data);
+        this.object.data.ruleContainer[itemIndex] = data.item;
         this.ruleSearchTerm = '';
       }
     });
@@ -250,22 +289,19 @@ export class TopicDesignerPage implements OnInit{
       return false;
   }
 
-  editRule(itemIndex: number){
-
-  }
-  removeRule(indexId: number){
+  removeRule(event, indexId: number){
     this.object.data.ruleContainer.splice(indexId,1);
   }
 
-  newAction(catItem){
-    let category: any;
+  newAction(event, catItem){
+    var category: any;
     if (!catItem){
       let catIndex = this.actionCategoryItems.findIndex(this.findCategory, this.actionSearchTerm.toLowerCase());
       if (!catIndex || catIndex < 0) return;
       category = this.actionCategoryItems[catIndex];
     }else category = catItem;
 
-    let modal = this.modalCtrl.create(RuleModalPage,{ def: "action", category: category, userKey: this.userKey});
+    var modal = this.modalCtrl.create(RuleModalPage,{ mode:"action", label: "Ação" + (this.object.data.actionContainer.length+1), category: category, userKey: this.userKey});
     modal.present();
     modal.onWillDismiss((data: any) => {
       if (data) {
@@ -275,10 +311,28 @@ export class TopicDesignerPage implements OnInit{
       }
     });
   }
-  editAction(itemIndex: number){
+  editAction(event, itemIndex)
+  {
+    if (itemIndex === undefined || itemIndex < 0) return;
 
+    let catIndex = this.categories["ActionCategories"].filter(this.filterRuleItems, this.object.data.actionContainer[itemIndex].category.toLowerCase())
+    if (catIndex.length <= 0) return;
+    var category = catIndex[0];
+    //let catIndex = this.actionCategoryItems.findIndex(this.findCategory, this.object.data.actionContainer[itemIndex].category.toLowerCase());
+    //if (!catIndex || catIndex < 0) return;
+    //let category = this.actionCategoryItems[catIndex];
+
+    var modal = this.modalCtrl.create(RuleModalPage,{ mode: "action", object: this.object.data.actionContainer[itemIndex] , category: category, userKey: this.userKey});
+    modal.present();
+    modal.onWillDismiss((data: any) => {
+      if (data) {
+        console.log('MODAL DATA', data);
+        this.object.data.actionContainer[itemIndex] = data.item;
+        this.actionSearchTerm = '';
+      }
+    });
   }
-  removeAction(indexId: number){
+  removeAction(event, indexId: number){
     this.object.data.actionContainer.splice(indexId,1);
   }
 

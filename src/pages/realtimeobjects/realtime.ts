@@ -12,6 +12,7 @@ import { SocialSharing } from '@ionic-native/social-sharing';
 
 import { Packet } from 'mqtt';
 import { MQTTService } from '../../providers/mqtt/mqtt.service';
+import { TransportState } from '../../providers/mqtt/transport.service';
 import { DataService } from '../../providers/apiData.service';
 import { ConnectionService } from '../../providers/connection.service';
 
@@ -34,14 +35,12 @@ export class RealTimePage implements OnDestroy, OnInit{
   syncing: any = false;
   // Stream of messages
   public messages: Observable<Packet>;
-
+  public state: Observable<string>;
   // Array of historic message (bodies)
   public mq: Array<Packet> = [];
 
   // A count of messages received
   public count = 0;
-
-  public pubsubConnection: any = {};
 
   public clientId:string;
 
@@ -161,6 +160,12 @@ export class RealTimePage implements OnDestroy, OnInit{
                 this.setFilteredChannels();
               }
             });
+
+    this.state = this._mqService.state
+      .map((state: number) => {
+        this.syncing = (state === TransportState.ENVIANDO);
+        return TransportState[state];
+      });
   }
 
   ngOnInit() {
@@ -219,7 +224,7 @@ export class RealTimePage implements OnDestroy, OnInit{
     config.pass = this.auth.getToken();
     config.lat = 0;
     config.lng = 0;
-    config.subscribe = [];
+    config.subscriptions = {};
     config.publish = [];
     config.path = "";
 
@@ -344,7 +349,67 @@ export class RealTimePage implements OnDestroy, OnInit{
               });
   }
 
+  doAction(channel){
+    /*
+      //--------------------------------------------//
+      /// resolution = 0x3FF;
+      /// range = opts.range || [0, resolution];
+      /// limit = opts.limit || null;
+      /// this.threshold = opts.threshold === undefined ? 1 : opts.threshold;
+      /// isScaled = false;
+      ///
+      /// state = {
+            enabled: typeof opts.enabled === "undefined" ? true : opts.enabled,
+            booleanBarrier: opts.type === "digital" ? 0 : null,
+            intervalId: null,
+            scale: null,
+            value: 0,
+            median: 0,
+            freq: opts.freq || 25,
+            previousFreq: opts.freq || 25,
+          }
+      ///if Digital
+      ///commands:
+      ///   command: "", mode: 0
+      ///if I2C
+      ///commands:
+      ///   command: "", mode: 6
+      ////*** address = addresses
+      ///if Analog
+      ///commands:
+      ///   command: "", mode: 2
+      ///   calibrationDelay: 10
+      ///   toBoolean: {
+      ///     value: function(raw) {
+      ///       return raw >> 9 === 0;
+      ///     }
+      ///   }
+      //--------------------------------------------//
+      commands:[{
+        command: "",
+        mode: "",
+      }],
+      pin: 12,
+      freq: freq || 25,
+      calibrationDelay: 2000,
+      toBoolean: {
+        value: function(raw) {
+          return !!raw;
+        }
+      }
+    */
+    let actionMsg = {
+      type: "action",
+      category: "command",
+      data: channel.data["configurations"],
+      sync: Date.now(),
+      access: channel._id
+    };
+    this._mqService.publish([channel._id,"action"].join(), JSON.stringify(actionMsg));
+  }
+
   includeChannel(channel){
+    console.log("channel: ", channel)
     this.myChannelsSubject.next({item: channel, action: 'push'});
     this.channelMsgList[channel._id] = [];
     //this.myChannelMsgSubject = new BehaviorSubject({});
@@ -508,11 +573,11 @@ export class RealTimePage implements OnDestroy, OnInit{
 
     // Subscribe a function to be run on_next message
     this.messages.subscribe(this.on_next);
+
   }
 
   /** Consume a message from the _mqService */
   public on_next = (message: Packet) => {
-
     // Store message in "historic messages" queue
     this.mq.push(message);
 

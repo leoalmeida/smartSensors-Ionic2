@@ -66,7 +66,7 @@
     </ion-item-group>
     <ion-item color="light">
       <ion-label color="primary">Selecionar Funcionalidades</ion-label>
-      <ion-toggle [(ngModel)]="configurations.default" [checked]="!configurations.default"></ion-toggle>
+      <ion-toggle [(ngModel)]="configurations.default"></ion-toggle>
     </ion-item>
     <ion-item  *ngIf="!configurations.default">
       <ion-label padding color="primary">Home</ion-label>

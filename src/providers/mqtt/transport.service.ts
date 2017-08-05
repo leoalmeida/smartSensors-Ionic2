@@ -6,20 +6,28 @@ import { Config } from '../config/config';
 
 /** possible states for the message queue */
 export enum TransportState {
+  DESCONECTANDO,
   DESCONECTADO,
   CONECTANDO,
   CONECTADO,
   REGISTRANDO,
   REGISTRADO,
-  DESCONECTANDO
+  CALIBRANDO,
+  LENDO,
+  ENVIANDO,
+  RECEBENDO,
 }
 
 export const TransportStateColor = [
+  "danger",
+  "danger",
+  "warning",
+  "primary",
   "dark",
   "primary",
+  "primary",
   "secondary",
-  "warning",
-  "warning",
+  "secondary",
   "danger"
 ]
 
@@ -40,6 +48,10 @@ export abstract class TransportService {
 
   /** Handle errors */
   abstract on_error: (error: any) => void;
+
+  abstract on_close: () => void;
+
+  abstract on_reconnect: () => void;
 
   /** Set up configuration */
   abstract configure(config?: Config): void;

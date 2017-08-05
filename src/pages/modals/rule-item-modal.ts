@@ -13,20 +13,18 @@ import { KnowledgeInterface, EquipmentModel, AssociationModel } from '../../mode
   templateUrl: './rule-item-modal.html'
 })
 export class RuleModalPage {
-  ruleSelection: RuleModel;
+  objSelection: RuleModel;
   actionSelection: ActionModel;
 
   category: any;
   label: string = "";
-  type: string = "";
-
+  mode: string = "";
   hasConnector: boolean = false;
   userKey: string = "";
-
   pageTitle: string = "";
-
   categories: any;
   knowledge: string = "";
+
   knowledgeSelection: boolean = false;
   knowledges: Array<KnowledgeInterface<EquipmentModel, AssociationModel>> = [];
 
@@ -39,47 +37,62 @@ export class RuleModalPage {
     private refService:ReferenceService
   ) {
     this.userKey = navParams.get('userKey');
-    this.hasConnector = navParams.get('hasConnector');
     this.category = navParams.get('category');
-    this.type = navParams.get('def');
+    this.mode = navParams.get('mode');
+    this.hasConnector = navParams.get('hasConnector');
 
-    if (this.type === 'rule'){
+    var updObj = navParams.get('object');
+    if (this.mode === 'rule'){
       this.pageTitle = "Regra";
-      this.ruleSelection = {
-        label: this.category.label,
-        enabled: true,
-        knowledge: "",
-        category: this.category.category,
-        type: this.category.type,
-        icon: this.category.icon,
-        formula: "",
-        multiple: this.category.multiple
-      };
-      if (this.category.multiple)
-        this.ruleSelection.evaluatedAttributes = this.category.evaluatedAttributes;
-      else
-        this.ruleSelection.evaluatedAttribute = {};
+      if (!updObj){
+        this.objSelection = {
+          label: navParams.get('label'),
+          enabled: true,
+          knowledge: "",
+          category: this.category.category,
+          type: this.category.type,
+          icon: this.category.icon,
+          formula: "",
+          multiple: this.category.multiple
+        };
+        if (this.category.multiple)
+          this.objSelection.evaluatedAttributes = this.category.evaluatedAttributes;
+        else
+          this.objSelection.evaluatedAttribute = {
+            "time" : 0,
+            "name" : "value",
+            "type" : "number",
+            "dualKnobs" : false,
+            "max" : 100,
+            "min" : 0,
+            "sign" : ">",
+            "expectedResult" : 50
+          };
+      }else this.objSelection = updObj;
 
       if (!navParams.get('dynamic')){
         this.knowledgeSelection = true;
-        this.getEquipmentList(this.category.type, this.category.category);
+        this.getEquipmentList(this.objSelection.type, this.objSelection.category);
       }
     }else{
       this.pageTitle = "Ação";
-      this.actionSelection = {
-        label: this.category.label,
-        enabled: true,
-        knowledge: "",
-        category: this.category.category,
-        type: this.category.type,
-        action: this.category.action,
-        icon: this.category.icon,
-        changedAttributes:  this.category.changedAttributes,
-        configurations: this.category.configurations,
-      };
-      if (this.category.category === "relay"){
+      if (!updObj){
+        this.actionSelection = {
+          label: navParams.get('label'),
+          enabled: true,
+          knowledge: "",
+          category: this.category.category,
+          type: this.category.type,
+          action: this.category.action,
+          icon: this.category.icon,
+          changedAttributes:  this.category.changedAttributes,
+          configurations: this.category.configurations,
+        };
+      }else this.actionSelection = updObj;
+
+      if (this.actionSelection.category === "relay"){
         this.knowledgeSelection = true;
-        this.getEquipmentList(this.category.type, this.category.category);
+        this.getEquipmentList(this.actionSelection.type, this.actionSelection.category);
       }
     }
 
@@ -102,16 +115,25 @@ export class RuleModalPage {
   onSelectAttrs(item){
     console.log(item);
   }
-  doSave(){
-    let returnValue = {};
-    if (this.type === 'rule'){
-      this.ruleSelection.label = this.label;
-      this.ruleSelection.knowledge = this.knowledge;
 
-      returnValue = this.ruleSelection;
+  compareStringFn(e1: string, e2: string): boolean {
+    return e1===e2;
+  }
+
+  compareAttrFn(e1: any, e2: any): boolean {
+    return e1.name===e2.name;
+  }
+
+  doSave(){
+    var returnValue = {};
+    if (this.mode === 'rule'){
+      //this.objSelection.label = this.label;
+      //this.objSelection.knowledge = this.knowledge;
+
+      returnValue = this.objSelection;
     }else{
-      this.actionSelection.label = this.label;
-      this.actionSelection.knowledge = this.knowledge;
+      //this.actionSelection.label = this.label;
+      //this.actionSelection.knowledge = this.knowledge;
       returnValue = this.actionSelection;
     }
 

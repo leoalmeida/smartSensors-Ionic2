@@ -5,7 +5,7 @@
     </button>
     <ion-title>Designer</ion-title>
     <ion-buttons end>
-      <button ion-button (click)="onSubmit()" >
+      <button ion-button (tap)="onSubmit()" >
         Save
       </button>
     </ion-buttons>
@@ -41,13 +41,13 @@
           <ion-input type="text" [(ngModel)]="object.data.description" ></ion-input>
         </ion-item>
         <ion-item *ngIf="object.data?.image">
-          <ion-avatar item-left (click)="changeImage()">
+          <ion-avatar item-left (tap)="changeImage()">
             <img [src]="object.data?.image">
           </ion-avatar>
           <ion-label>Imagem de Fundo</ion-label>
         </ion-item>
         <ion-item *ngIf="object.data?.icon">
-          <ion-avatar item-left (click)="changeIcon()">
+          <ion-avatar item-left (tap)="changeIcon()">
             <img [src]="object.data?.icon">
           </ion-avatar>
           <ion-label>Ícone</ion-label>
@@ -55,7 +55,7 @@
         <ion-card class="adv-map">
           <div style="position: relative">
             <img src="assets/images/profile_header7b.png">
-            <ion-fab right bottom edge  (click)="showMap()" *ngIf="object.category!=='dynamic'">
+            <ion-fab right bottom edge  (tap)="showMap()" *ngIf="object.category!=='dynamic'">
               <button ion-fab mini class="fab-map">
                 <ion-icon name="map"></ion-icon>
               </button>
@@ -99,7 +99,7 @@
                 <ion-spinner></ion-spinner>
                 </button>
               </ion-fab>
-            <!--<ion-fab right bottom edge (click)="newRule()">
+            <!--<ion-fab right bottom edge (tap)="newRule($event)">
               <button ion-fab mini class="fab-map">
                 <ion-icon name="add"></ion-icon>
               </button>
@@ -108,7 +108,7 @@
           <ion-item-divider icon-right color="light">
             Regras
           </ion-item-divider>
-          <form #formRule="ngForm" (ngSubmit)="newRule()">
+          <form #formRule="ngForm" (ngSubmit)="newRule($event)">
             <ion-searchbar
               animated="true"
               [(ngModel)]="ruleSearchTerm"
@@ -116,20 +116,20 @@
               (ionInput)="onSearchInput('rule')">
             </ion-searchbar>
             <ion-list *ngIf="showListRules" inset>
-              <button ion-item outline *ngFor="let item of ruleCategoryItems" #itemid (click)="newRule(item)">
+              <button ion-item outline *ngFor="let item of ruleCategoryItems" #itemid (tap)="newRule($event,item)">
                   {{ item.label }} <ion-note> {{ item.category }} </ion-note>
                 <ion-icon name="add" item-end></ion-icon>
               </button>
             </ion-list>
           </form>
           <ion-list>
-            <ion-item *ngFor="let item of object.data.ruleContainer;let i = index;let last = last;">
-              <button ion-button round item-start color="secondary" *ngIf="item.type !== 'operador'" >
-                <ion-avatar item-start>
+            <ion-item *ngFor="let item of object.data.ruleContainer;let idx = index;let last = last;">
+              <button ion-button round item-start color="secondary" (tap)="editRule($event, idx)" *ngIf="item.type !== 'operador'">
+                <ion-avatar item-left>
                   <img [src]="(item.icon)?item.icon:imgdef">
                 </ion-avatar>
                 <ion-label>
-                  {{item.label}}
+                  {{item.label}} {{item.evaluatedAttribute.sign}} {{item.evaluatedAttribute.expectedResult}}
                 </ion-label>
               </button>
               <button ion-button round item-end color="ligth" *ngIf="item.type === 'operador'" >
@@ -140,15 +140,15 @@
                   <img [src]="(item.icon)?item.icon:imgdef">
                 </ion-avatar>
               </button>
-              <!--<button ion-button clear item-end icon-only color="danger" (click)="removeRule(i)" *ngIf="item.type !== 'operador'">
+              <!--<button ion-button clear item-end icon-only color="danger" (tap)="removeRule($event, idx)" *ngIf="item.type !== 'operador'">
                 <ion-icon name="trash"></ion-icon>
               </button>-->
-              <button ion-button clear item-end round icon-only color="danger" (click)="removeRule(i)" *ngIf="last && item.type !== 'operador'">
+              <button ion-button clear item-end round icon-only color="danger" (tap)="removeRule($event, idx)" *ngIf="last && item.type !== 'operador'">
                 <ion-icon name="trash"></ion-icon>
               </button>
-              <button ion-button clear item-start round icon-only color="danger" (click)="removeRule(i)" *ngIf="last && item.type === 'operador'">
+              <!--<button ion-button clear item-start round icon-only color="danger" (tap)="removeRule($event, idx)" *ngIf="last && item.type === 'operador'">
                 <ion-icon name="trash"></ion-icon>
-              </button>
+              </button>-->
             </ion-item>
           </ion-list>
         </ion-card>
@@ -161,7 +161,7 @@
                 </button>
             </ion-fab>
             <!--
-            <ion-fab right bottom edge  (click)="newAction()">
+            <ion-fab right bottom edge  (tap)="newRule($event)">
               <button ion-fab mini class="fab-map">
                 <ion-icon name="add"></ion-icon>
               </button>
@@ -171,7 +171,7 @@
           <ion-item-divider icon-right color="light">
             Ações
           </ion-item-divider>
-          <form #formAction="ngForm" (ngSubmit)="newAction()">
+          <form #formAction="ngForm" (ngSubmit)="newAction($event)">
             <ion-searchbar
               animated="true"
               [(ngModel)]="actionSearchTerm"
@@ -179,21 +179,21 @@
               (ionInput)="onSearchInput('action')">
             </ion-searchbar>
             <ion-list *ngIf="showListActions" inset>
-              <ion-item ion-item outline *ngFor="let item of actionCategoryItems" #itemid (click)="newAction(item)">
+              <ion-item ion-item outline *ngFor="let item of actionCategoryItems" #itemid (tap)="newAction($event, item)">
                 {{ item.label }} <ion-note> {{ item.category }} </ion-note>
                 <ion-icon name="add" item-end></ion-icon>
               </ion-item>
             </ion-list>
           </form>
           <ion-list>
-            <ion-item *ngFor="let item of object.data.actionContainer;let i = index;">
-              <button ion-button round item-start (click)="editAction(item)">
+            <ion-item *ngFor="let item of object.data.actionContainer;let idx = index;">
+              <button ion-button round item-start (tap)="editAction($event, idx)">
                 <ion-label>
                   {{item.label}}
                   <ion-note padding>{{item.category}}</ion-note>
                 </ion-label>
               </button>
-              <button ion-button clear icon-only item-end color="danger" (click)="removeAction(i)">
+              <button ion-button clear icon-only item-end color="danger" (tap)="removeAction($event, idx)">
                 <ion-icon name="trash"></ion-icon>
               </button>
             </ion-item>
@@ -201,7 +201,7 @@
         </ion-card>
       </ion-list>
       <ion-list *ngSwitchCase="'associations'">
-        <ion-item-divider icon-right color="light" (click)="addAssociation()">
+        <ion-item-divider icon-right color="light" (tap)="addAssociation()">
           Associações
           <ion-icon name="add-circle-outline" item-right ></ion-icon>
         </ion-item-divider>
@@ -213,12 +213,12 @@
               <h3><em>{{item.id}}</em></h3>
             </ion-item>
             <!--<ion-item-options side="right">
-              <button ion-button color="primary" (click)="editAssociation(associationItem)">
+              <button ion-button color="primary" (tap)="editAssociation(associationItem)">
                 Editar
               </button>
             </ion-item-options>-->
             <ion-item-options side="left">
-              <button ion-button  icon-only color="danger"  (click)="removeAssociation(relType , item.id)">
+              <button ion-button  icon-only color="danger"  (tap)="removeAssociation(relType , item.id)">
                 <ion-icon name="trash"></ion-icon>
               </button>
             </ion-item-options>

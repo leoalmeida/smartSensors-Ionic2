@@ -12,7 +12,10 @@ import { NativeStorage } from '@ionic-native/native-storage';
 import { Geolocation } from '@ionic-native/geolocation';
 import { NetworkNotifierService } from '../network.notifier';
 
-import * as mqtt from 'mqtt';
+//import * as mqtt from 'mqtt';
+
+import { connect, Client, Packet, IClientOptions} from 'mqtt';
+import { connection } from 'mqtt-connection';
 
 /**
  * Angular2 Message Queue Service using MQTT.js
@@ -26,19 +29,19 @@ import * as mqtt from 'mqtt';
 @Injectable()
 export class MQTTService implements TransportService {
 
+  private calibrationDelay: number = 2000;
   /* Service parameters */
-
   // State of the MQService
   public state: BehaviorSubject<TransportState>;
 
   // Publishes new messages to Observers
-  public messages: Subject<mqtt.Packet>;
+  public messages: Subject<Packet>;
 
   // Configuration structure with MQ creds
   private config: Config;
 
   // MQTT Client from MQTT.js
-  private client: mqtt.Client;
+  private client: Client;
 
   // Resolve Promise made to calling class, when connected
   private resolvePromise: (...args: any[]) => void;
@@ -62,7 +65,7 @@ export class MQTTService implements TransportService {
                     private geolocation: Geolocation,
                     private networkStatusService:NetworkNotifierService,
                     private nativeStorage: NativeStorage) {
-    this.messages = new Subject<mqtt.Packet>();
+    this.messages = new Subject<Packet>();
     this.state = new BehaviorSubject<TransportState>(TransportState.DESCONECTADO);
     this.pubsubSubject = new BehaviorSubject(this.defConn);
     this.subscribeFloatingPubSub();
@@ -147,6 +150,13 @@ export class MQTTService implements TransportService {
     } else {
       this.config.host = this._document.location.hostname;
     }
+
+    if(!this.config.pubsubOptions){
+      this.config.pubsubOptions={
+        qos: 1,
+        retain: true
+      }
+    }
  }
 
 
@@ -159,7 +169,7 @@ export class MQTTService implements TransportService {
     if (this.state.getValue() !== TransportState.DESCONECTADO) {
       throw Error('Can\'t try_connect if not CLOSED!');
     }
-    if (this.client === null) {
+    if (this.config === null) {
       throw Error('Client not configured!');
     }
 
@@ -168,7 +178,7 @@ export class MQTTService implements TransportService {
     if (this.config.ssl) { scheme = 'wss'; }
 
     // Client options loaded from config
-    const options: mqtt.IClientOptions = {
+    const options: IClientOptions = {
       'keepalive': this.config.keepalive,
       'reconnectPeriod': 10000,
       'clientId': this.config.clientId || 'clientid_' + Math.floor(Math.random() * 65535),
@@ -179,13 +189,16 @@ export class MQTTService implements TransportService {
     const url = scheme + '://' + this.config.host + ':' + this.config.port + '/' + this.config.path;
 
     // Create the client and listen for its connection
-    this.client = mqtt.connect(url, options);
+    this.client = connect(url, options);
 
-    this.client.addListener('connect', this.on_connect);
-    this.client.addListener('reconnect', this.on_reconnect);
-    this.client.addListener('message', this.on_message);
-    this.client.addListener('offline', this.on_error);
-    this.client.addListener('error', this.on_error);
+    this.client.on('connect', this.on_connect);
+    this.client.on('reconnect', this.on_reconnect);
+    this.client.on('message', this.on_message);
+    this.client.on('offline', this.on_offline);
+    this.client.on('error', this.on_error);
+    this.client.on('close', this.on_close);
+    this.client.on('packetsend', this.on_packetsend);
+    this.client.on('packetreceive', this.on_packetreceive);
 
     this.debug('connecting to ' + url);
     this.state.next(TransportState.CONECTANDO);
@@ -200,7 +213,12 @@ export class MQTTService implements TransportService {
   public disconnect(): void {
 
     // Notify observers that we are disconnecting!
-    this.state.next(TransportState.DESCONECTANDO);
+
+    if (this.client.reconnecting) {
+      this.state.next(TransportState.CONECTANDO);
+      return;
+    }
+    else this.state.next(TransportState.DESCONECTANDO);
 
     // Disconnect. Callback will set CLOSED state
     if (this.client) {
@@ -216,8 +234,14 @@ export class MQTTService implements TransportService {
   public publish(topic: string, message?: string) {
 
     //for (const t of this.config.publish) {
-      this.client.publish(topic, message);
+      this.client.publish(topic, message, this.config.pubsubOptions, this.handlePublishCallback);
+      this.state.next(TransportState.ENVIANDO);
     //}
+  }
+
+  private handlePublishCallback(): void {
+    this.debug('Message Sent');
+    this.state.next(TransportState.CONECTADO);
   }
 
 
@@ -226,19 +250,33 @@ export class MQTTService implements TransportService {
     this.state.next(TransportState.REGISTRANDO);
     // Subscribe to our configured queues
     // Callback is set at client instantiation (assuming we don't need separate callbacks per queue.)
-    for (const t of this.config.subscribe) {
+    let subscriptions = Object.keys(this.config.subscriptions);
+    for (const t of subscriptions) {
       this.debug('subscribing: ' + t);
       this.client.subscribe(t);
-    }
-    // Update the state
-    if (this.config.subscribe.length > 0) {
+      this.config.subscriptions[t]["calibrated"] = true;
       this.state.next(TransportState.REGISTRADO);
-    }else{
+    }
+
+    // Update the state
+    if (subscriptions.length > 0) {
       this.state.next(TransportState.CONECTADO);
+    }else{
+      this.state.next(TransportState.REGISTRADO);
     }
   }
 
   public subscribe(channelId): void {
+
+    if (!this.config.subscriptions[channelId]) {
+      this.config.subscriptions[channelId] = {
+        "calibrated": true
+      };
+    }else{
+      this.debug('already subscribed: ' + channelId);
+      return;
+    }
+
     this.state.next(TransportState.REGISTRANDO);
     // Subscribe to our configured queues
     // Callback is set at client instantiation (assuming we don't need separate callbacks per queue.)
@@ -246,10 +284,10 @@ export class MQTTService implements TransportService {
     this.client.subscribe(channelId);
 
     // Update the state
-    if (this.config.subscribe.length > 0) {
-      this.state.next(TransportState.REGISTRADO);
-    }else{
+    if (Object.keys(this.config.subscriptions).length > 0) {
       this.state.next(TransportState.CONECTADO);
+    }else{
+      this.state.next(TransportState.REGISTRADO);
     }
   }
 
@@ -259,9 +297,12 @@ export class MQTTService implements TransportService {
     // Callback is set at client instantiation (assuming we don't need separate callbacks per queue.)
     this.debug('unsubscribing: ' + channelId);
     this.client.unsubscribe(channelId);
+    this.config.subscriptions[channelId]["calibrated"] = false;
 
     // Update the state
-    if (this.config.subscribe.length > 0) {
+    if (Object.keys(this.config.subscriptions).length > 0) {
+      this.state.next(TransportState.CONECTADO);
+    }else{
       this.state.next(TransportState.REGISTRADO);
     }
   }
@@ -307,6 +348,11 @@ export class MQTTService implements TransportService {
   }
 
 
+  public on_close = () => {
+    console.log(' disconnected');
+    this.state.next(TransportState.DESCONECTADO);
+  }
+
   // Handle errors
   public on_error = (error: any) => {
 
@@ -327,23 +373,71 @@ export class MQTTService implements TransportService {
     }
   }
 
+  public on_offline = () => {
+    console.error('on_offline');
+    this.state.next(TransportState.DESCONECTADO);
+  }
+
+  public on_packetsend = (packet) => {
+    console.error('on_packetsend: ', packet);
+  }
+
+  public on_packetreceive = (packet) => {
+    console.error('on_packetreceive: ', packet);
+  }
 
   // On message RX, notify the Observable with the message object
-  public on_message = (...args: any[]) => {
-
-    const topic = args[0],
+  public on_message = (topic, message, packet) => {
+    this.state.next(TransportState.LENDO);
+    /*const topic = args[0],
       message = args[1],
-      packet: mqtt.Packet = args[2];
-
+      packet: Packet = args[2];
+*/
     // Log it to the console
     this.debug(topic);
     this.debug(message);
-    //this.debug(packet.messageId);
+    this.debug(packet.messageId);
 
-    if (message.toString()) {
-      this.messages.next(packet);
-    } else {
-      console.warn('Empty message received!');
-    }
+    /*Noise reduction
+    this.io[opts.type + "Read"](this.pin, function(data) {
+      raw = data;
+
+      // Only append to the samples when noise filtering can/will be used
+      if (opts.type !== "digital") {
+        samples.push(raw);
+      }
+    }.bind(this));
+
+    state.median = median(samples);
+
+    raw === null ? 0 :
+          Fn.map(this.raw, 0, resolution, 0, 255) | 0;
+
+    */
+
+    if (this.config.subscriptions[topic]["calibrated"]){
+      if (message.toString()) {
+        this.messages.next(packet);
+      } else {
+        console.warn('Empty message received!');
+      }
+    }else console.warn('calibrating!!!');
+
+
+    this.state.next(TransportState.CONECTADO);
   }
+
+  private median(input) {
+    // faster than default comparitor (even for small n)
+    var sorted = input.sort(function(a, b) {
+      return a - b;
+    });
+    var len = sorted.length;
+    var half = Math.floor(len / 2);
+
+    // If the length is odd, return the midpoint m
+    // If the length is even, return average of m & m + 1
+    return len % 2 ? sorted[half] : (sorted[half - 1] + sorted[half]) / 2;
+  }
+
 }

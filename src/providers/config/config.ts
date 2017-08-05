@@ -1,3 +1,4 @@
+import { IClientPublishOptions } from 'mqtt';
 /**
  * Represents a configuration object for the
  * Service to connect to, pub, and sub.
@@ -19,10 +20,16 @@ export interface Config {
   user: string;
   pass: string;
 
+  pubsubOptions: IClientPublishOptions;
+
   // Which queues?
   publish: string[];
-  subscribe: string[];
+  subscriptions: {};
 
   // How often to heartbeat?
   keepalive?: number;
 };
+
+export interface Subscription {
+  calibrated: boolean;
+}
