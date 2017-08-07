@@ -55,7 +55,7 @@ import { LocationTracker } from '../providers/location-tracker';
 import { ReferenceService } from '../providers/reference.service';
 import { WebSocketService } from '../providers/websocket.service';
 import { TopicService } from '../providers/topic.service';
-import { ConnectionService } from '../providers/connection.service';
+import { DirectoriesService } from '../providers/directories.service';
 
 //Pipes
 
@@ -211,7 +211,7 @@ const cloudSettings: CloudSettings = {
     //SpeechRecognition,
     ErrorNotifierService,
     NetworkNotifierService,
-    ConnectionService,
+    DirectoriesService,
     {
       provide: Http,
       useFactory: ( backend: XHRBackend,

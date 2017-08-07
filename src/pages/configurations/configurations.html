@@ -15,53 +15,49 @@
 <ion-content>
   <ion-list *ngIf="configurations">
     <ion-item color="light">
-      <ion-label color="primary">Acesso Http fixo</ion-label>
-      <ion-toggle [(ngModel)]="configurations.floatingHttp"></ion-toggle>
+      <ion-label color="primary">Host de conexão fixo</ion-label>
+      <ion-toggle [(ngModel)]="configurations.floatingConnections"></ion-toggle>
     </ion-item>
-    <ion-item color="light">
-      <ion-label color="primary">Acesso fixo para publicações</ion-label>
-      <ion-toggle [(ngModel)]="configurations.floatingPubSub"></ion-toggle>
-    </ion-item>
-    <ion-item-divider icon-right color="light" class="header-btn" (click)="showConnection = !showConnection" *ngIf="!configurations.floatingHttp">
-        Acesso Http
+    <ion-item-divider icon-right color="light" class="header-btn" (click)="showConnection = !showConnection">
+        Master Connection Host
         <ion-icon name="arrow-dropright" *ngIf="!showConnection" item-right></ion-icon>
         <ion-icon name="arrow-dropdown"  *ngIf="showConnection" item-right></ion-icon>
     </ion-item-divider>
-    <ion-item-group *ngIf="!configurations.floatingHttp && showConnection">
+    <ion-item-group *ngIf="showConnection">
       <ion-item>
         <ion-label color="primary">Host</ion-label>
-        <ion-input type="text" [(ngModel)]="connection.host"></ion-input>
+        <ion-input type="text" [(ngModel)]="masterConnection.host"></ion-input>
       </ion-item>
       <ion-item>
-        <ion-label color="primary">Porta HTTP</ion-label>
-        <ion-input type="number" min="0" max="9999" [(ngModel)]="connection.Port"></ion-input>
+        <ion-label color="primary">Porta</ion-label>
+        <ion-input type="number" min="0" max="9999" [(ngModel)]="masterConnection.port"></ion-input>
       </ion-item>
     </ion-item-group>
-    <ion-item-divider icon-right color="light" class="header-btn" (click)="showPubSub = !showPubSub" *ngIf="!configurations.floatingPubSub">
+    <ion-item-divider icon-right color="light" class="header-btn" (click)="showConnections = !showConnections" *ngIf="!configurations.floatingConnections">
         Acesso para publicações
-        <ion-icon name="arrow-dropright" *ngIf="!showPubSub" item-right></ion-icon>
-        <ion-icon name="arrow-dropdown"  *ngIf="showPubSub" item-right></ion-icon>
+        <ion-icon name="arrow-dropright" *ngIf="!showConnections" item-right></ion-icon>
+        <ion-icon name="arrow-dropdown"  *ngIf="showConnections" item-right></ion-icon>
     </ion-item-divider>
-    <ion-item-group *ngIf="!configurations.floatingPubSub && showPubSub">
+    <ion-item-group *ngIf="!configurations.floatingConnections && showConnections">
       <ion-item>
-        <ion-label color="primary">Host PubSub</ion-label>
-        <ion-input type="text" [(ngModel)]="mqttconnection.host"></ion-input>
+        <ion-label color="primary">Host</ion-label>
+        <ion-input type="text" [(ngModel)]="connections.ws.host"></ion-input>
       </ion-item>
       <ion-item>
-        <ion-label color="primary">Porta PubSub</ion-label>
-        <ion-input type="number" min="0" max="9999" [(ngModel)]="mqttconnection.port"></ion-input>
+        <ion-label color="primary">Porta</ion-label>
+        <ion-input type="number" min="0" max="9999" [(ngModel)]="connections.ws.port"></ion-input>
       </ion-item>
       <ion-item>
-        <ion-label color="primary">Path PubSub</ion-label>
-        <ion-input type="text" [(ngModel)]="mqttconnection.path"></ion-input>
+        <ion-label color="primary">Path</ion-label>
+        <ion-input type="text" [(ngModel)]="connections.ws.path"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label color="primary">Keep Alive</ion-label>
-        <ion-input type="number" min="0" max="9999" [(ngModel)]="connection.keepalive"></ion-input>
+        <ion-input type="number" min="0" max="9999" [(ngModel)]="connections.ws.keepalive"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label color="primary">SSL</ion-label>
-        <ion-toggle [(ngModel)]="mqttconnection.ssl"></ion-toggle>
+        <ion-toggle [(ngModel)]="connections.ws.ssl"></ion-toggle>
       </ion-item>
     </ion-item-group>
     <ion-item color="light">
@@ -79,8 +75,8 @@
     </ion-item>
     <ion-item-divider icon-right color="light" class="header-btn" (click)="showFuncs = !showFuncs"  *ngIf="!configurations.default">
         Funcionalidades
-        <ion-icon name="arrow-dropright" *ngIf="!showPubSub" item-right></ion-icon>
-        <ion-icon name="arrow-dropdown"  *ngIf="showPubSub" item-right></ion-icon>
+        <ion-icon name="arrow-dropright" *ngIf="!showFuncs" item-right></ion-icon>
+        <ion-icon name="arrow-dropdown"  *ngIf="showFuncs" item-right></ion-icon>
     </ion-item-divider>
     <ion-item-group *ngIf="!configurations.default && showFuncs">
       <ion-item color="light">

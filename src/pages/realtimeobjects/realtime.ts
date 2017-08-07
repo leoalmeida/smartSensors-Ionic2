@@ -14,7 +14,7 @@ import { Packet } from 'mqtt';
 import { MQTTService } from '../../providers/mqtt/mqtt.service';
 import { TransportState } from '../../providers/mqtt/transport.service';
 import { DataService } from '../../providers/apiData.service';
-import { ConnectionService } from '../../providers/connection.service';
+import { DirectoriesService } from '../../providers/directories.service';
 
 import { ShowMapModal }  from '../modals/show-map-modal';
 import { RelationModel } from '../../models/relation.model';
@@ -97,7 +97,7 @@ export class RealTimePage implements OnDestroy, OnInit{
               private _mqService: MQTTService,
               private localNotifications: LocalNotifications,
               private socialSharing: SocialSharing,
-              public connectionService:ConnectionService,
+              public directoriesService:DirectoriesService,
               private storage: NativeStorage) {
     this.userKey = navParams.get("key");
     this.channels = "myChannels";

@@ -47,12 +47,12 @@ export class MQTTService implements TransportService {
   private resolvePromise: (...args: any[]) => void;
 
   private connection:any;
-  private pubsubSubject: BehaviorSubject<any>;
-  private pubsubSync: number = 0;
-  private floatingPubSub:boolean = true;
+  private connectionsSubject: BehaviorSubject<any>;
+  private connectionsSync: number = 0;
+  private floatingConnections:boolean = true;
   private networkStatus:boolean = false;
   private defConn = { "properties":{
-                        "schema": "ws",
+                        "schema": "resolution",
                         "host" : "127.0.0.1",
                         "port" : 3004
                       }
@@ -67,8 +67,8 @@ export class MQTTService implements TransportService {
                     private nativeStorage: NativeStorage) {
     this.messages = new Subject<Packet>();
     this.state = new BehaviorSubject<TransportState>(TransportState.DESCONECTADO);
-    this.pubsubSubject = new BehaviorSubject(this.defConn);
-    this.subscribeFloatingPubSub();
+    this.connectionsSubject = new BehaviorSubject(this.defConn);
+    this.subscribeFloatingConnections();
     this.platform.ready().then((readySource) => {
       this.networkStatusService.getNetworkStatus()
             .subscribe((value) => {
@@ -80,16 +80,16 @@ export class MQTTService implements TransportService {
         if (this.config) {
           this.config.lat = data.coords.latitude;
           this.config.lng = data.coords.longitude;
-          this.verifyNearPubSubServer(data.coords.latitude, data.coords.longitude, 0);
+          this.verifyNearConnectionServer(data.coords.latitude, data.coords.longitude, 0);
         }
       });
       this.nativeStorage.getItem('smartSensors.configurations')
       .then(data => {
           if (data){
-            this.floatingPubSub = data.floatingPubSub;
-            if (!this.floatingPubSub)
-              this.nativeStorage.getItem('smartSensors.pubsubConnection')
-                    .then(connection => this.pubsubSubject.next(connection),
+            this.floatingConnections = data.floatingConnections;
+            if (!this.floatingConnections)
+              this.nativeStorage.getItem('smartSensors.connections')
+                    .then(connection => this.connectionsSubject.next(connection),
                           error => {
                             console.error(error)
                           });
@@ -101,11 +101,11 @@ export class MQTTService implements TransportService {
     });
   }
 
-  subscribeFloatingPubSub(){
-    this.pubsubSubject.subscribe((value) => {
+  subscribeFloatingConnections(){
+    this.connectionsSubject.subscribe((value) => {
                 console.log("Webserver got", value);
                 this.connection = value.properties;
-                this.nativeStorage.setItem('smartSensors.pubsubConnection', value.properties)
+                this.nativeStorage.setItem('smartSensors.connections', value.properties)
                   .then(
                     () => console.log('Stored item!', value.properties),
                     error => console.error('Error storing item', error)
@@ -113,13 +113,13 @@ export class MQTTService implements TransportService {
               });
   }
 
-  verifyNearPubSubServer(lat, lng, distance){
-    if ((Date.now() - this.pubsubSync) < 60000 * 3) return;
-    this.http.get("api/connection/pubsub/" + [lat, lng].join('/'))
+  verifyNearConnectionServer(lat, lng, distance){
+    if ((Date.now() - this.connectionsSync) < 60000 * 3) return;
+    this.http.get("api/directory/resolution/" + [lat, lng].join('/'))
       .subscribe(data => {
           if (data){
-            this.pubsubSync = Date.now();
-            this.pubsubSubject.next(data.json());
+            this.connectionsSync = Date.now();
+            this.connectionsSubject.next(data.json());
           }
       });
   }
@@ -324,7 +324,7 @@ export class MQTTService implements TransportService {
   // Callback run on successfully connecting to server
   public on_reconnect = () => {
     this.debug('on_reconnect');
-    this.verifyNearPubSubServer(this.config.lat,this.config.lng, 0);
+    this.verifyNearConnectionServer(this.config.lat,this.config.lng, 0);
   }
 
   // Callback run on successfully connecting to server

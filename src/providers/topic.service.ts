@@ -18,7 +18,7 @@ export class TopicService {
 		private nativeStorage: NativeStorage) {
 
 		this.platform.ready().then((readySource) => {
-			this.nativeStorage.getItem('smartSensors.pubsubConnection')
+			this.nativeStorage.getItem('smartSensors.enablerConnection')
 				.then(connection => {
 						if (connection)
 							var topicUrl = connection.schema + "://" + connection.host + ":" + connection.port;

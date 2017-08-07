@@ -48,8 +48,7 @@ export class MyApp {
 
   configurations: any = {
     default: true,
-    floatingHttp: true,
-    floatingPubSub: true,
+    floatingConnections: true,
     homepage: "RealTimePage",
     realtime: true,
     mainResources: true,

@@ -10,16 +10,15 @@ import { NetworkNotifierService } from './network.notifier';
 
 
 @Injectable()
-export class ConnectionService {
+export class DirectoriesService {
   private networkStatus:boolean = false;
 
-  private webserverSubject: BehaviorSubject<any> = new BehaviorSubject({});
+  private masterConnectionSubject: BehaviorSubject<any> = new BehaviorSubject({});
   private webserverSync: number = 0;
-  private floatingHttp:boolean = true;
-
-  private pubsubSubject: BehaviorSubject<any> = new BehaviorSubject({});
-  private pubsubSync: number = 0;
-  private floatingPubSub:boolean = true;
+  
+  private connectionsSubject: BehaviorSubject<any> = new BehaviorSubject({});
+  private connectionsSync: number = 0;
+  private floatingConnections:boolean = true;
 
   constructor(private http:Http,
               private platform: Platform,
@@ -34,18 +33,16 @@ export class ConnectionService {
       this.nativeStorage.getItem('smartSensors.configurations')
             .then(data => {
                 if (data){
-                  this.floatingHttp = data.floatingHttp;
-                  if (!this.floatingHttp)
-                    this.nativeStorage.getItem('smartSensors.httpConnection')
-                          .then(data => {
-                            this.webserverSubject.next(data);
-                          },error => console.error(error));
+                  this.nativeStorage.getItem('smartSensors.masterConnection')
+                        .then(data => {
+                          this.masterConnectionSubject.next(data);
+                        },error => console.error(error));
 
-                  this.floatingPubSub = data.floatingPubSub;
-                  if (!this.floatingPubSub)
-                    this.nativeStorage.getItem('smartSensors.pubsubConnection')
+                  this.floatingConnections = data.floatingConnections;
+                  if (!this.floatingConnections)
+                    this.nativeStorage.getItem('smartSensors.connections')
                           .then(data => {
-                            this.pubsubSubject.next(data);
+                            this.connectionsSubject.next(data);
                           },error => console.error(error));
                 }
               },error => {
@@ -54,39 +51,39 @@ export class ConnectionService {
     })
   }
 
-  get Webserver(){
-    return this.webserverSubject;
+  get MasterConnection(){
+    return this.masterConnectionSubject;
   }
-  get Pubsub(){
-    return this.pubsubSubject;
+  get Connections(){
+    return this.connectionsSubject;
   }
 
-  verifyNearWebServer(lat, lng, distance){
+  verifyNearDomainServer(lat, lng, distance){
     // If last sync wasn`t last 30 minutes, do not perform a new request;
     if (!this.networkStatus || ((Date.now() - this.webserverSync) < 60000 * 30000)) return;
-    this.http.get("api/connection/webserver/" + [lat, lng, distance].join('/'))
+    this.http.get("api/directory/domainCatalog/" + [lat, lng, distance].join('/'))
       .subscribe(data => {
         if (data){
           this.webserverSync = Date.now();
-          this.webserverSubject.next(data.json());
+          this.masterConnectionSubject.next(data.json());
         }
       });
   }
 
-  verifyNearPubSubServer(lat, lng, distance){
-    if (!this.networkStatus || ((Date.now() - this.pubsubSync) < 60000 * 30000)) return;
-    this.http.get("api/connection/pubsub/" + [lat, lng, distance].join('/'))
+  verifyNearConnectionServer(lat, lng, distance){
+    if (!this.networkStatus || ((Date.now() - this.connectionsSync) < 60000 * 30000)) return;
+    this.http.get("api/directory/resolution/" + [lat, lng, distance].join('/'))
       .subscribe(data => {
           if (data){
             this.webserverSync = Date.now();
-            this.webserverSubject.next(data.json());
+            this.masterConnectionSubject.next(data.json());
           }
       });
   }
 
   reportConnectionError(serverId){
     if (!this.networkStatus) return;
-    this.http.post("api/connection/" + [serverId, "disconnect"].join('/'), null)
+    this.http.post("api/directory/" + [serverId, "disconnect"].join('/'), null)
       .subscribe(data => {
           console.log("Server disconnected", serverId);
       });

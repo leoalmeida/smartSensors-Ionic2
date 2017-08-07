@@ -24,7 +24,7 @@ export class CustomHttp extends Http {
   private connection = {};
   private webserverSubject: BehaviorSubject<any>;
   private webserverSync: number = 0;
-  private floatingHttp:boolean = true;
+  private floatingConnections:boolean = true;
   private networkStatus:boolean = false;
   private defConn = {"properties":{
                       "schema": "http",
@@ -54,14 +54,14 @@ export class CustomHttp extends Http {
       let watch = this.geolocation.watchPosition();
       watch.subscribe((data) => {
         if (auth.isAuthenticated())
-          this.verifyNearWebServer(data.coords.latitude, data.coords.longitude, 0);
+          this.verifyNearDomainServer(data.coords.latitude, data.coords.longitude, 0);
       });
       this.nativeStorage.getItem('smartSensors.configurations')
             .then(data => {
                 if (data){
-                  this.floatingHttp = data.floatingHttp;
-                  if (!this.floatingHttp)
-                    this.nativeStorage.getItem('smartSensors.httpConnection')
+                  this.floatingConnections = data.floatingConnections;
+                  if (!this.floatingConnections)
+                    this.nativeStorage.getItem('smartSensors.masterConnection')
                           .then(data => this.webserverSubject.next(data)
                             ,error => {
                               console.error(error)
@@ -75,10 +75,10 @@ export class CustomHttp extends Http {
     })
   }
 
-  verifyNearWebServer(lat, lng, distance){
+  verifyNearDomainServer(lat, lng, distance){
     // If last sync wasn`t last 30 minutes, do not perform a new request;
     if ((Date.now() - this.webserverSync) < 60000 * 3) return;
-    this.get("api/connection/webserver/" + [lat, lng].join('/'))
+    this.get("api/directory/domainCatalog/" + [lat, lng].join('/'))
       .subscribe(data => {
         if (data){
           this.webserverSync = Date.now();
@@ -93,7 +93,7 @@ export class CustomHttp extends Http {
                 console.log("Webserver got", value.properties);
                 this.connection = value.properties;
                 this.httpUrl = value.properties.schema + "://" + value.properties.host + ":" + value.properties.port + "/";
-                this.nativeStorage.setItem('smartSensors.httpConnection', value.properties)
+                this.nativeStorage.setItem('smartSensors.masterConnection', value.properties)
                   .then(
                     () => console.log('Stored item!', value.properties),
                     error => console.error('Error storing item', error)

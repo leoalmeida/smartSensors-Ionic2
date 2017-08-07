@@ -15,18 +15,21 @@ export class ConfigurationsPage {
   private _allItems: boolean = false;
   error: number = 0;
   configurations: any;
-  httpConnection: any = {
+  masterConnection: any = {
     schema : "http",
     host: "127.0.0.1",
-    port: 3001
-  };
-  pubsubConnection: any = {
-    schema : "ws",
-    host: "127.0.0.1",
-    port: 3004,
+    port: 3001,
     path: "",
     ssl: false,
     keepalive: 10
+  };
+  connections: any = {
+    "http": {},
+    "https": {},
+    "ws": {},
+    "tls": {},
+    "mqtt": {},
+    "mqtts": {}
   };
 
   constructor(public platform: Platform,
@@ -47,24 +50,24 @@ export class ConfigurationsPage {
                 console.error(error);
                 this.saveConfigurations();
               });
-      this.nativeStorage.getItem('smartSensors.pubsubConnection')
+      this.nativeStorage.getItem('smartSensors.masterConnection')
             .then(
               connection => {
                 if (connection)
-                  this.pubsubConnection = connection;
+                  this.masterConnection = connection;
               },
               error => {
-                console.error("PubSubConnection not-found");
+                console.error("masterConnection not-found");
               });
 
-      this.nativeStorage.getItem('smartSensors.httpConnection')
+      this.nativeStorage.getItem('smartSensors.connections')
             .then(
               connection => {
                 if (connection)
-                  this.httpConnection = connection;
+                  this.connections = connection;
               },
               error => {
-                console.error("httpConnection not-found");
+                console.error("connections not-found");
               });
     });
     if (!this.userKey) this.navCtrl.setRoot(LoginPage, {"home": this.configurations.homepage});
@@ -76,7 +79,7 @@ export class ConfigurationsPage {
   set allItems(value) {
     this._allItems = value;
     for (let item of Object.keys(this.configurations))
-      if (item !== "homepage" && item !== "floatingHttp") this.configurations[item] = value;
+      if (item !== "homepage" && item !== "floatingConnections") this.configurations[item] = value;
   }
 
   saveConfigurations(){
@@ -90,37 +93,30 @@ export class ConfigurationsPage {
       );
   };
 
-  saveConnection(){
-    if (this.configurations.floatingHttp)
-      this.nativeStorage.remove('smartSensors.httpConnection')
-        .then(
-          () => console.log('Stored http connection removed!'),
-          error => console.error('Error storing item', error)
-        );
-    else
-      this.nativeStorage.setItem('smartSensors.httpConnection', this.httpConnection)
+  saveMasterConnection(){
+      this.nativeStorage.setItem('smartSensors.masterConnection', this.masterConnection)
         .then(
           () => {
-            this.events.publish('connection:updated', this.httpConnection, Date.now());
-            console.log('Stored connection!', this.httpConnection)
+            this.events.publish('connection:updated', this.masterConnection, Date.now());
+            console.log('Stored connection!', this.masterConnection)
           },
           error => console.error('Error storing item', error)
         );
   };
 
-  savePubSubConnection(){
-    if (this.configurations.floatingPubSub)
-      this.nativeStorage.remove('smartSensors.pubsubConnection')
+  saveConnections(){
+    if (this.configurations.floatingConnections)
+      this.nativeStorage.remove('smartSensors.connections')
         .then(
           () => console.log('Stored pubsub connection removed!'),
           error => console.error('Error storing item', error)
         );
     else
-      this.nativeStorage.setItem('smartSensors.pubsubConnection', this.pubsubConnection)
+      this.nativeStorage.setItem('smartSensors.connections', this.connections)
         .then(
           () => {
-            this.events.publish('pubsubConnection:updated', this.pubsubConnection, Date.now());
-            console.log('Stored pubsubConnection!', this.pubsubConnection)
+            this.events.publish('connections:updated', this.connections, Date.now());
+            console.log('Stored connections!', this.connections)
           },
           error => console.error('Error storing item', error)
         );
@@ -128,8 +124,8 @@ export class ConfigurationsPage {
 
   saveSettings(){
     this.saveConfigurations();
-    this.saveConnection();
-    this.savePubSubConnection();
+    this.saveMasterConnection();
+    this.saveConnections();
     this.navCtrl.pop();
   }
 }
